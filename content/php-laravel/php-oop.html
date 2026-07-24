@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Orientação a objetos em PHP — Trilha Dev Full Stack</title>
+  <link rel="stylesheet" href="../../style.css" />
+</head>
+<body>
+  <div class="layout">
+    <nav id="sidebar"></nav>
+    <div class="content-wrap">
+      <main class="content">
+        <div class="breadcrumb">6. PHP & Laravel</div>
+        <h1 class="lesson-title">Orientação a objetos em PHP</h1>
+        <p class="lesson-subtitle">Classes, objetos, herança e interfaces — a forma de organizar código que sustenta todo o Laravel.</p>
+
+        <div class="box box-analogia">
+          <span class="box-titulo">Analogia</span>
+          Uma <strong>classe</strong> é como a <strong>planta baixa de uma casa</strong>: um desenho técnico que
+          descreve quantos quartos existem, onde ficam as janelas, qual o tamanho da garagem. A planta em si não é
+          uma casa — você não pode morar num papel. Um <strong>objeto</strong> é a <strong>casa construída</strong>
+          a partir dessa planta: uma casa de verdade, com endereço, com uma cor específica de tinta, com móveis
+          dentro. Você pode construir várias casas (objetos) diferentes a partir da mesma planta (classe) — cada uma
+          é independente das outras, mas todas seguem a mesma estrutura básica definida no desenho.
+        </div>
+
+        <h2>Por que orientação a objetos?</h2>
+        <p>
+          Até agora você viu PHP com variáveis, arrays e funções soltas — isso é chamado de estilo
+          <strong>procedural</strong>. Funciona bem para scripts pequenos, mas em sistemas maiores fica difícil
+          organizar tudo: dados e as funções que mexem neles ficam espalhados pelo código, sem uma relação clara.
+          A <strong>orientação a objetos (OOP)</strong> resolve isso agrupando dados e comportamentos relacionados
+          dentro de uma mesma estrutura: a classe. O Laravel, framework que você vai estudar nas próximas lições, é
+          inteiramente construído em cima de orientação a objetos — então entender bem esses conceitos aqui vai
+          tornar tudo o que vem depois muito mais fácil.
+        </p>
+
+        <h2>Classes e objetos na prática</h2>
+        <p>
+          Uma classe define duas coisas: <strong>propriedades</strong> (os dados que cada objeto vai guardar, como
+          os "cômodos" da planta baixa) e <strong>métodos</strong> (as ações que o objeto pode realizar, como
+          "abrir a porta" ou "ligar a luz"). Veja uma classe simples representando um produto:
+        </p>
+        <pre><code>&lt;?php
+class Produto {
+    // Propriedades: os dados que cada objeto (cada "casa") vai ter
+    public string $nome;
+    public float $preco;
+
+    // Método construtor: roda automaticamente quando um objeto é criado
+    public function __construct(string $nome, float $preco) {
+        $this-&gt;nome = $nome;
+        $this-&gt;preco = $preco;
+    }
+
+    // Método: uma ação que o objeto sabe fazer
+    public function precoComDesconto(float $percentual): float {
+        return $this-&gt;preco - ($this-&gt;preco * $percentual / 100);
+    }
+}
+
+// Criando objetos (as "casas") a partir da classe (a "planta")
+$produto1 = new Produto("Teclado", 150.0);
+$produto2 = new Produto("Mouse", 60.0);
+
+echo $produto1-&gt;nome; // "Teclado"
+echo $produto1-&gt;precoComDesconto(10); // 135
+
+// produto1 e produto2 são independentes: mudar um não afeta o outro
+$produto2-&gt;preco = 55.0;</code></pre>
+        <p>
+          Repare na palavra-chave <code>$this</code>: dentro de um método, ela sempre se refere "ao objeto que está
+          chamando esse método agora". É assim que o método <code>precoComDesconto</code> sabe qual preço usar —
+          o preço do objeto específico que o chamou (<code>$produto1</code> ou <code>$produto2</code>), e não um
+          valor fixo.
+        </p>
+
+        <div class="box box-dica">
+          <span class="box-titulo">Dica</span>
+          O construtor (<code>__construct</code>) é o método especial que roda automaticamente toda vez que você usa
+          <code>new NomeDaClasse(...)</code>. É o lugar ideal para "preencher" as propriedades iniciais do objeto,
+          exatamente como preencher os dados básicos assim que a casa fica pronta.
+        </div>
+
+        <h2>Visibilidade: public, private e protected</h2>
+        <p>
+          PHP permite controlar quem pode acessar cada propriedade ou método de uma classe:
+        </p>
+        <ul>
+          <li><code>public</code> — pode ser acessado de qualquer lugar, até de fora da classe.</li>
+          <li><code>private</code> — só pode ser acessado de dentro da própria classe.</li>
+          <li><code>protected</code> — acessível de dentro da classe e também das classes que herdam dela.</li>
+        </ul>
+        <pre><code>&lt;?php
+class ContaBancaria {
+    private float $saldo = 0;
+
+    public function depositar(float $valor): void {
+        $this-&gt;saldo += $valor;
+    }
+
+    public function verSaldo(): float {
+        return $this-&gt;saldo;
+    }
+}
+
+$conta = new ContaBancaria();
+$conta-&gt;depositar(100);
+echo $conta-&gt;verSaldo(); // 100
+// $conta-&gt;saldo = 999999; // Erro! saldo é private, não pode ser alterado direto</code></pre>
+        <p>
+          Essa proteção existe para evitar que o saldo seja alterado de qualquer jeito, sem passar pela lógica do
+          método <code>depositar</code>. É como uma casa com uma porta trancada: só quem tem a "chave" (o método
+          público) consegue mexer no que está protegido lá dentro.
+        </p>
+
+        <h2>Herança: reaproveitando uma planta baixa</h2>
+        <p>
+          Herança permite criar uma classe nova baseada em outra já existente, reaproveitando suas propriedades e
+          métodos e podendo adicionar ou modificar comportamentos. É como pegar a planta baixa de uma casa padrão e
+          fazer uma versão "de luxo" dela, mantendo a estrutura básica mas acrescentando cômodos extras.
+        </p>
+        <pre><code>&lt;?php
+class Funcionario {
+    public string $nome;
+    protected float $salarioBase;
+
+    public function __construct(string $nome, float $salarioBase) {
+        $this-&gt;nome = $nome;
+        $this-&gt;salarioBase = $salarioBase;
+    }
+
+    public function calcularSalario(): float {
+        return $this-&gt;salarioBase;
+    }
+}
+
+// Gerente "herda" tudo de Funcionario, usando extends
+class Gerente extends Funcionario {
+    private float $bonus;
+
+    public function __construct(string $nome, float $salarioBase, float $bonus) {
+        parent::__construct($nome, $salarioBase); // chama o construtor da classe "pai"
+        $this-&gt;bonus = $bonus;
+    }
+
+    // Sobrescrevendo o método do "pai" com um comportamento próprio
+    public function calcularSalario(): float {
+        return $this-&gt;salarioBase + $this-&gt;bonus;
+    }
+}
+
+$joao = new Funcionario("João", 3000);
+$maria = new Gerente("Maria", 5000, 1500);
+
+echo $joao-&gt;calcularSalario();  // 3000
+echo $maria-&gt;calcularSalario(); // 6500</code></pre>
+        <p>
+          <code>Gerente extends Funcionario</code> significa "Gerente é um tipo de Funcionario, mas com algumas
+          diferenças". A palavra <code>parent::</code> deixa a classe filha chamar o comportamento original da
+          classe pai, antes de completar o que for específico dela.
+        </p>
+
+        <h2>Interfaces: um contrato de comportamento</h2>
+        <p>
+          Uma interface não implementa nada — ela apenas <strong>promete</strong> que qualquer classe que a use vai
+          ter certos métodos, com certos nomes. É como um contrato: "toda classe que assinar este contrato precisa
+          ter um método <code>calcularFrete()</code>", sem dizer como esse cálculo deve ser feito internamente.
+        </p>
+        <pre><code>&lt;?php
+interface Calculavel {
+    public function calcularFrete(): float;
+}
+
+class EntregaPadrao implements Calculavel {
+    public function calcularFrete(): float {
+        return 15.0;
+    }
+}
+
+class EntregaExpressa implements Calculavel {
+    public function calcularFrete(): float {
+        return 45.0;
+    }
+}
+
+function mostrarFrete(Calculavel $entrega) {
+    echo "Frete: R$ " . $entrega-&gt;calcularFrete();
+}
+
+mostrarFrete(new EntregaPadrao());   // Frete: R$ 15
+mostrarFrete(new EntregaExpressa()); // Frete: R$ 45</code></pre>
+        <p>
+          A função <code>mostrarFrete</code> não precisa saber se recebeu uma entrega padrão ou expressa — ela só
+          confia que, seja qual for o objeto, ele vai ter um método <code>calcularFrete()</code> porque implementa a
+          interface <code>Calculavel</code>. Esse é o mesmo princípio usado o tempo todo dentro do Laravel, por
+          exemplo quando o framework espera receber "qualquer coisa que saiba enviar um e-mail", sem se importar com
+          qual serviço específico está por trás.
+        </p>
+
+        <div class="box box-atencao">
+          <span class="box-titulo">Atenção</span>
+          Um erro comum de iniciantes é confundir classe com objeto e achar que basta escrever a classe para "algo
+          acontecer". Nada acontece até você criar um objeto com <code>new NomeDaClasse(...)</code> — a classe sozinha
+          é só a planta, parada no papel, até alguém construir a casa.
+        </div>
+
+        <h2>Resumo</h2>
+        <ul class="checklist">
+          <li>Classe é a "planta baixa" (estrutura); objeto é a "casa construída" (instância real) a partir dela.</li>
+          <li>Propriedades guardam dados; métodos definem ações que o objeto sabe realizar.</li>
+          <li><code>$this</code> dentro de um método se refere ao próprio objeto que o chamou.</li>
+          <li><code>public</code>, <code>private</code> e <code>protected</code> controlam quem pode acessar cada parte da classe.</li>
+          <li>Herança (<code>extends</code>) reaproveita estrutura de uma classe "pai" em uma classe "filha".</li>
+          <li>Interfaces (<code>implements</code>) definem um contrato de métodos que a classe promete implementar.</li>
+        </ul>
+
+        <div id="lesson-footer-nav" class="lesson-footer-nav"></div>
+      </main>
+    </div>
+  </div>
+  <script src="../../nav.js"></script>
+</body>
+</html>

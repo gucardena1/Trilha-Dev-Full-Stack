@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Responsividade e animações — Trilha Dev Full Stack</title>
+  <link rel="stylesheet" href="../../style.css" />
+</head>
+<body>
+  <div class="layout">
+    <nav id="sidebar"></nav>
+    <div class="content-wrap">
+      <main class="content">
+        <div class="breadcrumb">2. HTML & CSS</div>
+        <h1 class="lesson-title">Responsividade e animações</h1>
+        <p class="lesson-subtitle">Fazer a página se adaptar a qualquer tela e dar vida às interações, sem exagerar.</p>
+
+        <div class="box box-analogia">
+          <span class="box-titulo">Analogia</span>
+          Pense numa roupa sob medida versus uma roupa elástica. Uma página não responsiva é como uma camisa sob medida para uma pessoa específica: fica perfeita nela, mas não veste ninguém de tamanho diferente. Uma página <strong>responsiva</strong> é como uma roupa de tecido elástico bem cortado: se ajusta ao corpo de quem está usando, seja um celular pequeno ou uma tela de desktop enorme, sem parecer errada em nenhum dos dois.
+        </div>
+
+        <h2>Por que responsividade não é opcional</h2>
+        <p>
+          Mais da metade do tráfego da internet hoje em dia vem de celulares. Uma página desenhada só pensando em telas grandes de computador frequentemente fica quebrada, cortada ou exige zoom e rolagem lateral em um celular — uma experiência ruim o suficiente para fazer a pessoa simplesmente sair do site. Responsividade é a técnica de fazer o layout se adaptar ao tamanho da tela de quem está visitando.
+        </p>
+
+        <h2>A meta tag viewport</h2>
+        <p>
+          Antes de qualquer CSS responsivo, toda página precisa desta linha no <code>&lt;head&gt;</code> (você já viu ela no template usado em toda esta trilha):
+        </p>
+        <pre><code>&lt;meta name="viewport" content="width=device-width, initial-scale=1.0" /&gt;</code></pre>
+        <p>
+          Sem essa linha, navegadores de celular assumem que a página foi feita para uma tela de desktop e simplesmente encolhem tudo, forçando a pessoa a dar zoom para ler qualquer coisa. Essa meta tag diz "a largura da página deve ser igual à largura real do dispositivo, e comece com o zoom em 100%".
+        </p>
+
+        <h2>Media queries: regras que dependem do tamanho da tela</h2>
+        <p>
+          Uma <strong>media query</strong> é um bloco de CSS que só se aplica quando uma condição sobre a tela é verdadeira — a mais comum sendo a largura da janela. A sintaxe usa <code>@media</code>:
+        </p>
+        <pre><code>/* Estilo padrão, para qualquer tela */
+.cartoes {
+  display: grid;
+  grid-template-columns: 1fr;
+}
+
+/* A partir de 768px de largura, muda para 3 colunas */
+@media (min-width: 768px) {
+  .cartoes {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+}</code></pre>
+        <p>
+          Nesse exemplo, em uma tela estreita (celular) os cartões ficam empilhados, um por linha. Quando a tela atinge 768px de largura ou mais (tablets e desktops), a regra dentro da media query entra em ação e muda para três colunas lado a lado.
+        </p>
+
+        <table>
+          <tr><th>Faixa de largura aproximada</th><th>Tipo de dispositivo comum</th></tr>
+          <tr><td>até 480px</td><td>Celulares</td></tr>
+          <tr><td>481px a 768px</td><td>Tablets em pé, celulares grandes deitados</td></tr>
+          <tr><td>769px a 1024px</td><td>Tablets deitados, notebooks pequenos</td></tr>
+          <tr><td>acima de 1024px</td><td>Desktops e notebooks maiores</td></tr>
+        </table>
+
+        <div class="box box-dica">
+          <span class="box-titulo">Dica</span>
+          Esses números não são regras fixas gravadas em pedra — são convenções comuns do mercado. O ideal é sempre testar a sua própria página redimensionando a janela do navegador (ou usando o modo de dispositivo do DevTools) e criar um "breakpoint" (ponto de quebra) exatamente onde o seu layout específico começa a parecer ruim, não em um número mágico decorado.
+        </div>
+
+        <h2>Mobile-first: comece pequeno, depois cresça</h2>
+        <p>
+          <strong>Mobile-first</strong> é a estratégia de escrever o CSS padrão (fora de qualquer media query) pensando primeiro no celular — a tela menor e mais restrita — e depois usar <code>min-width</code> para adicionar melhorias progressivas conforme a tela cresce. É o oposto de escrever primeiro para desktop e depois "consertar" para celular com <code>max-width</code>.
+        </p>
+        <pre><code>/* Mobile-first: este é o padrão, já pensado para celular */
+.menu {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Melhora progressiva para telas maiores */
+@media (min-width: 768px) {
+  .menu {
+    flex-direction: row;
+  }
+}</code></pre>
+        <p>
+          A vantagem prática: o layout mais simples (empilhado, uma coluna) já funciona em qualquer tela por padrão, mesmo se uma media query específica não disparar por algum motivo. Você vai "adicionando" complexidade conforme o espaço disponível cresce, em vez de "removendo" complexidade quando o espaço encolhe.
+        </p>
+
+        <div class="box box-atencao">
+          <span class="box-titulo">Erro comum</span>
+          Testar responsividade apenas redimensionando a janela do navegador no computador. A simulação ajuda, mas não substitui testar em um celular de verdade (ou pelo menos no modo de emulação de dispositivo do DevTools) — coisas como tamanho de toque dos botões e comportamento do teclado virtual só aparecem de verdade lá.
+        </div>
+
+        <h2>Transitions: suavizando mudanças de estado</h2>
+        <p>
+          Uma <strong>transition</strong> (transição) diz ao navegador: "quando uma propriedade CSS mudar de valor, não troque de uma vez — anime a mudança suavemente ao longo de um tempo". É o jeito mais simples de dar uma sensação de "vida" a botões e links, por exemplo, quando o mouse passa por cima (<code>:hover</code>).
+        </p>
+        <pre><code>.botao {
+  background-color: #2f6fed;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 6px;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.botao:hover {
+  background-color: #1c4fc0;
+  transform: translateY(-2px);
+}</code></pre>
+        <p>
+          Sem o <code>transition</code>, a cor de fundo mudaria instantaneamente ao passar o mouse — funcional, mas seco. Com ele, a mudança de cor e o pequeno deslocamento para cima (<code>translateY(-2px)</code>) acontecem suavemente em 0.2 segundos, dando uma sensação de resposta física ao clique.
+        </p>
+
+        <table>
+          <tr><th>Parte da propriedade <code>transition</code></th><th>Significa</th></tr>
+          <tr><td><code>background-color</code></td><td>Qual propriedade CSS será animada.</td></tr>
+          <tr><td><code>0.2s</code></td><td>Duração da animação.</td></tr>
+          <tr><td><code>ease</code></td><td>Curva de aceleração: começa rápido, desacelera no fim (a mais natural para a maioria dos casos).</td></tr>
+        </table>
+
+        <h2>Animations: sequências mais elaboradas</h2>
+        <p>
+          Quando você precisa de algo mais complexo do que "do estado A para o estado B" — como um elemento pulsando continuamente, ou uma sequência com vários passos — usa-se <code>@keyframes</code> junto com a propriedade <code>animation</code>.
+        </p>
+        <pre><code>@keyframes pulsar {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+.notificacao {
+  animation: pulsar 1.5s ease-in-out infinite;
+}</code></pre>
+        <p>
+          O <code>@keyframes</code> define os "quadros-chave" da animação: em 0% do tempo (o início), o elemento está no tamanho normal; em 50% (na metade), ele cresce 10%; em 100% (no fim), volta ao normal. A propriedade <code>animation</code> na classe <code>.notificacao</code> aplica essa sequência com duração de 1.5 segundos, repetindo <code>infinite</code>-amente — útil, por exemplo, para chamar atenção para um ícone de notificação nova.
+        </p>
+
+        <table>
+          <tr><th>Situação</th><th>Melhor ferramenta</th></tr>
+          <tr><td>Mudança simples de A para B (cor no hover, aparecer/sumir)</td><td><code>transition</code></td></tr>
+          <tr><td>Sequência com múltiplos passos ou que se repete sozinha</td><td><code>animation</code> + <code>@keyframes</code></td></tr>
+        </table>
+
+        <div class="box box-dica">
+          <span class="box-titulo">Dica</span>
+          Use animações com moderação. Elas devem dar clareza (mostrar que um botão foi clicado, que algo novo chegou) — não distrair ou deixar a pessoa esperando. Evite animar propriedades pesadas para o navegador processar, como <code>width</code> ou <code>height</code>; prefira animar <code>transform</code> e <code>opacity</code>, que são muito mais leves de calcular e rodam de forma mais suave.
+        </div>
+
+        <h2>Exemplo completo: cartão responsivo com hover animado</h2>
+        <pre><code>&lt;style&gt;
+  .grade {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+    padding: 16px;
+  }
+
+  @media (min-width: 768px) {
+    .grade {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .cartao {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 16px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .cartao:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+  }
+&lt;/style&gt;
+
+&lt;div class="grade"&gt;
+  &lt;div class="cartao"&gt;Produto 1&lt;/div&gt;
+  &lt;div class="cartao"&gt;Produto 2&lt;/div&gt;
+  &lt;div class="cartao"&gt;Produto 3&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+        <p>
+          No celular, os cartões ficam empilhados em uma coluna só (o padrão mobile-first). A partir de 768px de largura, viram três colunas. E ao passar o mouse sobre qualquer cartão, ele sobe levemente e ganha uma sombra, de forma suave, graças ao <code>transition</code>. É um exemplo pequeno, mas reúne tudo que essa lição trouxe: responsividade e uma animação sutil que melhora a experiência sem atrapalhar.
+        </p>
+
+        <h2>Resumo</h2>
+        <ul class="checklist">
+          <li>A meta tag <code>viewport</code> é obrigatória para qualquer responsividade funcionar em celulares.</li>
+          <li>Media queries (<code>@media (min-width: ...)</code>) aplicam regras CSS só a partir de certas larguras de tela.</li>
+          <li>Mobile-first: escreva o CSS padrão para telas pequenas, depois use <code>min-width</code> para adicionar melhorias em telas maiores.</li>
+          <li><code>transition</code> anima suavemente a mudança entre dois estados (ex: hover).</li>
+          <li><code>@keyframes</code> + <code>animation</code> criam sequências mais elaboradas e repetíveis.</li>
+          <li>Prefira animar <code>transform</code> e <code>opacity</code>, que são mais leves para o navegador processar.</li>
+        </ul>
+
+        <div id="lesson-footer-nav" class="lesson-footer-nav"></div>
+      </main>
+    </div>
+  </div>
+  <script src="../../nav.js"></script>
+</body>
+</html>

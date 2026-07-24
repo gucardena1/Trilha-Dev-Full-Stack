@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Priorização, Kanban e Scrum — Trilha Dev Full Stack</title>
+  <link rel="stylesheet" href="../../style.css" />
+</head>
+<body>
+  <div class="layout">
+    <nav id="sidebar"></nav>
+    <div class="content-wrap">
+      <main class="content">
+        <div class="breadcrumb">12. Gestão & Soft Skills</div>
+        <h1 class="lesson-title">Priorização, Kanban e Scrum</h1>
+        <p class="lesson-subtitle">Como equipes organizam o trabalho de várias pessoas sem virar um caos — e como decidir o que fazer primeiro.</p>
+
+        <div class="box box-analogia">
+          <span class="box-titulo">Analogia</span>
+          Pense numa cozinha de restaurante bem organizada. Existe um lugar onde ficam os pedidos que ainda não
+          começaram a ser preparados, um lugar para os pratos que estão sendo montados agora, e um lugar para os
+          pratos prontos esperando para ir à mesa. Todo mundo na cozinha consegue olhar para essas três colunas e
+          entender, num piscar de olhos, o que está acontecendo — sem precisar perguntar para ninguém "e aí, o
+          pedido da mesa 5 já foi feito?". Isso, essencialmente, é um quadro Kanban: uma forma visual e simples de
+          deixar claro o que falta fazer, o que está em andamento, e o que já terminou.
+        </div>
+
+        <p>
+          Quando várias pessoas trabalham juntas em um projeto, a maior fonte de confusão não costuma ser
+          tecnológica — é a falta de visibilidade sobre quem está fazendo o quê, o que já foi feito, e o que
+          precisa ser feito primeiro. Kanban e Scrum são duas formas (entre várias) de organizar esse fluxo de
+          trabalho. Nenhuma delas é uma regra rígida gravada em pedra; são ferramentas, e como toda ferramenta,
+          servem para resolver um problema específico: coordenar pessoas sem depender só da memória e da sorte.
+        </p>
+
+        <h2>Kanban: a fazer, fazendo, feito</h2>
+        <p>
+          O Kanban, na sua forma mais simples, é um quadro dividido em colunas que representam o estágio de cada
+          tarefa. As três colunas clássicas são:
+        </p>
+        <ul>
+          <li><strong>A fazer (To Do):</strong> tarefas identificadas, mas que ninguém começou ainda.</li>
+          <li><strong>Fazendo (In Progress / Doing):</strong> tarefas que alguém está trabalhando ativamente agora.</li>
+          <li><strong>Feito (Done):</strong> tarefas concluídas e já verificadas.</li>
+        </ul>
+        <p>
+          Cada tarefa vira um "cartão" que se move da esquerda para a direita conforme avança. A força do Kanban
+          está em algo simples: qualquer pessoa da equipe — inclusive quem não é técnico — consegue olhar para o
+          quadro e entender o estado do projeto em segundos, sem precisar perguntar a ninguém. Isso reduz a
+          quantidade de "e aí, como está aquilo?" que interrompem o dia de todo mundo.
+        </p>
+        <p>
+          Uma regra importante do Kanban de verdade (não só um quadro bonito) é limitar quantas tarefas podem
+          estar na coluna "Fazendo" ao mesmo tempo. Isso evita que uma pessoa (ou uma equipe inteira) comece dez
+          coisas ao mesmo tempo e não termine nenhuma — um problema tão comum que tem até analogia própria:
+          imagine um garçom que aceita pedidos de dez mesas ao mesmo tempo e não entrega nenhum prato porque está
+          correndo entre todas elas. Terminar poucas coisas por vez, de verdade, costuma ser mais rápido no fim das
+          contas do que começar tudo ao mesmo tempo.
+        </p>
+
+        <h2>Scrum: trabalhar em ciclos curtos</h2>
+        <p>
+          O Scrum organiza o trabalho em ciclos de tempo fixo chamados <strong>sprints</strong>, geralmente de uma
+          ou duas semanas. No início de cada sprint, a equipe escolhe um conjunto de tarefas do
+          <strong>backlog</strong> (a lista geral de tudo que precisa ser feito, ainda sem uma ordem definida de
+          quando) para trabalhar durante aquele período. No final do sprint, idealmente, esse conjunto de tarefas
+          está pronto e pode ser mostrado, testado ou até publicado.
+        </p>
+        <p>Alguns termos do Scrum que você vai ouvir com frequência:</p>
+        <ul>
+          <li><strong>Backlog:</strong> a lista de tudo que a equipe gostaria (ou precisa) fazer, em algum momento, ainda sem compromisso de prazo.</li>
+          <li><strong>Sprint:</strong> um período curto e fixo (normalmente 1 ou 2 semanas) onde um pedaço do backlog é escolhido para ser feito.</li>
+          <li><strong>Daily (ou "daily standup"):</strong> uma reunião curta, diária, onde cada pessoa conta rapidamente o que fez ontem, o que vai fazer hoje, e se está travada em algo. Não é uma reunião de detalhes técnicos — é uma sincronização rápida.</li>
+          <li><strong>Retrospectiva:</strong> uma conversa no fim do sprint sobre o que funcionou bem e o que poderia melhorar no próximo ciclo.</li>
+        </ul>
+        <p>
+          A ideia central por trás do Scrum é trabalhar em ciclos pequenos e revisáveis, em vez de planejar um
+          projeto inteiro de meses e só descobrir no final se ele deu certo. Cada sprint é uma chance de ajustar o
+          rumo com base no que foi aprendido — parecido com cozinhar provando o tempero aos poucos, em vez de só
+          no final do prato pronto.
+        </p>
+
+        <div class="box box-dica">
+          <span class="box-titulo">Dica</span>
+          Não se preocupe em decorar o "Scrum oficial dos livros" — cada empresa adapta o processo do seu jeito, e
+          está tudo bem. O que importa de verdade é entender o espírito por trás dele: trabalhar em ciclos curtos,
+          tornar o progresso visível, e conversar regularmente sobre o que está travando. Se sua equipe faz um
+          "Scrum" mais simples que o dos livros, isso não é "Scrum errado" — é Scrum adaptado à realidade dela.
+        </div>
+
+        <h2>Kanban vs. Scrum, lado a lado</h2>
+        <table>
+          <thead>
+            <tr><th>Aspecto</th><th>Kanban</th><th>Scrum</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Ritmo</td><td>Fluxo contínuo, sem ciclos fixos</td><td>Ciclos fixos (sprints)</td></tr>
+            <tr><td>Planejamento</td><td>Tarefas entram no quadro conforme surgem</td><td>Planejamento no início de cada sprint</td></tr>
+            <tr><td>Reuniões</td><td>Opcionais, sob demanda</td><td>Daily diária + reunião no fim do sprint</td></tr>
+            <tr><td>Bom para</td><td>Suporte, manutenção, times com prioridades que mudam rápido</td><td>Projetos com entregas planejadas em blocos</td></tr>
+          </tbody>
+        </table>
+
+        <h2>Como priorizar quando tudo parece urgente</h2>
+        <p>
+          É comum chegar num dia de trabalho com cinco pedidos, todos marcados como "urgente" por quem pediu. Se
+          tudo é prioridade máxima, na prática nada é — então vale ter algumas perguntas simples para desempatar:
+        </p>
+        <ul>
+          <li><strong>O que quebra alguma coisa para os usuários agora?</strong> Um bug que impede pessoas de usar o sistema costuma vir antes de uma melhoria nova.</li>
+          <li><strong>O que tem uma data real (não uma sensação de urgência)?</strong> Um prazo contratual ou legal pesa mais do que "seria bom ter logo".</li>
+          <li><strong>O que trava o trabalho de outras pessoas?</strong> Se sua tarefa é pré-requisito para outra pessoa começar a dela, isso aumenta a prioridade.</li>
+          <li><strong>O que é rápido de resolver e libera espaço mental?</strong> Às vezes vale resolver uma tarefa de 10 minutos antes de mergulhar em algo de 3 dias, só para tirá-la do caminho.</li>
+        </ul>
+        <p>
+          E, quando a lista continua impossível de encaixar no tempo disponível, o passo mais importante — e mais
+          evitado por insegurança — é levar isso para quem está pedindo, de forma direta e sem drama: "tenho essas
+          cinco coisas, mas só consigo terminar três até sexta. Qual dessas você prefere que eu priorize?". Isso
+          não é fraqueza, é dar visibilidade real da capacidade da equipe para quem decide.
+        </p>
+
+        <div class="box box-atencao">
+          <span class="box-titulo">Atenção</span>
+          Cuidado com times que adotam o vocabulário do Scrum (sprints, daily, backlog) mas continuam trabalhando
+          sem nenhuma disciplina real por trás — sprints que nunca terminam a tempo, dailies que viram reuniões de
+          uma hora, backlog que ninguém organiza. O nome do processo importa muito menos do que a prática real por
+          trás dele.
+        </div>
+
+        <h2>Resumo</h2>
+        <ul class="checklist">
+          <li>Kanban é um quadro visual com colunas (a fazer, fazendo, feito) que mostra o estado do trabalho para qualquer pessoa.</li>
+          <li>Limitar quantas tarefas estão "em andamento" ao mesmo tempo evita começar tudo e não terminar nada.</li>
+          <li>Scrum organiza o trabalho em sprints curtos, com backlog, daily e retrospectiva.</li>
+          <li>Nenhum dos dois é uma regra rígida — o que importa é o espírito: visibilidade, ciclos curtos, conversa constante.</li>
+          <li>Quando tudo parece urgente, priorize pelo impacto real e comunique abertamente o que não vai caber no tempo disponível.</li>
+        </ul>
+
+        <div id="lesson-footer-nav" class="lesson-footer-nav"></div>
+      </main>
+    </div>
+  </div>
+  <script src="../../nav.js"></script>
+</body>
+</html>

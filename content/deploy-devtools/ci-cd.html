@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CI/CD — Trilha Dev Full Stack</title>
+  <link rel="stylesheet" href="../../style.css" />
+</head>
+<body>
+  <div class="layout">
+    <nav id="sidebar"></nav>
+    <div class="content-wrap">
+      <main class="content">
+        <div class="breadcrumb">11. Deploy, DevOps & Debug</div>
+        <h1 class="lesson-title">CI/CD</h1>
+        <p class="lesson-subtitle">Como automatizar o caminho entre "terminei de programar" e "está no ar, funcionando".</p>
+
+        <div class="box box-analogia">
+          <span class="box-titulo">Analogia</span>
+          Imagine uma linha de produção de fábrica de carros. Antes de um carro sair da fábrica, ele passa por
+          uma esteira automática: cada estação verifica uma coisa (freios, motor, pintura, elétrica) e só deixa o
+          carro seguir adiante se aquela etapa passar. Ninguém confia "no olho" que o carro está bom — existe um
+          processo automático e repetível que confere isso toda vez, para todo carro, sem exceção. CI/CD é
+          exatamente essa esteira, só que para código: toda vez que alguém entrega uma mudança, ela passa
+          automaticamente por uma sequência de verificações antes de chegar ao "cliente final".
+        </div>
+
+        <p>
+          CI/CD é uma sigla que junta duas ideias parecidas, mas distintas: <strong>Integração Contínua</strong>
+          (Continuous Integration) e <strong>Entrega Contínua</strong> (Continuous Delivery) — às vezes também
+          se fala em <strong>Deployment Contínuo</strong> (Continuous Deployment), uma versão ainda mais
+          automatizada da entrega. Juntas, essas práticas resolvem um problema muito comum em equipes de
+          desenvolvimento: garantir que o código de várias pessoas, juntado o tempo todo, continue funcionando —
+          e que colocar esse código no ar não dependa de um humano fazendo uma lista de passos manuais, um por
+          um, torcendo para não esquecer nenhum.
+        </p>
+
+        <h2>Integração contínua (CI): testar cedo, testar sempre</h2>
+        <p>
+          Numa equipe com várias pessoas mexendo no mesmo projeto, cada uma trabalha em uma parte diferente do
+          código ao mesmo tempo. Sem cuidado, é fácil que o código de uma pessoa quebre o código de outra sem
+          que ninguém perceba na hora — e só descobrir isso dias depois, quando já é bem mais difícil de
+          resolver.
+        </p>
+        <p>
+          <strong>Integração contínua</strong> é a prática de juntar ("integrar") o código de todo mundo com
+          muita frequência — várias vezes ao dia, idealmente — e, a cada integração, rodar automaticamente um
+          conjunto de testes que confirma que nada quebrou. Assim, se algo der errado, o problema é descoberto em
+          minutos, enquanto a mudança que causou o erro ainda está fresca na cabeça de quem a escreveu, e não
+          semanas depois, misturada com dezenas de outras mudanças.
+        </p>
+
+        <h2>Entrega contínua (CD): sempre pronto para ir ao ar</h2>
+        <p>
+          Depois que o código passa pelos testes automáticos da integração contínua, a <strong>entrega
+          contínua</strong> garante que essa versão testada fique sempre pronta para ser colocada em produção a
+          qualquer momento, com um clique (ou até automaticamente, no caso do deployment contínuo). Isso é
+          diferente de "programar e só colocar no ar de vez em quando, manualmente, torcendo": aqui, colocar uma
+          nova versão no ar deixa de ser um evento estressante e raro para virar algo rotineiro e de baixo
+          risco, porque cada mudança já chega testada e em pedaços pequenos.
+        </p>
+
+        <div class="box box-dica">
+          <span class="box-titulo">Dica</span>
+          Uma forma simples de separar os três termos: <strong>CI</strong> garante que o código continua
+          funcionando junto; <strong>Delivery</strong> garante que ele está sempre pronto para ir ao ar;
+          <strong>Deployment</strong> contínuo vai além e realmente coloca no ar sozinho, sem clique humano, toda
+          vez que passa nos testes.
+        </div>
+
+        <h2>O que é um pipeline</h2>
+        <p>
+          O conjunto de etapas automáticas que o código passa, do momento em que alguém envia uma mudança até o
+          momento em que ela chega (ou fica pronta para chegar) em produção, é chamado de <strong>pipeline</strong>
+          — literalmente, um "cano" por onde o código escorre, passando por uma estação de cada vez. Um pipeline
+          típico costuma ter etapas parecidas com estas:
+        </p>
+        <ul>
+          <li><strong>Build:</strong> transformar o código-fonte em algo executável — instalar dependências, compilar, empacotar.</li>
+          <li><strong>Testes automáticos:</strong> rodar os testes unitários e de integração do projeto, verificando se o comportamento esperado continua valendo.</li>
+          <li><strong>Análise de qualidade:</strong> rodar ferramentas que checam padrões de código, segurança ou cobertura de testes.</li>
+          <li><strong>Deploy em staging:</strong> colocar a versão no ambiente de homologação para testes mais realistas.</li>
+          <li><strong>Deploy em produção:</strong> se tudo passou, liberar a versão para os usuários reais.</li>
+        </ul>
+        <p>
+          Se qualquer etapa falhar — por exemplo, um teste quebrar — o pipeline para ali e avisa a equipe, sem
+          deixar o código seguir adiante com um problema conhecido. Ferramentas populares para configurar
+          pipelines incluem GitHub Actions, GitLab CI, Jenkins e CircleCI, entre outras — todas seguem essa
+          mesma ideia geral, mudando apenas a forma de configurar.
+        </p>
+
+        <h2>Por que automatizar testes e deploy</h2>
+        <p>
+          Poderia se pensar: "por que não simplesmente testar e colocar no ar na mão, com cuidado?". O problema
+          é que humanos são inconsistentes e se cansam — alguém pode esquecer de rodar um teste importante,
+          pular um passo às pressas num dia corrido, ou simplesmente errar ao copiar um comando. Um pipeline
+          automatizado roda exatamente os mesmos passos, na mesma ordem, com o mesmo rigor, todas as vezes, sem
+          cansaço e sem pressa. Isso traz benefícios concretos:
+        </p>
+        <ul>
+          <li><strong>Consistência:</strong> o mesmo processo é seguido sempre, sem depender da memória ou disposição de alguém.</li>
+          <li><strong>Velocidade:</strong> o que levaria horas feito manualmente passa a levar minutos.</li>
+          <li><strong>Confiança:</strong> se o pipeline passou, a equipe sabe que aquele conjunto mínimo de garantias foi cumprido.</li>
+          <li><strong>Detecção precoce de erros:</strong> problemas aparecem em minutos, não em produção, dias depois.</li>
+        </ul>
+
+        <div class="box box-atencao">
+          <span class="box-titulo">Atenção</span>
+          CI/CD automatiza <em>o processo</em> de testar e implantar — mas não substitui a necessidade de existirem
+          bons testes automatizados para começo de conversa. Um pipeline lindo que roda zero testes de verdade só
+          está automatizando a entrega de bugs mais rápido.
+        </div>
+
+        <h2>Resumo</h2>
+        <ul class="checklist">
+          <li>CI/CD automatiza o caminho entre escrever código e colocá-lo no ar, funcionando.</li>
+          <li>Integração contínua (CI) junta e testa o código de todo mundo com frequência, achando erros cedo.</li>
+          <li>Entrega contínua (CD) mantém o código sempre pronto para ir ao ar a qualquer momento.</li>
+          <li>Pipeline é a sequência automática de etapas: build, testes, análise de qualidade e deploy.</li>
+          <li>Automatizar reduz erro humano, acelera o processo e detecta problemas antes que cheguem ao usuário.</li>
+        </ul>
+
+        <div id="lesson-footer-nav" class="lesson-footer-nav"></div>
+      </main>
+    </div>
+  </div>
+  <script src="../../nav.js"></script>
+</body>
+</html>

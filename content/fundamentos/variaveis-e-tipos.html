@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Variáveis, tipos e operadores — Trilha Dev Full Stack</title>
+  <link rel="stylesheet" href="../../style.css" />
+</head>
+<body>
+  <div class="layout">
+    <nav id="sidebar"></nav>
+    <div class="content-wrap">
+      <main class="content">
+        <div class="breadcrumb">1. Fundamentos & Lógica</div>
+        <h1 class="lesson-title">Variáveis, tipos e operadores</h1>
+        <p class="lesson-subtitle">Aprenda a guardar informações na memória do computador e a fazer contas e comparações com elas.</p>
+
+        <div class="box box-analogia">
+          <span class="box-titulo">Analogia</span>
+          Pense numa variável como uma caixa de guardados com uma etiqueta colada na frente. Você pode escrever
+          "idade" na etiqueta e colocar o número 25 dentro da caixa. Mais tarde, se quiser trocar o conteúdo, você
+          abre a mesma caixa e troca o que está lá dentro por outra coisa — a etiqueta continua a mesma, só o
+          conteúdo muda. É exatamente assim que uma variável funciona: um espaço na memória do computador, com um
+          nome, guardando um valor que pode mudar ao longo do programa.
+        </div>
+
+        <h2>Criando variáveis em JavaScript</h2>
+        <p>
+          Em JavaScript, criamos uma variável com a palavra <code>let</code> (quando o valor pode mudar depois) ou
+          <code>const</code> (quando o valor nunca vai mudar depois de criado). Veja:
+        </p>
+        <pre><code>let idade = 25;        // pode ser alterada depois
+const nome = "Ana";    // não pode ser reatribuída depois de criada
+
+console.log(idade);    // mostra: 25
+console.log(nome);     // mostra: Ana
+
+idade = 26;            // ok, "let" permite trocar o valor
+// nome = "Beatriz";   // erro! "const" não permite reatribuir</code></pre>
+        <p>
+          Repare que o nome da variável fica à esquerda do sinal de igual, e o valor que ela vai guardar fica à
+          direita. Esse sinal de igual não significa "igual" como na matemática — significa <strong>"atribua este
+          valor a esta caixa"</strong>. É uma das confusões mais comuns no início: em programação, <code>=</code> é
+          uma ação (guardar), não uma afirmação (comparar). Para comparar valores, usamos outro operador, que você
+          vai ver mais adiante.
+        </p>
+
+        <div class="box box-dica">
+          <span class="box-titulo">Dica</span>
+          Use <code>const</code> como padrão. Só troque para <code>let</code> quando você realmente souber que o
+          valor vai precisar mudar (como um contador, ou o placar de um jogo). Isso evita bugs bobos causados por
+          uma variável que foi alterada sem querer em algum lugar do código.
+        </div>
+
+        <h2>Tipos de dados</h2>
+        <p>
+          Nem toda informação é do mesmo "tipo". O número 25 se comporta de um jeito (dá para somar, subtrair,
+          multiplicar); o texto "Ana" se comporta de outro jeito (dá para juntar com outro texto, contar quantas
+          letras tem); e existe também o tipo que representa apenas "verdadeiro" ou "falso". Os tipos mais básicos de
+          qualquer linguagem de programação são:
+        </p>
+        <table>
+          <thead>
+            <tr><th>Tipo</th><th>Exemplo</th><th>Para que serve</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Número (<code>number</code>)</td><td><code>25</code>, <code>3.14</code>, <code>-10</code></td><td>Quantidades, idades, preços, cálculos.</td></tr>
+            <tr><td>Texto (<code>string</code>)</td><td><code>"Ana"</code>, <code>"Rua das Flores"</code></td><td>Nomes, mensagens, qualquer texto entre aspas.</td></tr>
+            <tr><td>Booleano (<code>boolean</code>)</td><td><code>true</code>, <code>false</code></td><td>Representa "sim ou não", "ligado ou desligado".</td></tr>
+            <tr><td>Indefinido (<code>undefined</code>)</td><td><code>undefined</code></td><td>Uma variável que existe mas ainda não recebeu valor.</td></tr>
+          </tbody>
+        </table>
+        <p>
+          Nas próximas lições você vai conhecer também os tipos compostos — <strong>arrays</strong> (listas) e
+          <strong>objetos</strong> — que servem para agrupar vários valores relacionados numa única variável.
+        </p>
+
+        <div class="box box-atencao">
+          <span class="box-titulo">Atenção</span>
+          Texto sempre vai entre aspas (simples <code>'assim'</code> ou duplas <code>"assim"</code>, tanto faz, desde
+          que combinem no início e no fim). Se você escrever <code>let nome = Ana;</code> sem aspas, o JavaScript vai
+          achar que "Ana" é o nome de outra variável que não existe, e vai dar erro.
+        </div>
+
+        <h2>Operadores aritméticos</h2>
+        <p>São os símbolos usados para fazer contas com números:</p>
+        <pre><code>let a = 10;
+let b = 3;
+
+console.log(a + b);   // 13  (soma)
+console.log(a - b);   // 7   (subtração)
+console.log(a * b);   // 30  (multiplicação)
+console.log(a / b);   // 3.333... (divisão)
+console.log(a % b);   // 1   (resto da divisão, chamado de "módulo")</code></pre>
+        <p>
+          O operador <code>%</code> (módulo) costuma parecer estranho no início, mas é muito usado: ele devolve o
+          <em>resto</em> de uma divisão. Por exemplo, <code>10 % 3</code> é 1, porque 10 dividido por 3 dá 3 inteiro
+          e sobra 1. Esse operador é a base de truques como "descobrir se um número é par" (<code>numero % 2</code>
+          será 0 quando o número for par).
+        </p>
+
+        <h2>Concatenando textos</h2>
+        <p>
+          O sinal de <code>+</code> também funciona com textos, mas em vez de somar, ele <strong>junta</strong> (isso
+          se chama concatenação):
+        </p>
+        <pre><code>let nome = "Ana";
+let saudacao = "Olá, " + nome + "!";
+console.log(saudacao); // Olá, Ana!
+
+// Forma mais moderna e legível: template strings, com crase (`)
+let saudacao2 = `Olá, ${nome}!`;
+console.log(saudacao2); // Olá, Ana!</code></pre>
+        <p>
+          As <em>template strings</em> (com crase <code>`</code> em vez de aspas) permitem inserir variáveis
+          diretamente dentro do texto usando <code>&#36;{nomeDaVariavel}</code>, o que deixa o código muito mais
+          fácil de ler quando você está montando frases com vários valores misturados.
+        </p>
+
+        <h2>Operadores de comparação</h2>
+        <p>
+          Para comparar dois valores (e descobrir se algo é verdadeiro ou falso), usamos operadores diferentes do
+          sinal de atribuição:
+        </p>
+        <table>
+          <thead><tr><th>Operador</th><th>Significado</th><th>Exemplo</th></tr></thead>
+          <tbody>
+            <tr><td><code>===</code></td><td>igual a (compara valor e tipo)</td><td><code>5 === 5</code> → true</td></tr>
+            <tr><td><code>!==</code></td><td>diferente de</td><td><code>5 !== 3</code> → true</td></tr>
+            <tr><td><code>&gt;</code></td><td>maior que</td><td><code>5 &gt; 3</code> → true</td></tr>
+            <tr><td><code>&lt;</code></td><td>menor que</td><td><code>5 &lt; 3</code> → false</td></tr>
+            <tr><td><code>&gt;=</code></td><td>maior ou igual</td><td><code>5 &gt;= 5</code> → true</td></tr>
+            <tr><td><code>&lt;=</code></td><td>menor ou igual</td><td><code>5 &lt;= 4</code> → false</td></tr>
+          </tbody>
+        </table>
+        <p>
+          Note o uso de <code>===</code> (três sinais de igual) para comparar, em vez de apenas um <code>=</code>. Em
+          JavaScript, um único <code>=</code> é sempre atribuição (guardar valor); três sinais <code>===</code> é
+          sempre comparação (verificar se é igual). Usar só dois sinais (<code>==</code>) também funciona, mas ele é
+          menos rigoroso e pode causar comportamentos inesperados — por isso a recomendação forte é sempre usar
+          <code>===</code> e <code>!==</code>.
+        </p>
+
+        <div class="box box-dica">
+          <span class="box-titulo">Dica</span>
+          Um jeito de nunca mais confundir: leia <code>=</code> como "recebe" ("idade recebe 25") e <code>===</code>
+          como "é igual a" ("idade é igual a 25?"). Essa leitura em voz alta ajuda a evitar o erro mais clássico de
+          quem está começando.
+        </div>
+
+        <h2>Operadores lógicos</h2>
+        <p>
+          Quando você precisa combinar mais de uma condição, usa operadores lógicos: <code>&amp;&amp;</code> (E —
+          as duas condições precisam ser verdadeiras), <code>||</code> (OU — pelo menos uma precisa ser verdadeira) e
+          <code>!</code> (NÃO — inverte o valor).
+        </p>
+        <pre><code>let idade = 20;
+let temCarteira = true;
+
+console.log(idade &gt;= 18 &amp;&amp; temCarteira); // true (as duas são verdadeiras)
+console.log(idade &gt;= 18 || temCarteira); // true (pelo menos uma é verdadeira)
+console.log(!temCarteira);               // false (inverteu o valor)</code></pre>
+        <p>
+          Esses operadores lógicos vão ser essenciais na próxima lição, sobre condicionais (<code>if/else</code>),
+          porque é ali que usamos essas comparações para decidir qual caminho o programa deve seguir.
+        </p>
+
+        <h2>Resumo</h2>
+        <ul class="checklist">
+          <li>Variáveis são "caixas com etiqueta" que guardam valores na memória; use <code>let</code> quando o valor muda e <code>const</code> quando não muda.</li>
+          <li>Os tipos básicos são número, texto (string), booleano (true/false) e undefined.</li>
+          <li>Operadores aritméticos (<code>+ - * / %</code>) fazem contas; o <code>+</code> em textos concatena em vez de somar.</li>
+          <li>Um único <code>=</code> atribui valor; <code>===</code> compara valores — não confunda os dois.</li>
+          <li>Operadores lógicos (<code>&amp;&amp;</code>, <code>||</code>, <code>!</code>) combinam condições e serão a base dos condicionais.</li>
+        </ul>
+
+        <div id="lesson-footer-nav" class="lesson-footer-nav"></div>
+      </main>
+    </div>
+  </div>
+  <script src="../../nav.js"></script>
+</body>
+</html>

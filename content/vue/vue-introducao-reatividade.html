@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Introdução ao Vue e reatividade — Trilha Dev Full Stack</title>
+  <link rel="stylesheet" href="../../style.css" />
+</head>
+<body>
+  <div class="layout">
+    <nav id="sidebar"></nav>
+    <div class="content-wrap">
+      <main class="content">
+        <div class="breadcrumb">7. Vue.js</div>
+        <h1 class="lesson-title">Introdução ao Vue e reatividade</h1>
+        <p class="lesson-subtitle">O que é um framework frontend, por que ele existe, e o conceito que sustenta tudo no Vue: a reatividade.</p>
+
+        <p>
+          Você já sabe JavaScript puro: manipular o DOM com <code>document.querySelector</code>,
+          escutar eventos com <code>addEventListener</code>, atualizar a tela "na mão" toda vez que
+          algo muda. Funciona, mas em telas grandes vira um pesadelo de manutenção: você precisa
+          lembrar, para cada pedacinho de dado, exatamente quais partes da tela dependem dele e
+          atualizar cada uma manualmente. Um framework frontend como o Vue existe para resolver
+          esse problema específico: você diz <em>o que</em> a tela deve mostrar com base nos dados
+          que você tem, e o framework cuida de manter a tela sincronizada sempre que os dados mudam.
+        </p>
+
+        <h2>Por que usar um framework em vez de JavaScript puro?</h2>
+        <p>
+          Pense numa página de carrinho de compras. Quando o usuário adiciona um item, várias
+          coisas na tela precisam mudar ao mesmo tempo: a lista de produtos, o contador de itens no
+          ícone do carrinho, o valor total, talvez uma mensagem de "produto adicionado". Em
+          JavaScript puro, você teria que escrever código para atualizar cada um desses pedaços,
+          um por um, toda vez que qualquer coisa mudasse. É fácil esquecer de atualizar algum deles
+          e deixar a tela com informação desatualizada (um bug clássico chamado "dessincronização
+          de estado"). O Vue resolve isso invertendo a lógica: você declara uma vez "o contador do
+          carrinho mostra <code>carrinho.length</code>" e, a partir daí, sempre que
+          <code>carrinho</code> mudar, o Vue atualiza esse pedaço da tela sozinho — sem você
+          escrever mais nenhuma linha para isso.
+        </p>
+
+        <div class="box box-analogia">
+          <span class="box-titulo">Analogia</span>
+          Pense numa planilha do Excel. Você escreve na célula C1 a fórmula <code>=A1+B1</code>.
+          A partir daquele momento, você nunca mais precisa calcular essa soma na mão: sempre que
+          mudar o valor de A1 ou B1, a célula C1 se atualiza sozinha, na hora. Você não "manda" o
+          Excel recalcular — ele simplesmente sabe que C1 depende de A1 e B1, e reage automaticamente
+          quando um dos dois muda. A reatividade no Vue é exatamente esse comportamento, só que
+          aplicado à tela do seu site em vez de células de planilha: você liga um pedaço de HTML a
+          um dado, e sempre que o dado muda, aquele pedaço de tela "recalcula" e se atualiza sozinho.
+        </div>
+
+        <h2>O que é reatividade, tecnicamente</h2>
+        <p>
+          Reatividade é a capacidade de um sistema perceber quando um valor mudou e reagir
+          automaticamente a essa mudança, atualizando tudo o que depende dele. No Vue, você marca
+          quais variáveis são "reativas" (isto é, o Vue deve vigiá-las) e escreve o HTML dizendo
+          quais partes usam essas variáveis. O Vue faz o resto: ele observa as variáveis marcadas e,
+          quando alguma muda, re-renderiza apenas os pedaços de tela que dependem dela — não a
+          página inteira, só o necessário.
+        </p>
+
+        <h2>Criando seu primeiro componente com <code>ref</code></h2>
+        <p>
+          A forma mais simples de criar um valor reativo no Vue 3 é a função <code>ref()</code>.
+          Ela recebe um valor inicial e devolve um "objeto caixinha" reativo: para ler ou mudar o
+          valor de dentro dessa caixinha, em código JavaScript, você usa <code>.value</code>. No
+          template (o HTML), você usa o nome direto, sem <code>.value</code> — o Vue cuida dessa
+          "desembrulhada" automaticamente.
+        </p>
+        <pre><code>&lt;script setup&gt;
+import { ref } from 'vue'
+
+// contador é um valor reativo, começando em 0
+const contador = ref(0)
+
+function incrementar() {
+  // no JavaScript, sempre acessamos/alteramos via .value
+  contador.value++
+}
+&lt;/script&gt;
+
+&lt;template&gt;
+  &lt;div&gt;
+    &lt;!-- no template, usamos "contador" direto, sem .value --&gt;
+    &lt;p&gt;Você clicou {{ contador }} vezes&lt;/p&gt;
+    &lt;button @click="incrementar"&gt;Clicar&lt;/button&gt;
+  &lt;/div&gt;
+&lt;/template&gt;</code></pre>
+        <p>
+          Repare que nada nesse código diz explicitamente "atualize o parágrafo quando
+          <code>contador</code> mudar". Isso é exatamente o ponto: o Vue detecta que o texto
+          <code>{{ contador }}</code> depende dessa variável reativa, e sempre que
+          <code>contador.value</code> mudar (por exemplo, dentro de <code>incrementar</code>), o
+          parágrafo é atualizado sozinho na tela.
+        </p>
+
+        <h2><code>&lt;script setup&gt;</code>: a sintaxe moderna</h2>
+        <p>
+          Toda a trilha vai usar <code>&lt;script setup&gt;</code>, que é a forma recomendada de
+          escrever componentes Vue 3 hoje em dia. Um arquivo de componente Vue (extensão
+          <code>.vue</code>) tem três partes: <code>&lt;script setup&gt;</code> (a lógica em
+          JavaScript), <code>&lt;template&gt;</code> (o HTML) e, opcionalmente,
+          <code>&lt;style&gt;</code> (o CSS daquele componente). Tudo o que você declara dentro de
+          <code>&lt;script setup&gt;</code> — variáveis, funções — fica automaticamente disponível
+          para uso no <code>&lt;template&gt;</code>, sem precisar de nenhum passo extra de
+          "exportar" essas coisas.
+        </p>
+
+        <h2><code>data</code> na Options API (o que você vai ver por aí)</h2>
+        <p>
+          Antes do <code>&lt;script setup&gt;</code> se tornar popular, o Vue já existia com outra
+          sintaxe, chamada Options API, que organiza o componente em um objeto com propriedades
+          como <code>data</code>, <code>methods</code>, <code>computed</code>. Você ainda vai
+          encontrar muito código assim em projetos antigos e tutoriais, então vale reconhecer:
+        </p>
+        <pre><code>export default {
+  data() {
+    return {
+      contador: 0
+    }
+  },
+  methods: {
+    incrementar() {
+      this.contador++
+    }
+  }
+}</code></pre>
+        <p>
+          Na Options API, tudo que está dentro de <code>data()</code> vira reativo automaticamente
+          — não existe <code>.value</code> aqui, você acessa direto via <code>this.contador</code>.
+          O resultado final (a tela reagindo às mudanças) é o mesmo dos dois jeitos; a diferença é
+          só de organização do código. Vamos comparar as duas abordagens com mais profundidade na
+          lição sobre Composition API, mas por enquanto, foque em entender e praticar
+          <code>ref</code>.
+        </p>
+
+        <div class="box box-dica">
+          <span class="box-titulo">Dica</span>
+          Uma forma simples de saber se você precisa de <code>ref()</code>: se o valor pode mudar
+          ao longo do tempo e a tela precisa refletir essa mudança, use <code>ref</code>. Se o valor
+          nunca muda (uma constante, uma configuração fixa), uma variável comum do JavaScript já
+          basta — não precisa "envolver" tudo em <code>ref</code> por hábito.
+        </div>
+
+        <div class="box box-atencao">
+          <span class="box-titulo">Atenção</span>
+          Um erro comum de quem está começando é esquecer o <code>.value</code> dentro do
+          <code>&lt;script setup&gt;</code>. Escrever <code>contador++</code> em vez de
+          <code>contador.value++</code> não gera erro visível na hora, mas também não atualiza
+          nada — porque você estaria mexendo em uma variável comum, não no valor de dentro da
+          caixinha reativa. Lembre-se: <code>.value</code> no JavaScript, nome direto no template.
+        </div>
+
+        <h2>Instalando e rodando um projeto Vue</h2>
+        <p>
+          Para experimentar os exemplos desta trilha, o caminho mais simples é criar um projeto com
+          o Vite (a ferramenta de build oficial recomendada pelo time do Vue):
+        </p>
+        <pre><code>npm create vue@latest
+cd meu-projeto
+npm install
+npm run dev</code></pre>
+        <p>
+          Isso abre um servidor local (geralmente em <code>http://localhost:5173</code>) que
+          recarrega a página automaticamente a cada alteração salva no código — muito mais rápido
+          para aprender do que ficar recarregando a página na mão.
+        </p>
+
+        <h2>Resumo</h2>
+        <ul class="checklist">
+          <li>Um framework frontend existe para manter a tela sincronizada com os dados automaticamente, sem você atualizar o DOM manualmente pedaço por pedaço.</li>
+          <li>Reatividade é o mecanismo que detecta mudanças em um valor e atualiza sozinho tudo o que depende dele — como fórmulas de uma planilha de Excel.</li>
+          <li><code>ref()</code> transforma um valor comum em um valor reativo; no JavaScript acessa-se com <code>.value</code>, no template usa-se o nome direto.</li>
+          <li><code>&lt;script setup&gt;</code> é a sintaxe moderna do Vue 3 usada nesta trilha; a Options API (com <code>data</code>/<code>methods</code>) é a forma mais antiga, ainda comum em projetos legados.</li>
+          <li>O Vite é a ferramenta padrão para criar e rodar projetos Vue localmente com recarregamento automático.</li>
+        </ul>
+
+        <div id="lesson-footer-nav" class="lesson-footer-nav"></div>
+      </main>
+    </div>
+  </div>
+  <script src="../../nav.js"></script>
+</body>
+</html>

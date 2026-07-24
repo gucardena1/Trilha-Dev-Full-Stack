@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>O que é programar? — Trilha Dev Full Stack</title>
+  <link rel="stylesheet" href="../../style.css" />
+</head>
+<body>
+  <div class="layout">
+    <nav id="sidebar"></nav>
+    <div class="content-wrap">
+      <main class="content">
+        <div class="breadcrumb">1. Fundamentos & Lógica</div>
+        <h1 class="lesson-title">O que é programar?</h1>
+        <p class="lesson-subtitle">Entenda, sem jargão nenhum, o que realmente acontece quando alguém "programa" um computador.</p>
+
+        <div class="box box-analogia">
+          <span class="box-titulo">Analogia</span>
+          Imagine que você está ensinando sua avó a fazer um bolo pelo telefone. Ela nunca fez esse bolo antes e vai
+          seguir exatamente o que você disser — nem mais, nem menos. Se você disser "misture os ingredientes", ela vai
+          travar, porque isso é vago demais: quais ingredientes? Em que ordem? Por quanto tempo? Você precisa dizer
+          passo a passo: "pegue 2 ovos", "quebre-os numa tigela", "adicione 200g de farinha", "misture por 1 minuto".
+          Programar é exatamente isso: escrever uma receita tão detalhada e tão precisa que até alguém (ou algo) sem
+          nenhum bom senso próprio consegue seguir e chegar ao resultado certo.
+        </div>
+
+        <p>
+          O computador é essa "avó" no telefone — só que muito mais literal e muito mais rápido. Ele não tem intuição,
+          não "entende" o que você quis dizer, não preenche lacunas. Ele executa exatamente o que está escrito, na
+          ordem em que está escrito, milhões de vezes por segundo se for preciso. Programar é o ato de escrever essas
+          instruções numa linguagem que o computador consegue interpretar sem ambiguidade.
+        </p>
+
+        <h2>Um programa é uma sequência de instruções</h2>
+        <p>
+          Todo programa, por mais complexo que pareça — um jogo, um aplicativo de banco, uma rede social — é, no fundo,
+          uma sequência enorme de instruções simples, executadas em ordem. As instruções básicas que qualquer linguagem
+          de programação oferece são poucas:
+        </p>
+        <ul>
+          <li><strong>Guardar informação</strong> (ex: guardar o nome do usuário, o valor de um produto).</li>
+          <li><strong>Fazer contas</strong> (somar, subtrair, comparar valores).</li>
+          <li><strong>Tomar decisões</strong> ("se isso acontecer, faça aquilo; senão, faça outra coisa").</li>
+          <li><strong>Repetir ações</strong> (fazer a mesma coisa várias vezes, sem reescrever o código todo).</li>
+          <li><strong>Organizar tudo em blocos reutilizáveis</strong> (as famosas funções).</li>
+        </ul>
+        <p>
+          As próximas lições desta trilha vão te ensinar exatamente essas cinco coisas, uma de cada vez. Elas são o
+          alfabeto da programação — depois que você domina esse alfabeto, qualquer linguagem (JavaScript, Python, PHP,
+          o que for) vira só uma questão de vocabulário e sintaxe diferentes para as mesmas ideias.
+        </p>
+
+        <h2>Do código até a tela</h2>
+        <p>
+          Você escreve o código num arquivo de texto simples — o computador não entende português nem inglês, ele
+          entende apenas sinais elétricos (ligado/desligado, 0 e 1). Entre o que você escreve e o que o processador
+          executa existe um programa tradutor, chamado <strong>compilador</strong> ou <strong>interpretador</strong>,
+          dependendo da linguagem. Ele pega seu texto e transforma em instruções que o hardware consegue rodar. Você
+          não precisa entender os detalhes disso agora — só precisa saber que existe essa "ponte" e que é por isso que
+          precisamos instalar programas específicos (como o Node.js, para rodar JavaScript fora do navegador) para
+          executar código.
+        </p>
+
+        <h3>Seu primeiro programa</h3>
+        <p>
+          Nesta trilha vamos usar principalmente JavaScript para os exemplos, porque ele roda em qualquer navegador
+          sem precisar instalar nada — basta abrir as ferramentas de desenvolvedor do navegador (tecla F12) e digitar
+          na aba "Console". O programa mais clássico de todos manda o computador exibir uma mensagem:
+        </p>
+        <pre><code>// Isto é um comentário: o computador ignora tudo depois de //
+// Serve só para humanos lerem e entenderem o código.
+
+console.log("Olá, mundo!");
+// Isso manda o computador escrever "Olá, mundo!" na tela (no console).</code></pre>
+        <p>
+          Repare em três coisas importantes nesse exemplo pequeno: primeiro, o comando <code>console.log(...)</code> é
+          uma instrução que já vem pronta na linguagem JavaScript, pedindo para "mostrar algo na tela". Segundo, o
+          texto <code>"Olá, mundo!"</code> está entre aspas — isso diz ao computador "isto é um texto literal, não é
+          um comando". Terceiro, a linha termina com ponto e vírgula <code>;</code>, que é como dizemos "fim da
+          instrução", parecido com o ponto final de uma frase.
+        </p>
+
+        <div class="box box-dica">
+          <span class="box-titulo">Dica</span>
+          Toda linguagem de programação tem sua versão do "Olá, mundo!" — é o exemplo tradicional para testar se o
+          ambiente está funcionando. Quando você for aprender uma linguagem nova, esse costuma ser o primeiro passo.
+        </div>
+
+        <h2>Programar é resolver problemas, não decorar comandos</h2>
+        <p>
+          Um erro comum de quem está começando é achar que programar é decorar uma lista enorme de comandos. Na
+          prática, o comando em si é a parte mais fácil — você pode procurar a sintaxe exata a qualquer momento. A
+          parte difícil (e a que realmente importa) é <strong>pensar em como quebrar um problema do mundo real em
+          passos que o computador consiga seguir</strong>. Por exemplo: "calcular o troco de uma compra" parece
+          simples para uma pessoa, mas para o computador você precisa detalhar: pegar o valor pago, pegar o valor
+          total, subtrair um do outro, e mostrar o resultado. Esse tipo de raciocínio — transformar uma tarefa vaga em
+          passos exatos — é o que chamamos de <strong>lógica de programação</strong>, e é o assunto central de toda
+          esta primeira trilha.
+        </p>
+
+        <div class="box box-atencao">
+          <span class="box-titulo">Atenção</span>
+          Não se preocupe se, no começo, você sentir que "não pensa como programador". Ninguém nasce pensando assim —
+          é uma habilidade que se desenvolve com prática, exatamente como aprender a dirigir ou tocar um instrumento.
+          As primeiras semanas são as mais estranhas; depois, o raciocínio lógico começa a virar automático.
+        </div>
+
+        <h2>O que vem a seguir</h2>
+        <p>
+          Nas próximas lições você vai aprender a guardar informações em <strong>variáveis</strong>, a fazer o
+          computador <strong>tomar decisões</strong>, a <strong>repetir tarefas</strong> automaticamente e a organizar
+          tudo isso em blocos reutilizáveis chamados <strong>funções</strong>. Ao final desta trilha, você já vai
+          conseguir ler e escrever pequenos programas que resolvem problemas reais — e vai ter a base lógica necessária
+          para aprender HTML, CSS, JavaScript "de verdade" e qualquer outra linguagem no resto da trilha Full Stack.
+        </p>
+
+        <h2>Resumo</h2>
+        <ul class="checklist">
+          <li>Programar é escrever instruções extremamente precisas para que o computador execute exatamente o que você quer.</li>
+          <li>Todo programa é feito de poucos blocos básicos: guardar dados, fazer contas, tomar decisões, repetir ações e organizar código em funções.</li>
+          <li>O computador não entende português: existe um tradutor (compilador/interpretador) entre o seu código e o hardware.</li>
+          <li><code>console.log("texto")</code> é o comando mais simples do JavaScript para exibir algo na tela.</li>
+          <li>A parte mais importante de programar não é decorar comandos, é desenvolver a lógica para quebrar problemas em passos simples.</li>
+        </ul>
+
+        <div id="lesson-footer-nav" class="lesson-footer-nav"></div>
+      </main>
+    </div>
+  </div>
+  <script src="../../nav.js"></script>
+</body>
+</html>

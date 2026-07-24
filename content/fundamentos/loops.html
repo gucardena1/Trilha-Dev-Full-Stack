@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Repetição: loops — Trilha Dev Full Stack</title>
+  <link rel="stylesheet" href="../../style.css" />
+</head>
+<body>
+  <div class="layout">
+    <nav id="sidebar"></nav>
+    <div class="content-wrap">
+      <main class="content">
+        <div class="breadcrumb">1. Fundamentos & Lógica</div>
+        <h1 class="lesson-title">Repetição: loops</h1>
+        <p class="lesson-subtitle">Aprenda a fazer o computador repetir uma tarefa automaticamente, sem copiar e colar código.</p>
+
+        <div class="box box-analogia">
+          <span class="box-titulo">Analogia</span>
+          Imagine que você trabalha numa fábrica de camisetas e sua tarefa é dobrar cada camiseta que sai da esteira.
+          Você não escreve uma instrução nova para cada camiseta ("dobre a camiseta 1", "dobre a camiseta 2", "dobre a
+          camiseta 3"...) — você segue uma única instrução repetida: "enquanto houver camiseta na esteira, dobre a
+          próxima". Um loop (repetição) no código é exatamente essa ideia: uma instrução só, que o computador repete
+          sozinho até que uma condição diga "pare".
+        </div>
+
+        <p>
+          Sem loops, para exibir os números de 1 a 5 você teria que escrever cinco linhas quase idênticas. Com um
+          loop, você escreve a regra uma única vez e o computador se encarrega de repetir.
+        </p>
+        <pre><code>// Sem loop (funciona, mas não escala — imagine ir até 1000!)
+console.log(1);
+console.log(2);
+console.log(3);
+console.log(4);
+console.log(5);</code></pre>
+
+        <h2>O loop for</h2>
+        <p>
+          O <code>for</code> é o loop mais usado quando sabemos, de antemão, quantas vezes queremos repetir algo (ou
+          temos uma regra clara de início, fim e passo). Sua estrutura tem três partes separadas por ponto e vírgula:
+        </p>
+        <pre><code>for (let i = 1; i &lt;= 5; i++) {
+  console.log(i);
+}
+// Mostra: 1, 2, 3, 4, 5</code></pre>
+        <p>As três partes do <code>for</code> são:</p>
+        <ol>
+          <li><strong>Inicialização</strong> (<code>let i = 1</code>): cria uma variável contadora, executada uma única vez, no começo.</li>
+          <li><strong>Condição</strong> (<code>i &lt;= 5</code>): checada antes de cada repetição. Enquanto for verdadeira, o loop continua.</li>
+          <li><strong>Incremento</strong> (<code>i++</code>): executado ao final de cada repetição. <code>i++</code> é um jeito curto de escrever <code>i = i + 1</code>.</li>
+        </ol>
+        <p>
+          A variável <code>i</code> (de "índice") funciona como um contador que a fábrica de camisetas usaria para
+          saber "quantas camisetas eu já dobrei". A cada volta do loop, o JavaScript checa se <code>i</code> ainda
+          satisfaz a condição; se sim, executa o bloco de código de novo; se não, para e segue em frente no
+          programa.
+        </p>
+
+        <div class="box box-atencao">
+          <span class="box-titulo">Atenção</span>
+          O erro mais perigoso com loops é o <strong>loop infinito</strong>: quando a condição nunca se torna falsa,
+          o computador fica repetindo para sempre (ou até travar o navegador). Isso costuma acontecer quando você
+          esquece de atualizar a variável contadora, ou escreve a condição errada. Exemplo de loop infinito por
+          engano: <code>for (let i = 1; i &gt; 0; i++)</code> — a condição <code>i &gt; 0</code> nunca vai deixar de
+          ser verdadeira, então nunca para.
+        </div>
+
+        <h2>O loop while</h2>
+        <p>
+          O <code>while</code> ("enquanto") é útil quando você não sabe de antemão quantas vezes vai repetir — você
+          só sabe a condição que precisa continuar sendo verdadeira. É a estrutura mais próxima da frase "enquanto
+          houver camiseta na esteira, dobre a próxima":
+        </p>
+        <pre><code>let saldo = 100;
+let gastos = 0;
+
+while (saldo &gt; 0) {
+  gastos = gastos + 20;
+  saldo = saldo - 20;
+  console.log("Saldo restante: " + saldo);
+}
+// Mostra: 80, 60, 40, 20, 0 — e para porque saldo deixou de ser &gt; 0</code></pre>
+        <p>
+          Repare que, diferente do <code>for</code>, o <code>while</code> não tem uma sintaxe pronta para "inicializar"
+          ou "incrementar" — você é responsável por atualizar as variáveis manualmente dentro do bloco, senão corre o
+          risco de criar um loop infinito.
+        </p>
+
+        <h3>Variação: do...while</h3>
+        <p>
+          Existe também o <code>do...while</code>, que executa o bloco <strong>pelo menos uma vez</strong> antes de
+          checar a condição — útil, por exemplo, para pedir uma senha ao usuário pelo menos uma vez antes de validar:
+        </p>
+        <pre><code>let tentativas = 0;
+
+do {
+  tentativas++;
+  console.log("Tentativa número " + tentativas);
+} while (tentativas &lt; 3);
+// Mostra: "Tentativa número 1", "2", "3" — sempre roda ao menos uma vez</code></pre>
+
+        <h2>Percorrendo listas com for</h2>
+        <p>
+          Um dos usos mais comuns de loop é percorrer todos os itens de uma lista (que na próxima lição você vai
+          conhecer formalmente como <em>array</em>). Por enquanto, veja o padrão:
+        </p>
+        <pre><code>let frutas = ["maçã", "banana", "uva"];
+
+for (let i = 0; i &lt; frutas.length; i++) {
+  console.log(frutas[i]);
+}
+// Mostra: maçã, banana, uva</code></pre>
+        <p>
+          Note que o índice começa em <code>0</code>, não em <code>1</code> — em quase todas as linguagens de
+          programação, listas são "indexadas a partir de zero". Isso significa que o primeiro item de
+          <code>frutas</code> é <code>frutas[0]</code>, o segundo é <code>frutas[1]</code>, e assim por diante. A
+          propriedade <code>.length</code> devolve quantos itens a lista tem (nesse caso, 3), e por isso a condição do
+          loop é <code>i &lt; frutas.length</code> — se fosse <code>i &lt;= frutas.length</code>, o loop tentaria
+          acessar uma posição que não existe.
+        </p>
+
+        <div class="box box-dica">
+          <span class="box-titulo">Dica</span>
+          Existe uma forma mais moderna e legível de percorrer listas, o <code>for...of</code>, que evita ter que
+          lidar manualmente com índices:
+          <pre><code>for (const fruta of frutas) {
+  console.log(fruta);
+}
+// Mesmo resultado, sem precisar de "i" nem de frutas[i]</code></pre>
+          Use <code>for...of</code> sempre que só precisar do valor de cada item, e o <code>for</code> tradicional
+          quando precisar também saber a posição (índice) de cada item.
+        </div>
+
+        <h2>Interrompendo um loop antes da hora: break e continue</h2>
+        <p>
+          Às vezes você quer sair de um loop antes de ele terminar naturalmente, ou pular uma repetição específica
+          sem interromper tudo. Para isso existem duas palavras-chave:
+        </p>
+        <pre><code>// break: para o loop completamente
+for (let i = 1; i &lt;= 10; i++) {
+  if (i === 5) {
+    break; // sai do loop assim que i chega a 5
+  }
+  console.log(i);
+}
+// Mostra: 1, 2, 3, 4
+
+// continue: pula só esta repetição e vai para a próxima
+for (let i = 1; i &lt;= 5; i++) {
+  if (i === 3) {
+    continue; // pula o número 3, mas o loop continua
+  }
+  console.log(i);
+}
+// Mostra: 1, 2, 4, 5</code></pre>
+
+        <h2>Resumo</h2>
+        <ul class="checklist">
+          <li>Loops repetem um bloco de código automaticamente, evitando escrever a mesma instrução várias vezes.</li>
+          <li><code>for</code> é ideal quando você sabe (ou consegue calcular) quantas vezes repetir; tem inicialização, condição e incremento.</li>
+          <li><code>while</code> repete enquanto uma condição for verdadeira, sem uma sintaxe fixa de contador.</li>
+          <li>Listas são indexadas a partir de zero, e <code>.length</code> devolve a quantidade de itens.</li>
+          <li>Cuidado com loops infinitos: sempre garanta que a condição eventualmente se torne falsa.</li>
+          <li><code>break</code> interrompe o loop inteiro; <code>continue</code> pula só a repetição atual.</li>
+        </ul>
+
+        <div id="lesson-footer-nav" class="lesson-footer-nav"></div>
+      </main>
+    </div>
+  </div>
+  <script src="../../nav.js"></script>
+</body>
+</html>

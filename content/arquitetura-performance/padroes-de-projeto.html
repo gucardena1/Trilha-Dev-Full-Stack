@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Padrões de projeto essenciais — Trilha Dev Full Stack</title>
+  <link rel="stylesheet" href="../../style.css" />
+</head>
+<body>
+  <div class="layout">
+    <nav id="sidebar"></nav>
+    <div class="content-wrap">
+      <main class="content">
+        <div class="breadcrumb">10. Arquitetura &amp; Performance</div>
+        <h1 class="lesson-title">Padrões de projeto essenciais</h1>
+        <p class="lesson-subtitle">Soluções batizadas e reconhecíveis para problemas que aparecem repetidamente em qualquer sistema — assim como uma receita culinária clássica se repete em restaurantes diferentes.</p>
+
+        <div class="box box-analogia">
+          <span class="box-titulo">Analogia</span>
+          Pense em plantas de construção civil. Um arquiteto não reinventa do zero como fazer uma escada em espiral
+          toda vez que precisa de uma: existe um vocabulário conhecido ("escada em L", "escada caracol", "planta
+          baixa aberta") que qualquer outro arquiteto do mundo reconhece na hora e sabe quando usar. Um
+          <strong>design pattern</strong> (padrão de projeto) é esse mesmo tipo de vocabulário, só que para problemas
+          recorrentes de organização de código: em vez de cada desenvolvedor inventar sua própria solução do zero,
+          existe um catálogo de soluções já testadas, com nome próprio, que qualquer outro desenvolvedor que estudou
+          padrões vai reconhecer só de ouvir o nome.
+        </div>
+
+        <p>
+          Um design pattern não é uma biblioteca que você importa, nem um trecho de código pronto para copiar e
+          colar — é uma <strong>estrutura de solução</strong> para um tipo de problema, que você adapta à linguagem e
+          ao contexto do seu projeto. O valor principal de aprender os padrões mais comuns é ganhar um vocabulário
+          compartilhado: quando alguém do time diz "isso aqui parece um caso pra Strategy", todo mundo que conhece o
+          padrão já entende a forma da solução antes mesmo de ver o código.
+        </p>
+        <p>
+          Vamos ver quatro dos padrões mais usados no dia a dia: Singleton, Factory, Strategy e Observer.
+        </p>
+
+        <h2>Singleton — garantir uma única instância</h2>
+        <p>
+          O Singleton garante que uma classe tenha <strong>uma única instância</strong> em todo o sistema, e fornece
+          um ponto de acesso global a ela. É útil quando existe algo que, por natureza, deveria existir só uma vez —
+          uma conexão de configuração global, um logger, um cache compartilhado.
+        </p>
+        <pre><code>class ConfiguracaoApp {
+  static instancia = null;
+
+  constructor() {
+    if (ConfiguracaoApp.instancia) {
+      throw new Error("Use ConfiguracaoApp.obterInstancia()");
+    }
+    this.tema = "claro";
+    this.idioma = "pt-BR";
+  }
+
+  static obterInstancia() {
+    if (!ConfiguracaoApp.instancia) {
+      ConfiguracaoApp.instancia = new ConfiguracaoApp();
+    }
+    return ConfiguracaoApp.instancia;
+  }
+}
+
+// Em qualquer lugar do sistema, sempre o mesmo objeto:
+const config1 = ConfiguracaoApp.obterInstancia();
+const config2 = ConfiguracaoApp.obterInstancia();
+console.log(config1 === config2); // true — é o mesmo objeto</code></pre>
+        <div class="box box-atencao">
+          <span class="box-titulo">Atenção</span>
+          Singleton é, provavelmente, o padrão mais abusado da lista. Ele introduz um estado global escondido no
+          sistema, o que dificulta testes automatizados (cada teste "contamina" o próximo, porque compartilham a
+          mesma instância) e cria acoplamento invisível entre partes do código que, à primeira vista, parecem
+          independentes. Antes de usar Singleton, pergunte se injeção de dependência (passar a instância explicitamente
+          como parâmetro) não resolveria o mesmo problema de forma mais rastreável.
+        </div>
+
+        <h2>Factory — centralizar a criação de objetos</h2>
+        <p>
+          O Factory (fábrica) centraliza a lógica de <strong>como criar</strong> um objeto, escondendo do resto do
+          código os detalhes de qual classe concreta será instanciada. É útil quando a decisão de "qual tipo criar"
+          depende de alguma condição, e você não quer espalhar essa decisão por todo o sistema.
+        </p>
+        <pre><code>class NotificacaoEmail {
+  enviar(msg) { console.log("E-mail:", msg); }
+}
+class NotificacaoSms {
+  enviar(msg) { console.log("SMS:", msg); }
+}
+class NotificacaoPush {
+  enviar(msg) { console.log("Push:", msg); }
+}
+
+class NotificacaoFactory {
+  static criar(tipo) {
+    switch (tipo) {
+      case "email": return new NotificacaoEmail();
+      case "sms": return new NotificacaoSms();
+      case "push": return new NotificacaoPush();
+      default: throw new Error("Tipo de notificação desconhecido: " + tipo);
+    }
+  }
+}
+
+// Quem usa não precisa saber das classes concretas, só do tipo desejado
+const notificacao = NotificacaoFactory.criar(preferenciaDoUsuario);
+notificacao.enviar("Seu pedido chegou!");</code></pre>
+        <p>
+          A vantagem: se amanhã aparecer um novo tipo de notificação (WhatsApp), só a fábrica muda — nenhum lugar do
+          sistema que já usa <code>NotificacaoFactory.criar(...)</code> precisa ser tocado. Isso conecta diretamente
+          com o princípio Aberto/Fechado que vimos na lição de SOLID.
+        </p>
+
+        <h2>Strategy — trocar o algoritmo em tempo de execução</h2>
+        <p>
+          O Strategy define uma família de algoritmos intercambiáveis, encapsula cada um numa classe separada, e
+          permite trocar qual algoritmo usar sem alterar o código que o utiliza. É o mesmo exemplo de "formas de
+          pagamento" que vimos na lição de SOLID (Aberto/Fechado) — não por acaso, já que Strategy é justamente a
+          implementação clássica desse princípio.
+        </p>
+        <pre><code>class OrdenacaoPorPreco {
+  ordenar(produtos) {
+    return [...produtos].sort((a, b) => a.preco - b.preco);
+  }
+}
+class OrdenacaoPorAvaliacao {
+  ordenar(produtos) {
+    return [...produtos].sort((a, b) => b.avaliacao - a.avaliacao);
+  }
+}
+class OrdenacaoPorRelevancia {
+  ordenar(produtos) {
+    return [...produtos].sort((a, b) => b.relevancia - a.relevancia);
+  }
+}
+
+class ListaDeProdutos {
+  constructor(estrategiaDeOrdenacao) {
+    this.estrategia = estrategiaDeOrdenacao;
+  }
+  setEstrategia(novaEstrategia) {
+    this.estrategia = novaEstrategia;
+  }
+  exibir(produtos) {
+    return this.estrategia.ordenar(produtos);
+  }
+}
+
+const lista = new ListaDeProdutos(new OrdenacaoPorPreco());
+lista.exibir(produtos); // ordenado por preço
+
+lista.setEstrategia(new OrdenacaoPorAvaliacao());
+lista.exibir(produtos); // agora ordenado por avaliação, sem mudar ListaDeProdutos</code></pre>
+        <p>
+          O ganho principal do Strategy é evitar um único método gigante cheio de <code>if</code>/<code>else</code>
+          ou <code>switch</code> para cada variação de comportamento — cada variação vira sua própria classe pequena
+          e testável isoladamente.
+        </p>
+
+        <h2>Observer — avisar várias partes quando algo acontece</h2>
+        <p>
+          O Observer define uma relação de um-para-muitos entre objetos: quando um objeto (o "sujeito") muda de
+          estado, todos os objetos inscritos como "observadores" são avisados automaticamente. É o padrão por trás de
+          praticamente todo sistema de eventos — inclusive o <code>addEventListener</code> do navegador é, na
+          essência, um Observer.
+        </p>
+        <pre><code>class PedidoSujeito {
+  constructor() {
+    this.observadores = [];
+  }
+  inscrever(observador) {
+    this.observadores.push(observador);
+  }
+  notificarTodos(pedido) {
+    for (const observador of this.observadores) {
+      observador.aoReceberPedido(pedido);
+    }
+  }
+  criarPedido(pedido) {
+    // ... salva o pedido no banco ...
+    this.notificarTodos(pedido);
+  }
+}
+
+class EnviarEmailConfirmacao {
+  aoReceberPedido(pedido) {
+    console.log("Enviando e-mail de confirmação para", pedido.clienteEmail);
+  }
+}
+class AtualizarEstoque {
+  aoReceberPedido(pedido) {
+    console.log("Baixando estoque dos itens do pedido", pedido.id);
+  }
+}
+class RegistrarMetrica {
+  aoReceberPedido(pedido) {
+    console.log("Registrando métrica de venda", pedido.total);
+  }
+}
+
+const sujeito = new PedidoSujeito();
+sujeito.inscrever(new EnviarEmailConfirmacao());
+sujeito.inscrever(new AtualizarEstoque());
+sujeito.inscrever(new RegistrarMetrica());
+
+sujeito.criarPedido({ id: 42, clienteEmail: "ana@email.com", total: 150 });
+// as três ações acontecem automaticamente, sem que PedidoSujeito precise conhecer os detalhes de cada uma</code></pre>
+        <p>
+          A vantagem central: <code>PedidoSujeito</code> não precisa saber quantos nem quais observadores existem —
+          ele só anuncia "um pedido foi criado" e cada observador decide, por conta própria, o que fazer com essa
+          informação. Adicionar uma quarta ação (por exemplo, notificar o time de logística) não exige tocar em
+          <code>PedidoSujeito</code>, só cadastrar mais um observador.
+        </p>
+
+        <div class="box box-dica">
+          <span class="box-titulo">Dica</span>
+          Você não precisa "decidir usar um padrão" antes de escrever código. É mais comum (e mais saudável) escrever
+          a solução mais direta possível primeiro e, quando perceber que o problema se encaixa na forma de um padrão
+          conhecido, refatorar para ele — nesse ponto o padrão vira uma ferramenta de comunicação com o time, não uma
+          regra imposta de antemão.
+        </div>
+
+        <div class="box box-atencao">
+          <span class="box-titulo">Atenção — patterns não são troféu</span>
+          Um erro comum de quem acabou de aprender padrões de projeto é querer aplicar um em cada canto do código,
+          mesmo onde a solução direta e simples já resolveria bem. Um <code>if</code>/<code>else</code> com duas
+          opções que nunca vão mudar não precisa virar um Strategy com duas classes. Padrões de projeto resolvem
+          problemas de variação e crescimento reais — usá-los como exibição de conhecimento tende a deixar o código
+          mais difícil de entender, não mais fácil.
+        </div>
+
+        <h2>Resumo</h2>
+        <ul class="checklist">
+          <li>Design pattern é uma estrutura de solução reconhecível para um problema recorrente, não uma biblioteca pronta.</li>
+          <li>Singleton garante uma única instância global — útil, mas fácil de abusar e complica testes.</li>
+          <li>Factory centraliza a decisão de qual classe concreta instanciar, escondendo isso do resto do sistema.</li>
+          <li>Strategy troca o algoritmo usado em tempo de execução, evitando um método gigante cheio de condicionais.</li>
+          <li>Observer avisa vários interessados automaticamente quando algo muda, sem acoplar o "avisador" a cada um deles.</li>
+          <li>Aplicar um padrão onde o problema não pede complexidade extra é over-engineering, não boa prática.</li>
+        </ul>
+
+        <div id="lesson-footer-nav" class="lesson-footer-nav"></div>
+      </main>
+    </div>
+  </div>
+  <script src="../../nav.js"></script>
+</body>
+</html>

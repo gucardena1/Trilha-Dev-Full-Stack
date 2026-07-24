@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DevTools do navegador — Trilha Dev Full Stack</title>
+  <link rel="stylesheet" href="../../style.css" />
+</head>
+<body>
+  <div class="layout">
+    <nav id="sidebar"></nav>
+    <div class="content-wrap">
+      <main class="content">
+        <div class="breadcrumb">11. Deploy, DevOps & Debug</div>
+        <h1 class="lesson-title">DevTools do navegador</h1>
+        <p class="lesson-subtitle">O painel de instrumentos escondido dentro de todo navegador, feito para quem desenvolve.</p>
+
+        <div class="box box-analogia">
+          <span class="box-titulo">Analogia</span>
+          Pense num carro moderno com um painel de diagnóstico embutido, que os mecânicos conectam para ver
+          exatamente o que está acontecendo dentro do motor: temperatura, sensores, códigos de erro, tudo em
+          tempo real. O motorista comum nunca precisa abrir esse painel — mas para quem conserta carros, é a
+          ferramenta mais importante que existe. As <strong>DevTools</strong> (ferramentas de desenvolvedor) são
+          esse painel escondido dentro do navegador: qualquer pessoa usando a internet normalmente nunca as abre,
+          mas para quem desenvolve, é onde a mágica de investigar e consertar problemas acontece.
+        </div>
+
+        <h2>Como abrir o DevTools</h2>
+        <p>
+          Todo navegador moderno (Chrome, Firefox, Edge, Safari) já vem com essas ferramentas embutidas, sem
+          precisar instalar nada. As formas mais comuns de abrir são:
+        </p>
+        <ul>
+          <li>Apertar a tecla <strong>F12</strong>.</li>
+          <li>O atalho <strong>Ctrl+Shift+I</strong> (Windows/Linux) ou <strong>Cmd+Option+I</strong> (Mac).</li>
+          <li>Clicar com o botão direito em qualquer parte da página e escolher <strong>"Inspecionar"</strong> ou <strong>"Inspecionar elemento"</strong>.</li>
+        </ul>
+        <p>
+          Isso abre um painel (geralmente do lado ou embaixo da página) dividido em várias abas, cada uma
+          dedicada a investigar um aspecto diferente do que está acontecendo ali. As mais usadas no dia a dia são
+          Console, Elements e Network — vamos por partes.
+        </p>
+
+        <h2>Aba Console: onde o código "fala" com você</h2>
+        <p>
+          O <strong>Console</strong> é, ao mesmo tempo, um terminal onde você pode digitar e testar comandos de
+          JavaScript na hora, e um lugar onde mensagens aparecem sozinhas — seja porque o próprio código da
+          página as imprimiu de propósito, seja porque algo deu errado. Se um site trava ou se comporta de forma
+          estranha, o Console costuma ser o primeiro lugar a olhar, porque erros de JavaScript aparecem ali,
+          normalmente em vermelho, junto com uma explicação do que aconteceu e em qual arquivo e linha.
+        </p>
+        <p>
+          Uma das ferramentas mais úteis para quem programa é o próprio comando <code>console.log()</code>,
+          escrito dentro do código, que imprime valores no Console exatamente no momento em que aquela linha é
+          executada — uma forma simples de "espiar" o que está acontecendo por dentro do programa enquanto ele
+          roda:
+        </p>
+        <pre><code>const usuario = { nome: "Ana", idade: 28 };
+console.log("Dados do usuário:", usuario);</code></pre>
+
+        <div class="box box-dica">
+          <span class="box-titulo">Dica</span>
+          Você pode digitar código JavaScript diretamente no Console e apertar Enter para executá-lo na hora,
+          testando pequenos trechos sem precisar mexer em nenhum arquivo. É uma ótima forma de experimentar uma
+          ideia rapidamente antes de escrever ela "de verdade" no código.
+        </div>
+
+        <h2>Aba Elements: inspecionando o HTML e o CSS ao vivo</h2>
+        <p>
+          A aba <strong>Elements</strong> (às vezes chamada de "Inspecionar") mostra o HTML da página exatamente
+          como o navegador o está interpretando neste momento, junto com todo o CSS aplicado a cada elemento
+          selecionado. Ao clicar em qualquer trecho de HTML nessa aba, o elemento correspondente é destacado
+          visualmente na página — e o caminho inverso também funciona: clicar com o botão direito em qualquer
+          parte da página e escolher "Inspecionar" leva direto ao HTML daquele trecho.
+        </p>
+        <p>
+          O mais poderoso dessa aba é que as mudanças feitas ali são <strong>ao vivo</strong>: você pode editar um
+          texto, mudar uma cor, aumentar uma margem, remover uma classe CSS, e ver o resultado instantaneamente na
+          página — sem alterar nenhum arquivo de verdade. É uma forma segura de testar ideias visuais ou entender
+          por que um elemento está com uma aparência inesperada, antes de sair mexendo no código real.
+        </p>
+
+        <h2>Aba Network: vendo as conversas entre navegador e servidor</h2>
+        <p>
+          A aba <strong>Network</strong> (Rede) mostra, em tempo real, cada requisição que a página faz — pedidos
+          de imagens, arquivos CSS e JavaScript, e principalmente chamadas para APIs, buscando ou enviando dados.
+          Para cada requisição, é possível ver o endereço acessado, o método usado (GET, POST, entre outros), o
+          código de status da resposta (como 200 para sucesso ou 404 para "não encontrado"), quanto tempo ela
+          demorou, e o conteúdo exato enviado e recebido.
+        </p>
+        <p>
+          Essa aba é essencial para descobrir problemas como: uma tela que não carrega dados porque a API
+          respondeu com erro; um formulário que parece não enviar nada porque a requisição nunca é disparada; ou
+          uma página lenta porque está buscando um arquivo enorme sem necessidade. Sem o Network, esses problemas
+          exigiriam adivinhação; com ele, basta olhar a requisição e ver exatamente o que aconteceu.
+        </p>
+
+        <h2>Breakpoints básicos: pausando o código no meio da execução</h2>
+        <p>
+          Dentro da aba <strong>Sources</strong> (Fontes), é possível abrir o arquivo JavaScript da página e
+          clicar num número de linha para criar um <strong>breakpoint</strong> — um ponto de parada. Quando o
+          código chega naquela linha durante a execução, ele <strong>pausa exatamente ali</strong>, e o
+          desenvolvedor pode inspecionar o valor de cada variável naquele instante exato, executar o código linha
+          por linha a partir dali, e entender passo a passo o que está acontecendo — bem mais preciso do que
+          espalhar vários <code>console.log()</code> tentando adivinhar onde algo deu errado.
+        </p>
+
+        <div class="box box-atencao">
+          <span class="box-titulo">Atenção</span>
+          É comum, no começo, esquecer breakpoints ativados ou deixar mensagens de <code>console.log()</code>
+          esquecidas no código antes de subir para produção. Vale sempre revisar e limpar isso antes de fazer
+          deploy, para não poluir o Console de quem estiver usando o sistema de verdade.
+        </div>
+
+        <h2>Resumo</h2>
+        <ul class="checklist">
+          <li>DevTools abre com F12, Ctrl+Shift+I (ou Cmd+Option+I no Mac), ou botão direito → Inspecionar.</li>
+          <li>Console mostra mensagens e erros, e permite testar comandos JavaScript diretamente.</li>
+          <li>Elements mostra e permite editar ao vivo o HTML e CSS que o navegador está renderizando.</li>
+          <li>Network mostra todas as requisições feitas pela página, incluindo chamadas de API e seus status.</li>
+          <li>Breakpoints (na aba Sources) pausam a execução numa linha específica para inspecionar variáveis.</li>
+        </ul>
+
+        <div id="lesson-footer-nav" class="lesson-footer-nav"></div>
+      </main>
+    </div>
+  </div>
+  <script src="../../nav.js"></script>
+</body>
+</html>

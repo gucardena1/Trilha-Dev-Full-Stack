@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Entendendo e quebrando demandas — Trilha Dev Full Stack</title>
+  <link rel="stylesheet" href="../../style.css" />
+</head>
+<body>
+  <div class="layout">
+    <nav id="sidebar"></nav>
+    <div class="content-wrap">
+      <main class="content">
+        <div class="breadcrumb">12. Gestão & Soft Skills</div>
+        <h1 class="lesson-title">Entendendo e quebrando demandas</h1>
+        <p class="lesson-subtitle">Antes de escrever a primeira linha de código, aprenda a entender de verdade o que estão te pedindo.</p>
+
+        <div class="box box-analogia">
+          <span class="box-titulo">Analogia</span>
+          Imagine que um amigo te manda uma mensagem: "será que você pode me ajudar a organizar minha casa esse
+          fim de semana?". Isso pode significar mil coisas diferentes: arrumar uma gaveta bagunçada, pintar a
+          parede da sala, fazer uma reforma completa, ou só ajudar a montar uma estante nova. Se você simplesmente
+          aparecer no sábado de manhã com uma lata de tinta, pode ser que tenha "resolvido o problema errado" —
+          mesmo trabalhando duro o dia inteiro. Antes de agir, o mais sensato é perguntar: "organizar como? o que
+          está te incomodando mais agora?". No trabalho de desenvolvedor, receber uma demanda mal explicada é
+          extremamente comum, e a primeira habilidade profissional que vale a pena treinar não é escrever código —
+          é entender exatamente qual problema esse código precisa resolver.
+        </div>
+
+        <p>
+          É muito raro que uma demanda chegue até você já perfeitamente detalhada, com todos os casos previstos e
+          nenhuma ambiguidade. Normalmente ela chega como uma frase curta, escrita por alguém (um chefe, um
+          cliente, um colega de outra área) que não pensa em termos técnicos e que, muitas vezes, nem sabe direito
+          o que quer até conversar sobre isso. Seu trabalho começa antes do código: é transformar um pedido vago em
+          um conjunto de passos claros, pequenos e verificáveis.
+        </p>
+
+        <h2>Sinais de que uma demanda está vaga</h2>
+        <p>
+          Algumas frases são bandeiras vermelhas quase certas de que existe trabalho de esclarecimento a fazer
+          antes de codar qualquer coisa:
+        </p>
+        <ul>
+          <li>"Precisamos de um jeito de exportar os relatórios" (exportar para onde? qual formato? quais relatórios?)</li>
+          <li>"O cliente reclamou que o sistema está lento" (lento em qual tela? em qual momento do dia? para todo mundo ou só alguns usuários?)</li>
+          <li>"Adiciona um filtro ali na listagem" (filtro por qual campo? um ou vários filtros combinados?)</li>
+          <li>"Precisa ficar pronto o quanto antes" (antes de quê? existe uma data real ou é só uma sensação de urgência?)</li>
+        </ul>
+        <p>
+          Nenhuma dessas frases está "errada" — é normal que quem pede algo pense em termos de problema
+          ("preciso disso") e não em termos de solução técnica ("preciso de um endpoint que retorna X filtrando por
+          Y"). A tradução de um para o outro é justamente o seu trabalho, e ela começa com perguntas, não com
+          código.
+        </p>
+
+        <h2>As perguntas certas antes de codar</h2>
+        <p>
+          Um pequeno roteiro de perguntas, feito com calma e educação, evita retrabalho de horas (às vezes dias)
+          mais tarde. Algumas que costumam valer ouro:
+        </p>
+        <ul>
+          <li><strong>Qual problema real isso resolve?</strong> Entender a intenção por trás do pedido ajuda a preencher lacunas sozinho depois, sem precisar perguntar tudo de novo.</li>
+          <li><strong>Quem vai usar isso, e como?</strong> Um relatório para um diretor que olha uma vez por mês é diferente de um painel que uma equipe inteira usa o dia todo.</li>
+          <li><strong>Existe algum exemplo concreto?</strong> Pedir um exemplo real ("me mostra um caso onde isso te incomodou") revela detalhes que a descrição geral não mostra.</li>
+          <li><strong>O que definitivamente NÃO precisa fazer parte disso agora?</strong> Delimitar o escopo evita que a tarefa "cresça" no meio do caminho.</li>
+          <li><strong>Tem prazo real, ou é uma urgência de sensação?</strong> Nem toda urgência é urgência — vale perguntar com respeito, sem parecer que está fugindo do trabalho.</li>
+        </ul>
+
+        <div class="box box-dica">
+          <span class="box-titulo">Dica</span>
+          Depois de conversar, escreva num documento ou mensagem um resumo curto do que você entendeu — "então,
+          pelo que entendi, você precisa de X, para resolver Y, sem se preocupar com Z por enquanto, certo?" — e
+          peça para a pessoa confirmar. Esse pequeno passo de "repetir com suas palavras" pega uma quantidade
+          enorme de mal-entendidos antes que eles virem código pronto e errado.
+        </div>
+
+        <h2>Quebrando uma tarefa grande em pedaços pequenos</h2>
+        <p>
+          Depois de entender o problema, o próximo passo é dividir o trabalho em pedaços pequenos o suficiente
+          para que cada um possa ser feito, testado e considerado "pronto" isoladamente — em vez de uma única
+          tarefa gigante chamada "fazer o sistema de relatórios", que só termina daqui a três semanas e não dá
+          nenhuma visibilidade de progresso até lá.
+        </p>
+        <p>
+          Pegue a demanda "adicionar exportação de relatórios em PDF" como exemplo. Em vez de tratá-la como um
+          bloco único, ela pode virar algo assim:
+        </p>
+        <ul>
+          <li>Descobrir qual biblioteca de geração de PDF a equipe já usa (ou escolher uma nova, se necessário).</li>
+          <li>Montar o layout do PDF com dados fixos de teste, sem se preocupar ainda com os dados reais.</li>
+          <li>Conectar o layout aos dados reais de um único relatório simples.</li>
+          <li>Adicionar o botão de exportar na tela, ligado a essa primeira versão.</li>
+          <li>Testar com dados grandes de verdade (relatórios com muitas linhas, caracteres especiais, valores vazios).</li>
+          <li>Repetir o processo para os demais tipos de relatório, um de cada vez.</li>
+        </ul>
+        <p>
+          Repare que cada item dessa lista pode ser testado sozinho: você consegue dizer "isso está pronto" ou
+          "isso ainda não está pronto" olhando só para aquele pedaço, sem precisar que o projeto inteiro esteja
+          terminado. Essa é a característica mais importante de uma boa subtarefa — ela é pequena o bastante para
+          caber na sua cabeça de uma vez, e clara o bastante para alguém saber quando ela terminou.
+        </p>
+
+        <div class="box box-atencao">
+          <span class="box-titulo">Atenção</span>
+          Uma armadilha comum é aceitar uma tarefa vaga e sair codando na esperança de "entender no meio do
+          caminho". Às vezes funciona, mas frequentemente o resultado é um trabalho de horas jogado fora porque a
+          pessoa entendeu a demanda de um jeito diferente do que ela realmente era. Perguntar antes é sempre mais
+          barato do que refazer depois — mesmo que pareça, no momento, que perguntar está "atrasando" o trabalho.
+        </div>
+
+        <h2>Um exemplo de conversa</h2>
+        <p>Compare estas duas formas de lidar com o mesmo pedido:</p>
+        <pre><code>Gestor: "Precisamos de um jeito de exportar os relatórios."
+
+Ruim:
+Dev: "Ok, beleza, já começo!"
+(3 dias depois, entrega um botão que exporta CSV,
+ mas o gestor queria PDF para enviar a clientes)
+
+Bom:
+Dev: "Show! Só pra eu entender certinho: exportar
+ para qual formato — PDF, Excel, CSV? E é para todos
+ os relatórios ou algum específico primeiro?"
+Gestor: "Ah, PDF, porque a gente manda pra cliente.
+ Pode começar pelo relatório mensal de vendas."
+Dev: "Perfeito, vou começar por aí e te mostro uma
+ primeira versão até quinta."</code></pre>
+        <p>
+          A segunda conversa leva trinta segundos a mais e economiza, com folga, dias de retrabalho. Isso não é
+          burocracia — é a diferença entre trabalhar em algo certo desde o início e trabalhar duro na direção
+          errada.
+        </p>
+
+        <h2>Resumo</h2>
+        <ul class="checklist">
+          <li>Demandas quase sempre chegam vagas — traduzir um pedido em passos claros é parte do seu trabalho, não um desvio dele.</li>
+          <li>Antes de codar, pergunte qual problema real está sendo resolvido, quem vai usar, e o que fica de fora do escopo.</li>
+          <li>Repetir o entendimento com suas palavras ("então você precisa de X para resolver Y, certo?") evita mal-entendidos.</li>
+          <li>Quebre tarefas grandes em pedaços pequenos que podem ser testados e considerados prontos isoladamente.</li>
+          <li>Perguntar antes é sempre mais barato do que descobrir o erro depois de dias de trabalho.</li>
+        </ul>
+
+        <div id="lesson-footer-nav" class="lesson-footer-nav"></div>
+      </main>
+    </div>
+  </div>
+  <script src="../../nav.js"></script>
+</body>
+</html>

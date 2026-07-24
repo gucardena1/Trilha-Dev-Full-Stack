@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Testes unitários — Trilha Dev Full Stack</title>
+  <link rel="stylesheet" href="../../style.css" />
+</head>
+<body>
+  <div class="layout">
+    <nav id="sidebar"></nav>
+    <div class="content-wrap">
+      <main class="content">
+        <div class="breadcrumb">9. Testes</div>
+        <h1 class="lesson-title">Testes unitários</h1>
+        <p class="lesson-subtitle">Testando a menor peça possível do seu código, isolada de todo o resto.</p>
+
+        <div class="box box-analogia">
+          <span class="box-titulo">Analogia</span>
+          Imagine uma fábrica de carros testando cada peça antes de montar o veículo inteiro: o parafuso é testado
+          sozinho para ver se aguenta o peso previsto, o vidro é testado sozinho para ver se resiste a um impacto, o
+          motor é testado sozinho numa bancada, sem estar preso a nenhum carro. Um teste unitário faz exatamente
+          isso com o seu código: pega a menor peça possível — geralmente uma única função — e testa <em>só ela</em>,
+          isolada de bancos de dados, redes, telas e de qualquer outra peça do sistema.
+        </div>
+
+        <h2>O que é uma "unidade"</h2>
+        <p>
+          Uma <strong>unidade</strong> é, na prática, a menor parte testável do seu código de forma isolada —
+          quase sempre uma função, um método ou uma pequena classe. O critério que define se um teste é "unitário"
+          não é o tamanho do código testado, mas sim o <strong>isolamento</strong>: um teste unitário não deve
+          depender de banco de dados real, de chamadas de rede, do sistema de arquivos ou de qualquer outra parte
+          externa ao pedaço de código que está sendo verificado. Se uma função soma dois números, o teste unitário
+          chama essa função com valores conhecidos e confere se o resultado é o esperado — sem abrir conexão com
+          nada.
+        </p>
+        <p>
+          Esse isolamento é o que torna os testes unitários tão rápidos: sem rede, sem disco, sem banco de dados,
+          um teste unitário roda em milissegundos. Um projeto saudável pode ter milhares deles e ainda assim rodar
+          a suíte inteira em poucos segundos — o que permite rodá-la a cada salvamento de arquivo, sem atrapalhar o
+          fluxo de trabalho de quem está programando.
+        </p>
+
+        <h2>O padrão Arrange-Act-Assert</h2>
+        <p>
+          Quase todo teste unitário bem escrito segue a mesma estrutura em três partes, conhecida como
+          <strong>AAA (Arrange, Act, Assert)</strong>:
+        </p>
+        <ul>
+          <li>
+            <strong>Arrange (organizar):</strong> prepara tudo que o teste vai precisar — cria os dados de entrada,
+            instancia os objetos necessários, define os valores esperados.
+          </li>
+          <li>
+            <strong>Act (agir):</strong> executa a ação que está sendo testada — chama a função, com os dados
+            preparados na etapa anterior.
+          </li>
+          <li>
+            <strong>Assert (afirmar):</strong> confere se o resultado obtido é de fato o resultado esperado. Se não
+            for, o teste falha e avisa que algo está errado.
+          </li>
+        </ul>
+        <p>
+          Essa estrutura existe para deixar qualquer teste fácil de ler, mesmo por quem não o escreveu: basta olhar
+          as três partes, na ordem, para entender o que está sendo verificado e por quê.
+        </p>
+
+        <h2>Exemplo com PHPUnit (PHP)</h2>
+        <p>
+          Suponha uma função simples que calcula o preço final de um produto aplicando um desconto percentual.
+          Primeiro, o código sendo testado:
+        </p>
+        <pre><code>function calcularPrecoComDesconto(float $preco, float $percentualDesconto): float
+{
+    $desconto = $preco * ($percentualDesconto / 100);
+    return $preco - $desconto;
+}</code></pre>
+        <p>Agora o teste unitário, usando o PHPUnit, a ferramenta de testes mais usada no mundo PHP:</p>
+        <pre><code>use PHPUnit\Framework\TestCase;
+
+class CalculadoraDePrecoTest extends TestCase
+{
+    public function testAplicaDezPorCentoDeDesconto(): void
+    {
+        // Arrange: preparamos os valores de entrada e o resultado esperado
+        $precoOriginal = 200.0;
+        $percentualDesconto = 10.0;
+        $resultadoEsperado = 180.0;
+
+        // Act: executamos a função que estamos testando
+        $resultadoObtido = calcularPrecoComDesconto($precoOriginal, $percentualDesconto);
+
+        // Assert: conferimos se o resultado bate com o esperado
+        $this->assertEquals($resultadoEsperado, $resultadoObtido);
+    }
+}</code></pre>
+        <p>
+          Rodando <code>phpunit</code> no terminal, essa classe é executada automaticamente, e o PHPUnit informa se
+          o teste passou (o resultado bateu) ou falhou (e, se falhou, mostra exatamente qual era o valor esperado e
+          qual foi o valor obtido).
+        </p>
+
+        <h2>Exemplo com Vitest (JavaScript)</h2>
+        <p>
+          O mesmo raciocínio, agora em JavaScript, usando o Vitest — uma ferramenta de testes moderna e muito
+          próxima do Jest, outra ferramenta popular no ecossistema JavaScript:
+        </p>
+        <pre><code>// precos.js
+export function calcularPrecoComDesconto(preco, percentualDesconto) {
+  const desconto = preco * (percentualDesconto / 100);
+  return preco - desconto;
+}</code></pre>
+        <pre><code>// precos.test.js
+import { describe, it, expect } from 'vitest';
+import { calcularPrecoComDesconto } from './precos.js';
+
+describe('calcularPrecoComDesconto', () => {
+  it('aplica 10% de desconto corretamente', () => {
+    // Arrange
+    const precoOriginal = 200;
+    const percentualDesconto = 10;
+    const resultadoEsperado = 180;
+
+    // Act
+    const resultadoObtido = calcularPrecoComDesconto(precoOriginal, percentualDesconto);
+
+    // Assert
+    expect(resultadoObtido).toBe(resultadoEsperado);
+  });
+});</code></pre>
+        <p>
+          Repare que a estrutura é praticamente idêntica à do PHPUnit — só muda a sintaxe da linguagem. Isso não é
+          coincidência: o padrão AAA é o mesmo em qualquer linguagem ou ferramenta de teste, porque descreve uma
+          forma de pensar, não uma sintaxe específica.
+        </p>
+
+        <div class="box box-dica">
+          <span class="box-titulo">Dica</span>
+          Dê nomes descritivos aos seus testes, como <code>aplica_dez_por_cento_de_desconto</code> em vez de
+          <code>teste1</code>. Quando um teste falha meses depois, o nome sozinho já deveria contar boa parte da
+          história do que quebrou, sem que ninguém precise abrir o código do teste para entender o que estava
+          sendo verificado.
+        </div>
+
+        <h2>Mocks: fingindo as partes que você não quer testar de verdade</h2>
+        <p>
+          Nem todo código é tão isolado quanto uma calculadora de desconto. Muitas funções dependem de outras
+          peças — um banco de dados, uma API externa, o relógio do sistema — que você <em>não</em> quer envolver de
+          verdade num teste unitário, porque isso o tornaria lento, instável (a API pode estar fora do ar) ou até
+          perigoso (imagine um teste que sem querer envia um e-mail de verdade para um cliente).
+        </p>
+        <p>
+          Um <strong>mock</strong> é uma versão falsa e controlada dessa dependência, criada só para o teste. Pense
+          num mock como um ator dublê num filme de ação: ele não é o verdadeiro protagonista, mas se comporta
+          exatamente como o roteiro pede naquela cena específica, permitindo gravar a cena sem o risco de usar a
+          pessoa real. Se sua função envia um e-mail de confirmação, o teste unitário não precisa de um servidor de
+          e-mail de verdade — ele usa um mock que apenas <em>finge</em> enviar, e o teste confere se a função
+          <em>tentou</em> enviar o e-mail certo, para a pessoa certa.
+        </p>
+        <pre><code>import { describe, it, expect, vi } from 'vitest';
+import { notificarCliente } from './notificacoes.js';
+
+describe('notificarCliente', () => {
+  it('chama o serviço de e-mail com os dados corretos', () => {
+    // Arrange: criamos um mock que substitui o envio de e-mail de verdade
+    const servicoDeEmailFalso = { enviar: vi.fn() };
+
+    // Act
+    notificarCliente(servicoDeEmailFalso, 'ana@exemplo.com', 'Pedido confirmado');
+
+    // Assert: conferimos que o mock foi chamado com os argumentos esperados,
+    // sem que nenhum e-mail de verdade tenha saído
+    expect(servicoDeEmailFalso.enviar).toHaveBeenCalledWith(
+      'ana@exemplo.com',
+      'Pedido confirmado'
+    );
+  });
+});</code></pre>
+
+        <div class="box box-atencao">
+          <span class="box-titulo">Atenção</span>
+          Use mocks para isolar dependências externas (banco de dados, rede, tempo, arquivos) — não para fugir de
+          testar o comportamento real da sua própria lógica. Um erro comum é "mockar demais" e acabar testando
+          apenas se as funções foram chamadas, sem nunca verificar se o resultado final está correto. Prefira
+          sempre testar o <strong>comportamento observável</strong> (o que a função retorna, o que ela realmente
+          faz) em vez de <strong>detalhes de implementação</strong> (como exatamente ela faz por dentro) — testes
+          presos a detalhes de implementação quebram toda vez que você refatora o código, mesmo sem introduzir
+          nenhum bug.
+        </div>
+
+        <h2>Resumo</h2>
+        <ul class="checklist">
+          <li>Uma unidade é a menor parte testável isoladamente — normalmente uma função ou método.</li>
+          <li>Todo teste unitário bem escrito segue o padrão Arrange-Act-Assert: organizar, agir, afirmar.</li>
+          <li>PHPUnit (PHP) e Vitest/Jest (JavaScript) são ferramentas populares para escrever e rodar testes unitários.</li>
+          <li>Mocks substituem dependências externas (banco, API, e-mail) por versões falsas e controladas.</li>
+          <li>Teste o comportamento observável da função, não os detalhes internos de como ela foi implementada.</li>
+        </ul>
+
+        <div id="lesson-footer-nav" class="lesson-footer-nav"></div>
+      </main>
+    </div>
+  </div>
+  <script src="../../nav.js"></script>
+</body>
+</html>

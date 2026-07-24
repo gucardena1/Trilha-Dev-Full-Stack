@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Performance no frontend — Trilha Dev Full Stack</title>
+  <link rel="stylesheet" href="../../style.css" />
+</head>
+<body>
+  <div class="layout">
+    <nav id="sidebar"></nav>
+    <div class="content-wrap">
+      <main class="content">
+        <div class="breadcrumb">10. Arquitetura &amp; Performance</div>
+        <h1 class="lesson-title">Performance no frontend</h1>
+        <p class="lesson-subtitle">Um site rápido não é luxo: é a diferença entre um visitante que fica e um que fecha a aba antes mesmo de ver o conteúdo.</p>
+
+        <div class="box box-analogia">
+          <span class="box-titulo">Analogia</span>
+          Imagine chegar a um restaurante e o garçom trazer, de uma vez só, os vinte pratos do cardápio inteiro pra
+          mesa — mesmo que você só vá comer três. Você espera muito mais tempo até a primeira garfada, a mesa fica
+          lotada de coisa que você nem pediu, e boa parte da comida esfria sem ser tocada. Um site lento costuma
+          cometer o mesmo erro: carrega tudo de uma vez (imagens gigantes, todo o JavaScript do site inteiro, fontes
+          que ninguém vai ler) antes de deixar o visitante ver qualquer coisa útil. Performance de frontend é, na
+          essência, servir primeiro o que a pessoa precisa agora, e deixar o resto para depois — ou só quando for
+          realmente pedido.
+        </div>
+
+        <p>
+          Performance de frontend importa por um motivo muito concreto: estudos de mercado mostram, repetidamente,
+          que cada segundo extra de carregamento reduz a taxa de conversão e aumenta a taxa de abandono — em e-commerce,
+          isso se traduz diretamente em dinheiro perdido. Além do fator comercial, mecanismos de busca (como o
+          Google) usam sinais de performance como parte do ranqueamento de páginas, então um site lento também aparece
+          pior nos resultados de busca.
+        </p>
+
+        <h2>Lazy loading: carregar só quando for preciso</h2>
+        <p>
+          <strong>Lazy loading</strong> ("carregamento preguiçoso") é a técnica de adiar o carregamento de um recurso
+          até o momento em que ele realmente vai ser exibido ou usado. O exemplo mais comum é imagens: numa página
+          longa, com 50 imagens, não faz sentido baixar as 45 que estão lá embaixo antes mesmo do visitante rolar a
+          página até elas.
+        </p>
+        <pre><code>&lt;!-- Sem lazy loading: o navegador baixa a imagem assim que a página carrega,
+     mesmo que ela esteja no rodapé, bem longe do que a pessoa está vendo --&gt;
+&lt;img src="banner-grande.jpg" alt="Banner promocional" /&gt;
+
+&lt;!-- Com lazy loading nativo do navegador: a imagem só é baixada
+     quando está prestes a entrar na área visível da tela --&gt;
+&lt;img src="banner-grande.jpg" alt="Banner promocional" loading="lazy" /&gt;</code></pre>
+        <p>
+          O mesmo princípio se aplica a componentes JavaScript inteiros. Em aplicações modernas (React, Vue, e
+          similares), é comum dividir o código em pedaços ("code splitting") e só baixar o código de uma tela quando
+          o usuário realmente navega até ela — por exemplo, o código do painel administrativo não precisa ser
+          baixado por um visitante que só está olhando a página inicial.
+        </p>
+        <pre><code>// Sem lazy loading: o componente pesado é importado sempre, mesmo se o usuário nunca abrir esse modal
+import RelatorioComGraficos from "./RelatorioComGraficos";
+
+// Com lazy loading: o código só é baixado quando o componente realmente for usado
+const RelatorioComGraficos = lazy(() => import("./RelatorioComGraficos"));</code></pre>
+
+        <h2>Otimização de imagens</h2>
+        <p>
+          Imagens costumam ser o maior peso de uma página em kilobytes transferidos. Algumas práticas reduzem
+          drasticamente esse peso sem sacrificar a qualidade visual percebida:
+        </p>
+        <ul>
+          <li><strong>Formato certo:</strong> formatos modernos como WebP e AVIF comprimem melhor que JPEG/PNG para o mesmo nível de qualidade visual, gerando arquivos bem menores.</li>
+          <li><strong>Dimensão real de exibição:</strong> uma imagem de 4000px de largura exibida num espaço de 400px desperdiça 10x o dado necessário — redimensionar a imagem para o tamanho real de exibição (ou usar <code>srcset</code> para servir tamanhos diferentes por dispositivo) evita esse desperdício.</li>
+          <li><strong>Compressão:</strong> ferramentas de compressão (com ou sem perda perceptível de qualidade) frequentemente cortam 50-80% do peso do arquivo original exportado direto de uma câmera ou editor de imagem.</li>
+        </ul>
+        <pre><code>&lt;!-- srcset: o navegador escolhe a imagem mais adequada pro tamanho de tela do dispositivo --&gt;
+&lt;img
+  src="produto-800.jpg"
+  srcset="produto-400.jpg 400w, produto-800.jpg 800w, produto-1600.jpg 1600w"
+  sizes="(max-width: 600px) 400px, 800px"
+  alt="Foto do produto"
+/&gt;</code></pre>
+
+        <h2>Minificação e bundling (conceitual)</h2>
+        <p>
+          Código-fonte de verdade é escrito pensando em quem vai ler (nomes descritivos, espaçamento, comentários) —
+          mas o navegador não precisa de nada disso para executar o código, só precisa que ele funcione.
+          <strong>Minificação</strong> é o processo automático que remove espaços em branco, encurta nomes de
+          variáveis internas e elimina comentários do código antes de ele ser enviado ao navegador, reduzindo o peso
+          do arquivo sem mudar seu comportamento.
+        </p>
+        <pre><code>// Antes da minificação (código-fonte, legível)
+function calcularTotalDoCarrinho(itens) {
+  let total = 0;
+  for (const item of itens) {
+    total = total + item.preco * item.quantidade;
+  }
+  return total;
+}
+
+// Depois da minificação (o que realmente vai pro navegador)
+function calcularTotalDoCarrinho(e){let t=0;for(const r of e)t+=r.preco*r.quantidade;return t}</code></pre>
+        <p>
+          Já <strong>bundling</strong> é o processo de juntar vários arquivos JavaScript/CSS separados (que existem
+          como arquivos individuais durante o desenvolvimento, para facilitar a organização) num número menor de
+          arquivos finais. Isso reduz a quantidade de requisições HTTP separadas que o navegador precisa fazer para
+          buscar cada arquivo — historicamente uma otimização importante, e ainda relevante mesmo com HTTP/2
+          permitindo múltiplas requisições em paralelo mais eficientemente. Ferramentas como Vite, Webpack e esbuild
+          fazem esse trabalho de minificação e bundling automaticamente como parte do processo de build, então na
+          prática você raramente faz isso manualmente — mas entender o que acontece por trás ajuda a interpretar
+          configurações de build e diagnosticar por que um bundle ficou grande demais.
+        </p>
+
+        <h2>Core Web Vitals: como o Google mede "rápido"</h2>
+        <p>
+          O Google definiu um conjunto de métricas chamado <strong>Core Web Vitals</strong> para quantificar a
+          experiência real de carregamento e interação de uma página, do ponto de vista de quem está usando o site
+          (não só "quanto tempo o servidor demorou para responder"). As três principais:
+        </p>
+        <ul>
+          <li><strong>LCP (Largest Contentful Paint):</strong> quanto tempo até o maior elemento visível da tela (geralmente uma imagem ou bloco de texto principal) aparecer na tela. Mede a percepção de "a página carregou".</li>
+          <li><strong>INP (Interaction to Next Paint):</strong> quanto tempo entre o usuário clicar/tocar em algo e a tela responder visualmente a essa ação. Mede a sensação de "o site está travado ou responsivo".</li>
+          <li><strong>CLS (Cumulative Layout Shift):</strong> o quanto os elementos da página "pulam de lugar" durante o carregamento (por exemplo, um anúncio que carrega depois e empurra o texto que você estava lendo). Mede a estabilidade visual.</li>
+        </ul>
+        <p>
+          Você não precisa decorar as fórmulas exatas dessas métricas — o importante é entender a ideia por trás de
+          cada uma, porque elas guiam diretamente as práticas anteriores: lazy loading e otimização de imagens
+          melhoram o LCP, minificação e bundling reduzem o tempo até o JavaScript ficar pronto (o que ajuda no INP), e
+          reservar espaço fixo para imagens (com atributos <code>width</code>/<code>height</code>) evita quedas de
+          CLS.
+        </p>
+
+        <div class="box box-dica">
+          <span class="box-titulo">Dica</span>
+          As ferramentas de desenvolvedor do próprio navegador (aba "Lighthouse" no Chrome DevTools, ou o site
+          PageSpeed Insights do Google) medem essas métricas automaticamente e apontam, na prática, qual otimização
+          traria mais ganho para uma página específica — é sempre melhor medir antes de otimizar às cegas.
+        </div>
+
+        <div class="box box-atencao">
+          <span class="box-titulo">Atenção</span>
+          Lazy loading aplicado à primeira imagem visível da tela (a que aparece assim que a página abre, sem
+          precisar rolar) é contraproducente: em vez de acelerar, você atrasa justamente o elemento que define o LCP,
+          porque o navegador só começa a buscá-lo depois de descobrir que ele está na tela. A regra prática é: lazy
+          loading para o que está "abaixo da dobra" (fora da área visível inicial), carregamento imediato e
+          priorizado para o que aparece assim que a página abre.
+        </div>
+
+        <h2>Resumo</h2>
+        <ul class="checklist">
+          <li>Lazy loading adia o carregamento de imagens e componentes até o momento em que realmente serão exibidos.</li>
+          <li>Formato certo, dimensão de exibição real e compressão reduzem drasticamente o peso de imagens.</li>
+          <li>Minificação remove excesso do código para o navegador; bundling reduz a quantidade de arquivos separados.</li>
+          <li>Core Web Vitals (LCP, INP, CLS) medem a experiência real de carregamento, resposta e estabilidade visual.</li>
+          <li>Lazy loading deve poupar o que está fora da tela inicial — aplicado ao conteúdo visível de imediato, atrapalha o LCP.</li>
+        </ul>
+
+        <div id="lesson-footer-nav" class="lesson-footer-nav"></div>
+      </main>
+    </div>
+  </div>
+  <script src="../../nav.js"></script>
+</body>
+</html>

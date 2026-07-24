@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Camadas e API REST — Trilha Dev Full Stack</title>
+  <link rel="stylesheet" href="../../style.css" />
+</head>
+<body>
+  <div class="layout">
+    <nav id="sidebar"></nav>
+    <div class="content-wrap">
+      <main class="content">
+        <div class="breadcrumb">10. Arquitetura &amp; Performance</div>
+        <h1 class="lesson-title">Camadas e API REST</h1>
+        <p class="lesson-subtitle">Como organizar um backend em fatias de responsabilidade, e como expor essas fatias para o mundo através de uma API que qualquer cliente HTTP consegue conversar.</p>
+
+        <div class="box box-analogia">
+          <span class="box-titulo">Analogia</span>
+          Pense num restaurante. O garçom (controller) recebe o pedido do cliente, traduz para a cozinha e devolve o
+          prato pronto — ele não sabe cozinhar, só sabe conversar com o cliente e repassar o pedido. A cozinha
+          (service) é onde a receita de verdade acontece: as regras do prato, o tempero, o ponto da carne — a lógica
+          do negócio. E o estoque (repository) é quem sabe exatamente onde cada ingrediente está guardado e como
+          buscá-lo, sem que a cozinha precise se preocupar se a cebola está na prateleira 3 ou 4. Cada um faz sua
+          parte e não invade o trabalho do outro: se o restaurante trocar de fornecedor de ingredientes, a cozinha
+          nem percebe; se mudar a receita, o garçom continua entregando o prato do mesmo jeito.
+        </div>
+
+        <h2>Arquitetura em camadas: controller, service, repository</h2>
+        <p>
+          Uma das formas mais comuns de organizar um backend é dividir o código em <strong>camadas</strong>, cada uma
+          com uma responsabilidade clara e comunicação apenas com a camada vizinha:
+        </p>
+        <ul>
+          <li><strong>Controller (ou "route handler"):</strong> recebe a requisição HTTP, extrai os dados (parâmetros, corpo, cabeçalhos), chama o service certo e devolve a resposta HTTP formatada. Não deveria conter regra de negócio.</li>
+          <li><strong>Service:</strong> contém as regras de negócio de verdade — validações, cálculos, decisões. É a camada que "sabe" o que o sistema faz, sem saber nada sobre HTTP nem sobre SQL.</li>
+          <li><strong>Repository:</strong> conversa com a fonte de dados (banco de dados, cache, API externa). Sabe <em>como</em> buscar e salvar, mas não sabe <em>por quê</em> — isso é papel do service.</li>
+        </ul>
+        <pre><code>// repository — só sabe conversar com o banco
+class PedidoRepository {
+  async buscarPorId(id) {
+    return db.query("SELECT * FROM pedidos WHERE id = ?", [id]);
+  }
+  async salvar(pedido) {
+    return db.query("INSERT INTO pedidos (...) VALUES (...)", [pedido]);
+  }
+}
+
+// service — só sabe a regra de negócio, não sabe nada de HTTP nem de SQL
+class PedidoService {
+  constructor(pedidoRepository) {
+    this.pedidoRepository = pedidoRepository;
+  }
+  async criarPedido(dadosPedido) {
+    if (!dadosPedido.itens || dadosPedido.itens.length === 0) {
+      throw new Error("Pedido precisa de ao menos um item");
+    }
+    const total = dadosPedido.itens.reduce((s, i) => s + i.preco * i.quantidade, 0);
+    const pedido = { ...dadosPedido, total, status: "pendente" };
+    return this.pedidoRepository.salvar(pedido);
+  }
+}
+
+// controller — só sabe conversar com HTTP, delega a lógica pro service
+class PedidoController {
+  constructor(pedidoService) {
+    this.pedidoService = pedidoService;
+  }
+  async criar(req, res) {
+    try {
+      const pedido = await this.pedidoService.criarPedido(req.body);
+      res.status(201).json(pedido);
+    } catch (erro) {
+      res.status(400).json({ mensagem: erro.message });
+    }
+  }
+}</code></pre>
+        <p>
+          O benefício mais prático dessa separação: você consegue testar <code>PedidoService</code> sem subir um
+          servidor HTTP e sem um banco de dados real (basta passar um <code>PedidoRepository</code> falso, "de
+          mentira", nos testes). E se um dia o sistema ganhar uma segunda porta de entrada — por exemplo, um comando
+          de linha ou uma fila de mensagens, além da API HTTP — o <code>PedidoService</code> pode ser reaproveitado
+          integralmente, porque ele nunca dependeu de <code>req</code> e <code>res</code>.
+        </p>
+
+        <div class="box box-dica">
+          <span class="box-titulo">Dica</span>
+          Uma forma rápida de auditar se as camadas estão corretas: procure por <code>SELECT</code>/<code>INSERT</code>
+          fora do repository, ou por <code>req.body</code>/<code>res.json</code> fora do controller. Se aparecerem
+          fora do lugar esperado, é sinal de que uma camada está "vazando" para dentro da outra.
+        </div>
+
+        <h2>O que é uma API REST</h2>
+        <p>
+          <strong>API</strong> (Application Programming Interface) é qualquer forma padronizada de um sistema
+          conversar com outro. Uma <strong>API REST</strong> (Representational State Transfer) é um estilo específico
+          de API que usa o protocolo HTTP — o mesmo que o navegador usa para carregar páginas — para representar
+          operações sobre <strong>recursos</strong>. Um recurso é qualquer "coisa" que o sistema expõe: um usuário,
+          um pedido, um produto. Cada recurso tem uma URL própria, e as ações sobre ele são expressas pelo
+          <strong>verbo HTTP</strong> usado na requisição, não pelo texto da URL.
+        </p>
+        <table>
+          <thead>
+            <tr><th>Verbo</th><th>Ação</th><th>Exemplo de URL</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>GET</code></td><td>Buscar/ler um recurso (não deve alterar nada)</td><td><code>GET /pedidos/42</code></td></tr>
+            <tr><td><code>POST</code></td><td>Criar um novo recurso</td><td><code>POST /pedidos</code></td></tr>
+            <tr><td><code>PUT</code></td><td>Substituir um recurso inteiro por um novo</td><td><code>PUT /pedidos/42</code></td></tr>
+            <tr><td><code>PATCH</code></td><td>Atualizar parcialmente um recurso</td><td><code>PATCH /pedidos/42</code></td></tr>
+            <tr><td><code>DELETE</code></td><td>Remover um recurso</td><td><code>DELETE /pedidos/42</code></td></tr>
+          </tbody>
+        </table>
+        <div class="box box-atencao">
+          <span class="box-titulo">Atenção</span>
+          Um erro comum de quem está aprendendo REST é criar URLs com verbos dentro, como
+          <code>GET /buscarPedido?id=42</code> ou <code>POST /criarNovoPedido</code>. Em REST, a URL identifica o
+          <em>recurso</em> (<code>/pedidos/42</code>), e o verbo HTTP já diz a ação. Repetir a ação na URL é
+          redundante e foge da convenção que faz o REST ser previsível entre sistemas diferentes.
+        </div>
+
+        <h2>Status codes: a resposta que a URL sozinha não dá</h2>
+        <p>
+          Todo retorno HTTP vem acompanhado de um <strong>código de status</strong> — um número de três dígitos que
+          resume o resultado da operação antes mesmo de o cliente ler o corpo da resposta. Eles são agrupados por
+          faixa:
+        </p>
+        <table>
+          <thead>
+            <tr><th>Código</th><th>Significado</th><th>Quando usar</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>200 OK</td><td>Sucesso genérico</td><td>GET, PUT ou PATCH que deram certo</td></tr>
+            <tr><td>201 Created</td><td>Recurso criado com sucesso</td><td>POST que criou algo novo</td></tr>
+            <tr><td>204 No Content</td><td>Sucesso, sem corpo de resposta</td><td>DELETE que deu certo</td></tr>
+            <tr><td>400 Bad Request</td><td>O cliente enviou dados inválidos</td><td>Corpo mal formado, campo obrigatório faltando</td></tr>
+            <tr><td>401 Unauthorized</td><td>Falta autenticação (quem é você?)</td><td>Token ausente ou inválido</td></tr>
+            <tr><td>403 Forbidden</td><td>Está autenticado, mas não tem permissão</td><td>Usuário logado tentando acessar recurso de outro</td></tr>
+            <tr><td>404 Not Found</td><td>O recurso não existe</td><td>GET /pedidos/999 quando o pedido 999 não existe</td></tr>
+            <tr><td>409 Conflict</td><td>Conflito com o estado atual</td><td>Tentar criar um e-mail que já está cadastrado</td></tr>
+            <tr><td>500 Internal Server Error</td><td>Erro inesperado no servidor</td><td>Exceção não tratada, bug</td></tr>
+          </tbody>
+        </table>
+        <p>
+          Usar o código certo importa porque clientes HTTP (navegadores, bibliotecas como <code>fetch</code>, outros
+          sistemas) tomam decisões automáticas baseadas nele — por exemplo, tratar qualquer <code>4xx</code>/<code>5xx</code>
+          como erro sem precisar interpretar o texto da mensagem.
+        </p>
+
+        <h2>O que torna uma API verdadeiramente "RESTful"</h2>
+        <p>
+          Nem toda API que devolve JSON é "RESTful" de fato. Algumas características que definem o estilo REST:
+        </p>
+        <ul>
+          <li><strong>Stateless (sem estado):</strong> cada requisição contém tudo que o servidor precisa para processá-la (inclusive autenticação, geralmente via token). O servidor não guarda "sessão" de conversa entre uma requisição e outra.</li>
+          <li><strong>Recursos identificados por URL:</strong> cada "coisa" do sistema tem seu endereço próprio (<code>/usuarios/7</code>, <code>/usuarios/7/pedidos</code>), não parâmetros escondidos numa única URL genérica.</li>
+          <li><strong>Verbos HTTP com significado consistente:</strong> <code>GET</code> nunca deveria alterar dados; <code>DELETE</code> sempre remove; a mesma ação sempre usa o mesmo verbo em toda a API.</li>
+          <li><strong>Representações padronizadas:</strong> o mesmo recurso é sempre representado no mesmo formato (normalmente JSON), com nomes de campos consistentes entre endpoints.</li>
+        </ul>
+        <p>
+          Na prática, poucas APIs seguem a definição acadêmica de REST à risca (como a exigência de "HATEOAS", onde
+          cada resposta traz links para as próximas ações possíveis) — o que o mercado chama de "API REST" no dia a
+          dia é, na maioria das vezes, uma API HTTP organizada por recursos e verbos, o que já cobre os principais
+          ganhos práticos: previsibilidade, cacheabilidade e um vocabulário comum entre times diferentes.
+        </p>
+
+        <h2>Resumo</h2>
+        <ul class="checklist">
+          <li>Controller lida com HTTP, service com regra de negócio, repository com acesso a dados — cada um só conversa com o vizinho.</li>
+          <li>Separar em camadas facilita testes isolados e permite reaproveitar regras de negócio fora do contexto HTTP.</li>
+          <li>Em REST, a URL identifica o recurso e o verbo HTTP (GET, POST, PUT, PATCH, DELETE) expressa a ação.</li>
+          <li>Status codes comunicam o resultado da operação de forma padronizada, permitindo tratamento automático por clientes.</li>
+          <li>Uma API RESTful é stateless, organizada por recursos com URLs próprias, e usa os verbos de forma consistente.</li>
+        </ul>
+
+        <div id="lesson-footer-nav" class="lesson-footer-nav"></div>
+      </main>
+    </div>
+  </div>
+  <script src="../../nav.js"></script>
+</body>
+</html>

@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Branches, merge e conflitos — Trilha Dev Full Stack</title>
+  <link rel="stylesheet" href="../../style.css" />
+</head>
+<body>
+  <div class="layout">
+    <nav id="sidebar"></nav>
+    <div class="content-wrap">
+      <main class="content">
+        <div class="breadcrumb">4. Git & GitHub</div>
+        <h1 class="lesson-title">Branches, merge e conflitos</h1>
+        <p class="lesson-subtitle">Como trabalhar em algo novo sem bagunçar o que já funciona — e o que fazer quando duas mudanças colidem.</p>
+
+        <div class="box box-analogia">
+          <span class="box-titulo">Analogia</span>
+          Imagine que você está escrevendo um livro e quer testar um final alternativo, sem estragar o final
+          original caso a experiência não funcione. Você tira uma cópia do manuscrito, escreve o final alternativo
+          nessa cópia, e só depois decide se junta essa versão nova ao manuscrito principal. Uma
+          <strong>branch</strong> (galho, em inglês) é exatamente isso: uma linha do tempo paralela do seu projeto,
+          onde você pode experimentar livremente sem afetar a versão principal, até decidir juntar ("merge") as duas
+          de volta.
+        </div>
+
+        <p>
+          Até agora, todos os comandos que você aprendeu funcionavam numa única linha do tempo. Mas, na prática,
+          projetos reais têm várias pessoas mexendo em partes diferentes ao mesmo tempo, e ninguém quer que uma
+          funcionalidade pela metade quebre o que já está funcionando em produção. É exatamente para isso que
+          existem as branches.
+        </p>
+
+        <h2>O que é uma branch, na prática</h2>
+        <p>
+          Toda repositório Git tem, desde o começo, pelo menos uma branch — geralmente chamada
+          <code>main</code> (às vezes <code>master</code>, em projetos mais antigos). Essa costuma ser a linha do
+          tempo "oficial", a versão estável do projeto. Quando você quer desenvolver algo novo — uma funcionalidade,
+          uma correção de bug, um experimento — a prática recomendada é criar uma branch nova a partir da
+          <code>main</code>, trabalhar nela isoladamente, e só depois juntá-la de volta.
+        </p>
+        <pre><code>git branch                       # lista as branches existentes
+git branch nova-funcionalidade   # cria uma branch nova (sem entrar nela ainda)
+git checkout nova-funcionalidade # muda para a branch criada
+
+# Ou, no mesmo comando, criar e já entrar:
+git checkout -b nova-funcionalidade
+
+# Em versões mais recentes do Git, o comando equivalente é:
+git switch -c nova-funcionalidade</code></pre>
+        <p>
+          A partir do momento em que você está "dentro" de uma branch, todo commit que você criar fica registrado
+          apenas nela — a <code>main</code> continua exatamente como estava, intocada, até que você decida juntar as
+          duas.
+        </p>
+
+        <h2>Por que usar branches</h2>
+        <p>
+          As vantagens de trabalhar assim, em vez de commitar tudo direto na <code>main</code>, são várias:
+        </p>
+        <ul>
+          <li>Você pode experimentar e até "errar" sem risco de quebrar a versão estável do projeto.</li>
+          <li>Várias pessoas conseguem trabalhar em partes diferentes do projeto ao mesmo tempo, sem pisar no
+            trabalho umas das outras.</li>
+          <li>Fica fácil abandonar uma ideia que não deu certo — basta simplesmente não juntar aquela branch,
+            sem afetar nada.</li>
+          <li>No GitHub, cada branch pode virar um <strong>pull request</strong> — um pedido formal de revisão antes
+            de entrar na <code>main</code> (assunto da próxima lição).</li>
+        </ul>
+
+        <h2>git merge: juntando duas linhas do tempo</h2>
+        <p>
+          Quando o trabalho numa branch está pronto, você volta para a branch que vai <em>receber</em> as mudanças
+          (geralmente a <code>main</code>) e roda o comando <code>merge</code>, apontando qual branch entrar:
+        </p>
+        <pre><code>git checkout main               # volta para a branch principal
+git pull origin main            # garante que está atualizada
+git merge nova-funcionalidade    # traz as mudanças da outra branch para cá</code></pre>
+        <p>
+          Na maioria das vezes, quando as duas branches mudaram partes diferentes do código, o Git consegue juntar
+          tudo automaticamente, sem precisar de nenhuma intervenção sua. O problema aparece quando as duas branches
+          mudaram <strong>a mesma linha do mesmo arquivo</strong> de formas diferentes — aí o Git não sabe qual
+          versão manter, e é aí que surge um <strong>conflito de merge</strong>.
+        </p>
+
+        <h2>O que é um conflito de merge</h2>
+        <p>
+          Um conflito acontece quando o Git encontra duas mudanças concorrentes que ele não consegue decidir sozinho
+          qual delas deve "vencer". Isso não é um erro nem um bug — é o Git sendo honesto: "não sei o que você
+          quer aqui, decida por mim". Quando isso acontece, o Git marca o trecho conflitante diretamente dentro do
+          arquivo, usando marcadores especiais:
+        </p>
+        <pre><code>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD
+const saudacao = "Bom dia!";
+=======
+const saudacao = "Olá, tudo bem?";
+&gt;&gt;&gt;&gt;&gt;&gt;&gt; nova-funcionalidade</code></pre>
+        <p>
+          Tudo entre <code>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</code> e o separador <code>=======</code> é a versão da
+          branch em que você está agora; tudo entre o separador e
+          <code>&gt;&gt;&gt;&gt;&gt;&gt;&gt; nova-funcionalidade</code> é a versão que veio da outra branch.
+        </p>
+
+        <h2>Resolvendo um conflito, passo a passo</h2>
+        <ol>
+          <li>
+            Rode <code>git status</code>. Ele vai listar exatamente quais arquivos têm conflito, sob o título
+            "Unmerged paths" (caminhos não mesclados).
+          </li>
+          <li>
+            Abra cada arquivo listado no seu editor de código e procure pelos marcadores
+            <code>&lt;&lt;&lt;&lt;&lt;&lt;&lt;</code>, <code>=======</code> e <code>&gt;&gt;&gt;&gt;&gt;&gt;&gt;</code>.
+          </li>
+          <li>
+            Decida qual versão deve ficar — pode ser uma das duas, uma combinação das duas, ou algo totalmente
+            reescrito — e apague os marcadores manualmente, deixando o arquivo exatamente como ele deveria ficar.
+          </li>
+          <li>
+            Repita para todos os arquivos em conflito. Salve todos eles.
+          </li>
+          <li>
+            Marque os arquivos como resolvidos com <code>git add</code>, exatamente como faria com qualquer mudança:
+            <pre><code>git add src/mensagens.js</code></pre>
+          </li>
+          <li>
+            Finalize o merge com um commit. O Git já sugere uma mensagem padrão, mas você pode ajustá-la:
+            <pre><code>git commit -m "Resolve conflito de mensagem de saudação"</code></pre>
+          </li>
+        </ol>
+
+        <div class="box box-dica">
+          <span class="box-titulo">Dica</span>
+          Se o conflito parecer grande demais ou você perceber que fez alguma bobagem no meio do processo, é
+          seguro cancelar o merge inteiro com <code>git merge --abort</code> — isso devolve o repositório ao estado
+          de antes de tentar juntar as branches, sem perder nada, para você tentar de novo com calma.
+        </div>
+
+        <div class="box box-atencao">
+          <span class="box-titulo">Atenção</span>
+          Nunca resolva um conflito "no susto", apagando um dos dois lados sem entender o que cada um fazia. Leia com
+          calma o que a outra pessoa (ou você mesmo, em outra branch) estava tentando fazer — às vezes a solução
+          correta é combinar as duas mudanças, não escolher uma e descartar a outra.
+        </div>
+
+        <h2>Resumo</h2>
+        <ul class="checklist">
+          <li>Uma branch é uma linha do tempo paralela do projeto, isolada da branch principal (geralmente <code>main</code>).</li>
+          <li><code>git checkout -b nome</code> (ou <code>git switch -c nome</code>) cria e entra numa branch nova.</li>
+          <li><code>git merge nome-da-branch</code> junta as mudanças de outra branch na branch atual.</li>
+          <li>Um conflito de merge acontece quando duas branches mudam a mesma linha de formas diferentes.</li>
+          <li>Resolver um conflito é editar o arquivo manualmente, remover os marcadores e finalizar com <code>add</code> + <code>commit</code>.</li>
+        </ul>
+
+        <div id="lesson-footer-nav" class="lesson-footer-nav"></div>
+      </main>
+    </div>
+  </div>
+  <script src="../../nav.js"></script>
+</body>
+</html>

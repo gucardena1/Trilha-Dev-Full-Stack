@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Metodologia para caçar bugs — Trilha Dev Full Stack</title>
+  <link rel="stylesheet" href="../../style.css" />
+</head>
+<body>
+  <div class="layout">
+    <nav id="sidebar"></nav>
+    <div class="content-wrap">
+      <main class="content">
+        <div class="breadcrumb">11. Deploy, DevOps & Debug</div>
+        <h1 class="lesson-title">Metodologia para caçar bugs</h1>
+        <p class="lesson-subtitle">A lição mais importante desta trilha: como pensar como um detetive quando algo dá errado.</p>
+
+        <div class="box box-analogia">
+          <span class="box-titulo">Analogia</span>
+          Um bom detetive não chega à cena do crime e começa a acusar pessoas ao acaso. Ele primeiro reconstrói
+          exatamente o que aconteceu, depois levanta hipóteses possíveis, e então testa cada uma delas com
+          calma, eliminando suspeitos um de cada vez, até sobrar só a explicação que realmente encaixa com todas
+          as evidências. Debugar um sistema é exatamente isso: um bug é um "crime" que aconteceu dentro do
+          código, e sua função é investigar com método, evidência e paciência — nunca chutar aleatoriamente até
+          "sentir" que consertou.
+        </div>
+
+        <p>
+          Todo mundo que programa, sem exceção, vai passar boa parte da carreira lidando com coisas que não
+          funcionam como deveriam. Isso não é sinal de incompetência — é a natureza do trabalho. O que separa
+          quem resolve bugs rápido e com calma de quem entra em pânico e fica horas travado não é "ser mais
+          inteligente": é seguir um método. Esta lição existe para te dar exatamente esse método, passo a passo.
+        </p>
+
+        <div class="box box-atencao">
+          <span class="box-titulo">Atenção — a armadilha mais comum</span>
+          A pior forma de debugar é mudar várias coisas ao mesmo tempo, na esperança de que "uma delas" resolva.
+          Quando isso funciona (às vezes funciona!), você não aprende nada e não sabe qual das mudanças realmente
+          resolveu — o que significa que na próxima vez que o mesmo tipo de erro aparecer, você vai estar
+          exatamente tão perdido quanto estava agora. Mude uma coisa de cada vez, sempre.
+        </div>
+
+        <h2>Passo a passo: do bug até a solução</h2>
+
+        <h3>1. Reproduza o bug de forma confiável</h3>
+        <p>
+          Antes de tentar consertar qualquer coisa, você precisa conseguir <strong>fazer o erro acontecer de
+          novo, sob comando</strong>. Isso parece óbvio, mas é o passo mais pulado por quem está ansioso para
+          "já ir resolvendo". Sem conseguir reproduzir o bug, você não tem como saber, depois, se realmente
+          consertou — ou se ele só "parou de aparecer" por acaso. Anote os passos exatos que causam o problema:
+          o que foi clicado, digitado, em qual ordem, com quais dados. Se o bug só acontece "às vezes", isso
+          também é uma pista importante — muitas vezes indica dependência de tempo, de ordem de execução, ou de
+          dados específicos.
+        </p>
+
+        <h3>2. Forme uma hipótese</h3>
+        <p>
+          Com o bug reproduzível, pergunte-se: <strong>"o que precisaria ser verdade para esse comportamento
+          acontecer?"</strong>. Uma hipótese é um palpite educado, baseado em evidência, não um chute às cegas.
+          Por exemplo: "acho que essa lista aparece vazia porque a API está retornando um erro, e o código não
+          está tratando esse erro direito" é uma hipótese. "Deve ser bug do navegador" geralmente não é — é uma
+          forma de evitar pensar no problema de verdade.
+        </p>
+
+        <h3>3. Isole a causa, testando uma coisa por vez</h3>
+        <p>
+          Aqui entra a disciplina mais importante de todas: teste sua hipótese <strong>mudando apenas uma
+          variável de cada vez</strong>. Se você acha que o problema está na API, olhe só a resposta da API (a
+          aba Network do DevTools é perfeita para isso) antes de mexer em qualquer outra coisa. Se a hipótese
+          estiver errada, você descarta ela e forma outra — sem ter bagunçado o resto do código no caminho. Esse
+          processo de eliminação, feito com calma, é o que separa "consertar de verdade" de "empilhar remendos".
+        </p>
+        <p>
+          Uma técnica muito eficaz aqui é a <strong>bisseção</strong>: se você não sabe em qual parte de um
+          processo longo o problema está, corte-o pela metade e verifique se o erro já aparece ali. Se sim, o
+          problema está na primeira metade; se não, está na segunda. Repita esse corte ao meio até sobrar um
+          trecho pequeno o suficiente para examinar com atenção total — é exatamente a mesma lógica de procurar
+          uma palavra num dicionário físico, abrindo pelo meio repetidas vezes, em vez de ler página por página.
+        </p>
+
+        <h3>4. Leia o stack trace com atenção, de baixo para cima</h3>
+        <p>
+          Quando um erro acontece, muitas linguagens mostram um <strong>stack trace</strong>: uma lista de todas
+          as funções que estavam sendo executadas, uma dentro da outra, no momento exato em que o erro estourou.
+          Por exemplo:
+        </p>
+        <pre><code>TypeError: Cannot read properties of undefined (reading 'nome')
+    at formatarUsuario (utils.js:12)
+    at exibirPerfil (perfil.js:34)
+    at async carregarPagina (main.js:8)</code></pre>
+        <p>
+          Muita gente iniciante entra em pânico ao ver esse bloco de texto e o ignora por inteiro — mas ele é,
+          na verdade, um mapa detalhado do caminho até o erro. A primeira linha diz <strong>o que</strong>
+          aconteceu de errado (aqui, tentou ler a propriedade <code>nome</code> de algo que era
+          <code>undefined</code>). As linhas seguintes mostram <strong>onde</strong>: comece de cima (o ponto
+          exato do erro, <code>utils.js</code> linha 12) e suba pela pilha para entender <strong>quem chamou
+          quem</strong> até chegar ali. Isso te leva direto ao arquivo e à linha certa, em vez de vasculhar o
+          projeto inteiro no escuro.
+        </p>
+
+        <h3>5. Converse com o pato de borracha</h3>
+        <div class="box box-analogia">
+          <span class="box-titulo">Analogia</span>
+          O <strong>rubber duck debugging</strong> ("debugar com o pato de borracha") vem de uma história real de
+          programadores que colocavam um patinho de borracha ao lado do computador e explicavam o código para
+          ele, em voz alta, linha por linha, como se o pato fosse uma pessoa que não entende nada de programação.
+          Curiosamente, o simples ato de explicar devagar e em detalhe — sem pular nenhuma etapa "porque é óbvio"
+          — frequentemente faz a própria pessoa perceber sozinha onde está o erro, antes mesmo de terminar de
+          explicar. Você não precisa literalmente de um pato: um colega, um bicho de pelúcia, ou até um
+          comentário escrito explicando o problema para si mesmo funcionam igual.
+        </div>
+        <p>
+          A razão disso funcionar é simples: no dia a dia, nosso cérebro "passa por cima" de suposições que
+          fazemos automaticamente sem perceber. Explicar em voz alta, devagar, obriga a verbalizar cada
+          suposição — e é exatamente numa dessas suposições, ditas em voz alta pela primeira vez, que o defeito
+          costuma aparecer escancarado.
+        </p>
+
+        <h3>6. Escolha a ferramenta certa: print/log estratégico vs. debugger</h3>
+        <p>
+          Existem, no fundo, duas formas de observar o que o código está fazendo por dentro, e cada uma tem seu
+          lugar:
+        </p>
+        <ul>
+          <li>
+            <strong>Print/log estratégico</strong> (como <code>console.log()</code> ou <code>print()</code>):
+            rápido de adicionar, bom para ter uma visão geral de "o que aconteceu, na ordem em que aconteceu",
+            especialmente útil quando o problema envolve tempo, eventos assíncronos, ou vários pontos do código
+            rodando em sequência. A desvantagem é que você precisa adivinhar, com antecedência, quais valores
+            vale a pena imprimir.
+          </li>
+          <li>
+            <strong>Debugger com breakpoints</strong> (como visto na lição sobre DevTools): mais lento para
+            configurar, mas permite <strong>pausar a execução exatamente onde quiser</strong> e explorar
+            livremente qualquer variável disponível naquele momento, sem precisar ter adivinhado nada antes.
+            Ideal quando você já isolou bastante o problema e precisa examinar um trecho pequeno em detalhe.
+          </li>
+        </ul>
+        <p>
+          Na prática, programadores experientes alternam entre as duas técnicas conforme a situação — usar
+          logs para "encontrar o bairro" onde o problema mora, e o debugger para "entrar na casa certa" e
+          examinar cômodo por cômodo.
+        </p>
+
+        <h3>7. Corrija, confirme e entenda a causa raiz</h3>
+        <p>
+          Depois de encontrar a causa, resista à tentação de aplicar o primeiro remendo que "faz o sintoma
+          sumir". Pergunte-se: <strong>por que isso aconteceu, e essa correção evita que aconteça de novo em
+          outras situações parecidas, ou só neste caso específico?</strong> Corrigir a causa raiz costuma exigir
+          um pouco mais de esforço do que silenciar o sintoma, mas evita que o mesmo bug reapareça disfarçado de
+          outra forma, semanas depois. Por fim, rode novamente os passos que reproduziam o bug (passo 1) para
+          confirmar, com certeza, que ele não acontece mais — e, se possível, escreva um teste automatizado que
+          garanta isso permanentemente.
+        </p>
+
+        <div class="box box-dica">
+          <span class="box-titulo">Dica</span>
+          Depois de resolver um bug particularmente chato, vale anotar, em uma frase, o que causou e como foi
+          descoberto. Com o tempo, esse "caderninho de bugs" vira um dos recursos de aprendizado mais valiosos que
+          você pode ter — muitos bugs se repetem, disfarçados, ao longo da carreira.
+        </div>
+
+        <h2>Resumo</h2>
+        <ul class="checklist">
+          <li>Reproduza o bug de forma confiável antes de tentar consertar qualquer coisa.</li>
+          <li>Forme hipóteses baseadas em evidência, não em chutes aleatórios.</li>
+          <li>Isole a causa testando uma mudança por vez; use bisseção para cortar o problema pela metade.</li>
+          <li>Leia o stack trace de baixo para cima (ou de cima para baixo, dependendo da leitura) para achar o ponto exato do erro.</li>
+          <li>Explique o problema em voz alta (rubber duck debugging) — verbalizar suposições revela o defeito.</li>
+          <li>Use logs para ter visão geral e o debugger para examinar em detalhe um trecho já isolado.</li>
+          <li>Corrija a causa raiz, não só o sintoma, e confirme com os mesmos passos que reproduziam o bug.</li>
+        </ul>
+
+        <div id="lesson-footer-nav" class="lesson-footer-nav"></div>
+      </main>
+    </div>
+  </div>
+  <script src="../../nav.js"></script>
+</body>
+</html>

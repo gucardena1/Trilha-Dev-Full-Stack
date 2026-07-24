@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Relacionando tabelas com JOIN — Trilha Dev Full Stack</title>
+  <link rel="stylesheet" href="../../style.css" />
+</head>
+<body>
+  <div class="layout">
+    <nav id="sidebar"></nav>
+    <div class="content-wrap">
+      <main class="content">
+        <div class="breadcrumb">5. SQL &amp; Bancos de Dados</div>
+        <h1 class="lesson-title">Relacionando tabelas com JOIN</h1>
+        <p class="lesson-subtitle">Como juntar informações de tabelas diferentes numa única consulta, usando a coluna que elas têm em comum.</p>
+
+        <div class="box box-analogia">
+          <span class="box-titulo">Analogia</span>
+          Imagine duas planilhas separadas: uma com a lista de clientes de uma loja, outra com a lista de pedidos
+          feitos. Se você quiser responder "qual o nome do cliente que fez o pedido nº 3?", precisa procurar
+          manualmente o número do cliente na planilha de pedidos e depois ir até a planilha de clientes achar o nome
+          correspondente. O <code>JOIN</code> em SQL automatiza exatamente esse trabalho: ele "cola" duas tabelas
+          lado a lado usando uma coluna em comum entre elas, como se você usasse um clipe para juntar as duas folhas
+          pela informação que elas compartilham.
+        </div>
+
+        <h2>Por que relacionar tabelas em vez de usar uma só</h2>
+        <p>
+          Na lição sobre bancos relacionais, vimos que separar dados em tabelas diferentes evita repetição: o nome e
+          o e-mail de um cliente ficam guardados uma única vez na tabela <code>clientes</code>, e cada pedido dele
+          na tabela <code>pedidos</code> só guarda uma referência (a chave estrangeira <code>cliente_id</code>) em
+          vez de repetir tudo. O preço dessa organização é que, para ver "o nome do cliente e os produtos que ele
+          comprou" numa única consulta, precisamos <em>juntar</em> as duas tabelas de volta — e é para isso que
+          existe o <code>JOIN</code>.
+        </p>
+
+        <p>Vamos usar estas duas tabelas de exemplo:</p>
+        <table>
+          <thead>
+            <tr><th colspan="3">clientes</th></tr>
+            <tr><th>id</th><th>nome</th><th>cidade</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>1</td><td>Ana Souza</td><td>Recife</td></tr>
+            <tr><td>2</td><td>Bruno Lima</td><td>Curitiba</td></tr>
+            <tr><td>3</td><td>Carla Dias</td><td>São Paulo</td></tr>
+          </tbody>
+        </table>
+        <table>
+          <thead>
+            <tr><th colspan="4">pedidos</th></tr>
+            <tr><th>id</th><th>produto</th><th>valor</th><th>cliente_id</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>101</td><td>Teclado</td><td>150.00</td><td>1</td></tr>
+            <tr><td>102</td><td>Mouse</td><td>60.00</td><td>1</td></tr>
+            <tr><td>103</td><td>Monitor</td><td>900.00</td><td>2</td></tr>
+          </tbody>
+        </table>
+        <p>
+          Note que Carla Dias (id 3) não tem nenhum pedido registrado — ela vai ser importante para entender a
+          diferença entre os dois tipos de <code>JOIN</code> mais usados.
+        </p>
+
+        <h2>INNER JOIN: só o que existe nos dois lados</h2>
+        <p>
+          O <code>INNER JOIN</code> retorna apenas as linhas em que existe correspondência <strong>nas duas
+          tabelas</strong>. Se um cliente não tem nenhum pedido, ele simplesmente não aparece no resultado.
+        </p>
+        <pre><code>SELECT clientes.nome, pedidos.produto, pedidos.valor
+FROM clientes
+INNER JOIN pedidos ON clientes.id = pedidos.cliente_id;</code></pre>
+        <p>
+          Vamos ler esse comando com calma: <code>FROM clientes</code> diz "comece pela tabela clientes";
+          <code>INNER JOIN pedidos</code> diz "junte com a tabela pedidos"; e <code>ON clientes.id =
+          pedidos.cliente_id</code> diz "usando a regra de que o id do cliente é igual ao cliente_id do pedido" —
+          essa é a coluna em comum, o "clipe" que junta as duas tabelas. O resultado seria:
+        </p>
+        <table>
+          <thead>
+            <tr><th>nome</th><th>produto</th><th>valor</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Ana Souza</td><td>Teclado</td><td>150.00</td></tr>
+            <tr><td>Ana Souza</td><td>Mouse</td><td>60.00</td></tr>
+            <tr><td>Bruno Lima</td><td>Monitor</td><td>900.00</td></tr>
+          </tbody>
+        </table>
+        <p>
+          Repare que Carla Dias não aparece em lugar nenhum — como ela não tem pedido, não existe correspondência
+          nas duas tabelas, e o <code>INNER JOIN</code> a deixa de fora.
+        </p>
+
+        <h2>LEFT JOIN: tudo da tabela da esquerda, mesmo sem correspondência</h2>
+        <p>
+          Às vezes você precisa da resposta contrária: "quero ver <em>todos</em> os clientes, mesmo os que nunca
+          fizeram pedido". Para isso existe o <code>LEFT JOIN</code> — ele mantém todas as linhas da tabela à
+          esquerda (a que vem logo depois do <code>FROM</code>), preenchendo com "vazio" (<code>NULL</code>) as
+          colunas da tabela da direita quando não há correspondência.
+        </p>
+        <pre><code>SELECT clientes.nome, pedidos.produto, pedidos.valor
+FROM clientes
+LEFT JOIN pedidos ON clientes.id = pedidos.cliente_id;</code></pre>
+        <table>
+          <thead>
+            <tr><th>nome</th><th>produto</th><th>valor</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Ana Souza</td><td>Teclado</td><td>150.00</td></tr>
+            <tr><td>Ana Souza</td><td>Mouse</td><td>60.00</td></tr>
+            <tr><td>Bruno Lima</td><td>Monitor</td><td>900.00</td></tr>
+            <tr><td>Carla Dias</td><td><em>NULL</em></td><td><em>NULL</em></td></tr>
+          </tbody>
+        </table>
+        <p>
+          Agora Carla Dias aparece, mas com <code>NULL</code> nas colunas que vieram da tabela <code>pedidos</code>
+          — o banco está dizendo "esse cliente existe, mas não tem nada correspondente do outro lado". Esse tipo de
+          consulta é muito comum para relatórios do tipo "quais clientes nunca compraram nada", que dá até para
+          filtrar assim:
+        </p>
+        <pre><code>SELECT clientes.nome
+FROM clientes
+LEFT JOIN pedidos ON clientes.id = pedidos.cliente_id
+WHERE pedidos.id IS NULL;</code></pre>
+        <p>
+          Essa consulta retorna só os clientes cujo pedido veio vazio — ou seja, quem nunca fez pedido algum.
+        </p>
+
+        <div class="box box-dica">
+          <span class="box-titulo">Dica</span>
+          Uma forma fácil de lembrar a diferença: <code>INNER JOIN</code> é a "interseção" (só o que existe dos dois
+          lados); <code>LEFT JOIN</code> é "tudo da esquerda, com ou sem correspondência à direita". Se você inverter
+          a ordem das tabelas no <code>LEFT JOIN</code>, o resultado muda — por isso o nome "esquerda" importa.
+        </div>
+
+        <h2>Escolhendo colunas com nomes ambíguos</h2>
+        <p>
+          Quando duas tabelas têm colunas com o mesmo nome (por exemplo, as duas têm uma coluna <code>id</code>), é
+          preciso indicar de qual tabela cada coluna vem, usando <code>tabela.coluna</code>, como fizemos em todos os
+          exemplos acima (<code>clientes.nome</code>, <code>pedidos.produto</code>). Para consultas mais longas, é
+          comum usar apelidos (<em>aliases</em>) para deixar o SQL mais curto:
+        </p>
+        <pre><code>SELECT c.nome, p.produto, p.valor
+FROM clientes AS c
+INNER JOIN pedidos AS p ON c.id = p.cliente_id;</code></pre>
+        <p>
+          Aqui <code>c</code> e <code>p</code> são apenas apelidos para <code>clientes</code> e <code>pedidos</code>
+          — o resultado é idêntico ao primeiro exemplo com <code>INNER JOIN</code>, só que mais rápido de digitar.
+        </p>
+
+        <div class="box box-atencao">
+          <span class="box-titulo">Atenção</span>
+          Um erro comum é esquecer a cláusula <code>ON</code> ou escrever a condição errada. Sem um <code>ON</code>
+          correto ligando as tabelas pela coluna certa, o banco pode tentar combinar cada linha de uma tabela com
+          <em>todas</em> as linhas da outra (o chamado "produto cartesiano"), gerando um resultado gigantesco e sem
+          sentido. Sempre confira se a coluna usada no <code>ON</code> realmente representa a relação entre as duas
+          tabelas (normalmente, chave primária de um lado e chave estrangeira do outro).
+        </div>
+
+        <h2>Resumo</h2>
+        <ul class="checklist">
+          <li><code>JOIN</code> junta linhas de duas tabelas usando uma coluna em comum, geralmente PK de um lado e FK do outro.</li>
+          <li><code>INNER JOIN</code> retorna só as linhas que têm correspondência nas duas tabelas.</li>
+          <li><code>LEFT JOIN</code> mantém todas as linhas da tabela à esquerda, preenchendo com <code>NULL</code> quando não há correspondência à direita.</li>
+          <li><code>tabela.coluna</code> (ou apelidos como <code>c.nome</code>) evita ambiguidade quando colunas de tabelas diferentes têm o mesmo nome.</li>
+          <li>Sempre confira a condição do <code>ON</code> — um <code>JOIN</code> mal feito pode gerar resultados gigantes e sem sentido.</li>
+        </ul>
+
+        <div id="lesson-footer-nav" class="lesson-footer-nav"></div>
+      </main>
+    </div>
+  </div>
+  <script src="../../nav.js"></script>
+</body>
+</html>

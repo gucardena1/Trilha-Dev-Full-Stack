@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Como pensar como programador — Trilha Dev Full Stack</title>
+  <link rel="stylesheet" href="../../style.css" />
+</head>
+<body>
+  <div class="layout">
+    <nav id="sidebar"></nav>
+    <div class="content-wrap">
+      <main class="content">
+        <div class="breadcrumb">1. Fundamentos & Lógica</div>
+        <h1 class="lesson-title">Como pensar como programador</h1>
+        <p class="lesson-subtitle">Você já conhece as ferramentas (variáveis, condicionais, loops, funções, listas). Agora vamos treinar o raciocínio que decide como usá-las.</p>
+
+        <div class="box box-analogia">
+          <span class="box-titulo">Analogia</span>
+          Conhecer variáveis, ifs, loops e funções é como conhecer as ferramentas de uma caixa de ferramentas:
+          martelo, chave de fenda, serra. Só que ter as ferramentas na mão não faz de ninguém um marceneiro — o que
+          faz é saber <em>qual</em> ferramenta usar, <em>em que ordem</em>, e <em>como quebrar</em> um móvel grande
+          (tipo um guarda-roupa) em partes menores e gerenciáveis (as prateleiras, as portas, as gavetas), que dá
+          para construir uma de cada vez. Esta lição é sobre virar esse "marceneiro" do código: não vamos aprender
+          nenhum comando novo, vamos aprender a <strong>pensar</strong> antes de escrever qualquer comando.
+        </div>
+
+        <h2>O maior erro de quem está aprendendo: tentar escrever código direto</h2>
+        <p>
+          É extremamente tentador, ao ler um problema, já abrir o editor e começar a digitar código imediatamente.
+          Na prática, isso costuma sair pela culatra: você escreve um pedaço, percebe que não faz sentido, apaga,
+          escreve de novo, trava, fica frustrado. O motivo é simples — você está tentando resolver duas coisas ao
+          mesmo tempo: <strong>entender o problema</strong> e <strong>lembrar a sintaxe certa</strong>. Programadores
+          experientes separam essas duas etapas. Primeiro entendem e planejam o problema em uma linguagem
+          simples (às vezes até em português mesmo), só depois traduzem esse plano para código.
+        </p>
+
+        <h2>Técnica 1: decompor o problema em partes menores</h2>
+        <p>
+          Decompor significa pegar um problema grande e assustador e quebrá-lo em vários problemas pequenos e
+          fáceis. Cada parte pequena, isoladamente, é simples o bastante para resolver com o que você já aprendeu
+          nesta trilha (uma variável, um if, um loop, uma função). Vamos praticar com um exemplo real:
+        </p>
+        <p>
+          <strong>Problema:</strong> "Dada uma lista de compras (nome do produto e preço), calcular o valor total,
+          aplicar 10% de desconto se o total passar de R$100, e mostrar uma mensagem final com o valor a pagar."
+        </p>
+        <p>
+          Um iniciante ansioso tentaria escrever tudo de uma vez. Um programador experiente quebra em pedaços:
+        </p>
+        <ol>
+          <li>Somar os preços de todos os produtos da lista (isso, sozinho, é só um loop com um acumulador).</li>
+          <li>Verificar se o total passa de R$100 (isso, sozinho, é só um if).</li>
+          <li>Se passar, calcular o valor com 10% de desconto (isso, sozinho, é só uma conta).</li>
+          <li>Montar e exibir a mensagem final (isso, sozinho, é só um <code>console.log</code> com template string).</li>
+        </ol>
+        <p>
+          Cada um desses quatro itens, isoladamente, é trivial — você já sabe fazer todos eles desde as lições
+          anteriores. O "problema grande" só parecia difícil porque estava todo misturado numa frase só. Ao separar,
+          cada parte vira uma função pequena, e a solução final é só a combinação delas:
+        </p>
+        <pre><code>function calcularTotal(produtos) {
+  let total = 0;
+  for (const produto of produtos) {
+    total = total + produto.preco;
+  }
+  return total;
+}
+
+function aplicarDesconto(total) {
+  if (total &gt; 100) {
+    return total * 0.9; // 10% de desconto
+  }
+  return total; // sem desconto
+}
+
+function montarMensagem(valorFinal) {
+  return `Valor a pagar: R$ ${valorFinal.toFixed(2)}`;
+}
+
+// Juntando as peças:
+const produtos = [
+  { nome: "Teclado", preco: 80 },
+  { nome: "Mouse", preco: 40 },
+];
+
+const total = calcularTotal(produtos);
+const valorFinal = aplicarDesconto(total);
+const mensagem = montarMensagem(valorFinal);
+
+console.log(mensagem); // Valor a pagar: R$ 108.00</code></pre>
+        <p>
+          Note como cada função tem uma única responsabilidade e um nome que descreve exatamente o que faz. Isso não
+          é só estética: quando algo dá errado, você sabe exatamente onde procurar ("o total está errado? olha a
+          <code>calcularTotal</code>. O desconto não aplicou? olha a <code>aplicarDesconto</code>"). Um bloco de
+          código único e gigante, fazendo tudo misturado, é muito mais difícil de debugar.
+        </p>
+
+        <div class="box box-dica">
+          <span class="box-titulo">Dica</span>
+          Uma boa pergunta para saber se você decompôs bem um problema: "eu consigo explicar o que esta função faz
+          em uma frase curta, sem usar a palavra 'e'?" Se a resposta envolver "e" ("ela calcula o total e aplica
+          desconto e formata a mensagem"), provavelmente essa função está fazendo coisa demais e deveria virar duas
+          ou três funções menores.
+        </div>
+
+        <h2>Técnica 2: escrever pseudocódigo antes de codar</h2>
+        <p>
+          Pseudocódigo é escrever a lógica da solução em linguagem quase natural — português mesmo, ou uma mistura
+          de português com estrutura de código — sem se preocupar com a sintaxe exata da linguagem de programação.
+          O objetivo é validar se o <strong>raciocínio</strong> está certo antes de gastar energia lembrando onde vai
+          cada chave, parênteses e ponto e vírgula.
+        </p>
+        <p>
+          Para o mesmo problema de calcular o total da compra, o pseudocódigo poderia ser:
+        </p>
+        <pre><code>FUNÇÃO calcularTotal(lista de produtos):
+    criar variável total, começando em 0
+    PARA CADA produto na lista:
+        somar o preço do produto ao total
+    DEVOLVER total
+
+FUNÇÃO aplicarDesconto(total):
+    SE total for maior que 100:
+        DEVOLVER total com 10% a menos
+    SENÃO:
+        DEVOLVER total sem alteração
+
+INÍCIO:
+    total = calcularTotal(produtos)
+    valorFinal = aplicarDesconto(total)
+    MOSTRAR mensagem com valorFinal</code></pre>
+        <p>
+          Repare que esse pseudocódigo já tem a mesma estrutura lógica da solução final em JavaScript — só que sem
+          nenhuma das exigências rígidas de sintaxe (aspas, ponto e vírgula, chaves). Isso é proposital: o
+          pseudocódigo serve para você (ou seu time) validar a <strong>ideia</strong>. Depois que a ideia está clara e
+          correta, traduzir para JavaScript, Python ou qualquer outra linguagem vira um trabalho quase mecânico.
+        </p>
+
+        <div class="box box-atencao">
+          <span class="box-titulo">Atenção</span>
+          Pseudocódigo não tem regra fixa nem "sintaxe oficial" — o objetivo dele é comunicar uma ideia com clareza,
+          não seguir um padrão rígido. Não se preocupe em fazer "certo"; preocupe-se em fazer <strong>claro</strong>,
+          de um jeito que você (ou outra pessoa) consiga ler e entender o plano sem executar nada.
+        </div>
+
+        <h2>Técnica 3: o pato de borracha (rubber duck debugging)</h2>
+        <p>
+          Essa é uma das técnicas mais famosas — e mais estranhas à primeira vista — da programação. A ideia surgiu
+          de um costume real de alguns desenvolvedores: manter um pato de borracha (o brinquedo de banheira mesmo)
+          na mesa, e, quando o código não funciona e a causa não é óbvia, explicar o problema em voz alta para o
+          pato, linha por linha, como se ele fosse uma pessoa que não sabe nada sobre o código.
+        </p>
+        <p>
+          O motivo disso funcionar não tem nada de mágico: o processo de <strong>verbalizar</strong> um raciocínio —
+          transformar pensamento vago em frases completas e ordenadas — obriga seu cérebro a examinar cada passo com
+          mais cuidado do que quando você só "olha" o código por cima. Muitas vezes, no meio da explicação, a pessoa
+          percebe sozinha onde está o erro, antes mesmo de terminar a frase ("...e aqui eu comparo o índice com o
+          tamanho da lista, então... ah, espera, aqui devia ser <code>&lt;</code> e não <code>&lt;=</code>!").
+        </p>
+        <p>
+          Você não precisa literalmente ter um pato de borracha (embora seja divertido ter um). A técnica funciona
+          igualmente bem explicando para um colega, para uma planta no vaso, ou até escrevendo a explicação num
+          papel. O ingrediente essencial não é o ouvinte — é o ato de <strong>colocar seu raciocínio em palavras
+          completas e sequenciais</strong>, em vez de deixá-lo solto e impreciso na sua cabeça.
+        </p>
+
+        <div class="box box-dica">
+          <span class="box-titulo">Dica</span>
+          Quando for "explicar para o pato", seja bem literal: "esta variável guarda isso. Esta linha faz aquilo.
+          Depois disso, eu espero que o valor seja X." Resista à tentação de pular etapas "óbvias" — geralmente é
+          exatamente numa etapa "óbvia demais para checar" que o erro está escondido.
+        </div>
+
+        <h2>Juntando as três técnicas num fluxo de trabalho</h2>
+        <p>
+          Na prática, um fluxo saudável para resolver qualquer problema de programação, do mais simples ao mais
+          complexo, segue mais ou menos esta ordem:
+        </p>
+        <ol>
+          <li><strong>Entenda o problema</strong> antes de tudo. Se não conseguir explicar o problema em uma frase clara, ainda não está pronto para codar.</li>
+          <li><strong>Decomponha</strong> o problema grande em partes pequenas e independentes.</li>
+          <li><strong>Escreva o pseudocódigo</strong> de cada parte pequena, validando o raciocínio sem se preocupar com sintaxe.</li>
+          <li><strong>Traduza o pseudocódigo para código real</strong>, uma parte de cada vez, testando cada parte antes de seguir para a próxima.</li>
+          <li>Quando travar num bug que não faz sentido, <strong>explique em voz alta</strong>, linha por linha, para o pato (ou para quem estiver por perto).</li>
+        </ol>
+        <p>
+          Note que esse fluxo é o mesmo, seja o problema "calcular o total de uma compra" (o exemplo desta lição) ou
+          "construir um sistema de login" (um problema bem mais complexo, que você vai encontrar mais adiante na
+          trilha). A escala muda, mas o raciocínio — decompor, planejar antes de codar, verbalizar quando travar —
+          é exatamente o mesmo. É essa forma de pensar, mais do que a sintaxe de qualquer linguagem específica, que
+          realmente define alguém como programador.
+        </p>
+
+        <h2>Resumo</h2>
+        <ul class="checklist">
+          <li>Separe "entender o problema" de "escrever a sintaxe certa" — tentar fazer os dois ao mesmo tempo costuma travar o raciocínio.</li>
+          <li>Decomponha problemas grandes em partes pequenas, cada uma resolvível com uma função simples e uma única responsabilidade.</li>
+          <li>Escreva pseudocódigo (em português, sem regras fixas) para validar a lógica antes de traduzir para uma linguagem real.</li>
+          <li>Use a técnica do pato de borracha: explicar o problema em voz alta, linha por linha, ajuda a encontrar erros escondidos.</li>
+          <li>Esse fluxo — entender, decompor, planejar, codar, verbalizar quando travar — funciona em qualquer escala de problema, do mais simples ao mais complexo.</li>
+        </ul>
+
+        <div id="lesson-footer-nav" class="lesson-footer-nav"></div>
+      </main>
+    </div>
+  </div>
+  <script src="../../nav.js"></script>
+</body>
+</html>

@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Arrays, listas e objetos — Trilha Dev Full Stack</title>
+  <link rel="stylesheet" href="../../style.css" />
+</head>
+<body>
+  <div class="layout">
+    <nav id="sidebar"></nav>
+    <div class="content-wrap">
+      <main class="content">
+        <div class="breadcrumb">1. Fundamentos & Lógica</div>
+        <h1 class="lesson-title">Arrays, listas e objetos</h1>
+        <p class="lesson-subtitle">Aprenda a agrupar vários valores relacionados numa única variável, de duas formas diferentes.</p>
+
+        <div class="box box-analogia">
+          <span class="box-titulo">Analogia</span>
+          Um <strong>array</strong> é como uma fileira numerada de caixinhas de correio num prédio: caixinha 0,
+          caixinha 1, caixinha 2... cada uma guarda uma coisa, e você acessa pelo número da posição. Um
+          <strong>objeto</strong> é diferente: é como uma ficha de cadastro, onde cada informação tem um rótulo em
+          vez de um número — "nome: Ana", "idade: 25", "cidade: Recife". Você não pergunta "o que tem na posição 2 da
+          ficha?", você pergunta "qual é o valor do campo idade?". Os dois servem para guardar vários valores juntos,
+          mas organizam esses valores de formas diferentes — e você escolhe um ou outro dependendo do que faz mais
+          sentido para os dados que está representando.
+        </div>
+
+        <h2>Arrays: listas ordenadas</h2>
+        <p>
+          Um array guarda vários valores em ordem, acessados por um índice numérico que sempre começa em
+          <code>0</code> (como você já viu na lição sobre loops):
+        </p>
+        <pre><code>const frutas = ["maçã", "banana", "uva"];
+
+console.log(frutas[0]); // maçã (primeiro item)
+console.log(frutas[1]); // banana
+console.log(frutas[2]); // uva
+console.log(frutas.length); // 3 (quantidade de itens)</code></pre>
+        <p>
+          Repare que usamos <code>const</code>, mesmo sabendo que vamos alterar o conteúdo da lista mais adiante.
+          Isso não é uma contradição: <code>const</code> impede que a variável <code>frutas</code> passe a apontar
+          para <em>outro</em> array inteiro, mas o conteúdo interno do array ainda pode ser modificado normalmente
+          (adicionar, remover ou alterar itens).
+        </p>
+
+        <h3>Métodos comuns de array</h3>
+        <p>
+          Arrays vêm com funções prontas (chamadas de <em>métodos</em>) para as operações mais comuns do dia a dia:
+        </p>
+        <pre><code>const numeros = [10, 20, 30];
+
+numeros.push(40);        // adiciona no final: [10, 20, 30, 40]
+numeros.pop();           // remove o último item: [10, 20, 30]
+numeros.unshift(5);      // adiciona no início: [5, 10, 20, 30]
+numeros.shift();         // remove o primeiro item: [10, 20, 30]
+
+console.log(numeros.includes(20)); // true (a lista contém 20?)
+console.log(numeros.indexOf(30));  // 2 (em que posição está o 30?)</code></pre>
+
+        <div class="box box-dica">
+          <span class="box-titulo">Dica</span>
+          Três métodos de array que você vai usar o tempo todo em código real são <code>map</code> (transforma cada
+          item da lista e devolve uma lista nova), <code>filter</code> (devolve só os itens que passam num teste) e
+          <code>forEach</code> (executa uma ação para cada item, sem devolver nada novo):
+          <pre><code>const precos = [10, 20, 30];
+
+const comDesconto = precos.map((preco) =&gt; preco * 0.9);
+console.log(comDesconto); // [9, 18, 27]
+
+const maioresQueVinte = precos.filter((preco) =&gt; preco &gt; 20);
+console.log(maioresQueVinte); // [30]
+
+precos.forEach((preco) =&gt; console.log(`Preço: R$ ${preco}`));
+// Preço: R$ 10 / Preço: R$ 20 / Preço: R$ 30</code></pre>
+          Note que esses métodos recebem uma função como argumento — isso é totalmente normal em JavaScript: funções
+          podem ser passadas de um lado para o outro, assim como um número ou um texto.
+        </div>
+
+        <h2>Objetos: dados com rótulo</h2>
+        <p>
+          Um objeto agrupa informações relacionadas usando pares de <strong>chave</strong> (o rótulo) e
+          <strong>valor</strong> (o dado em si):
+        </p>
+        <pre><code>const pessoa = {
+  nome: "Ana",
+  idade: 25,
+  cidade: "Recife",
+};
+
+console.log(pessoa.nome);     // Ana
+console.log(pessoa.idade);    // 25
+console.log(pessoa["cidade"]); // Recife (forma alternativa de acessar)</code></pre>
+        <p>
+          Existem duas formas de acessar um valor dentro de um objeto: com ponto (<code>pessoa.nome</code>), que é a
+          mais comum e legível, ou com colchetes e o nome entre aspas (<code>pessoa["nome"]</code>), útil quando o
+          nome da chave está guardado em uma variável, ou quando o nome da chave tem espaços ou caracteres especiais.
+        </p>
+
+        <h3>Alterando e adicionando propriedades</h3>
+        <pre><code>const pessoa = { nome: "Ana", idade: 25 };
+
+pessoa.idade = 26;         // altera um valor existente
+pessoa.profissao = "Dev";  // adiciona uma propriedade nova
+
+console.log(pessoa);
+// { nome: "Ana", idade: 26, profissao: "Dev" }</code></pre>
+
+        <div class="box box-atencao">
+          <span class="box-titulo">Atenção</span>
+          Assim como nos arrays, um objeto criado com <code>const</code> ainda permite alterar seus valores internos
+          — o que <code>const</code> proíbe é substituir o objeto inteiro por outro (<code>pessoa = {}</code> daria
+          erro). Isso costuma confundir iniciantes, que acham que <code>const</code> "trava tudo" — na verdade, ele
+          trava apenas a variável em si, não o conteúdo dela quando esse conteúdo é um array ou objeto.
+        </div>
+
+        <h2>Combinando os dois: listas de objetos</h2>
+        <p>
+          Na prática, o padrão mais comum em aplicações reais é uma lista de objetos — por exemplo, uma lista de
+          produtos de uma loja, cada um com seu próprio nome, preço e estoque:
+        </p>
+        <pre><code>const produtos = [
+  { nome: "Caneta", preco: 2.5, estoque: 100 },
+  { nome: "Caderno", preco: 15.0, estoque: 30 },
+  { nome: "Mochila", preco: 89.9, estoque: 5 },
+];
+
+// Percorrendo a lista e acessando propriedades de cada objeto:
+for (const produto of produtos) {
+  console.log(`${produto.nome}: R$ ${produto.preco} (estoque: ${produto.estoque})`);
+}
+
+// Filtrando com os métodos que já vimos:
+const emFalta = produtos.filter((produto) =&gt; produto.estoque &lt; 10);
+console.log(emFalta); // [{ nome: "Mochila", preco: 89.9, estoque: 5 }]</code></pre>
+        <p>
+          Esse padrão — array de objetos — é exatamente como dados costumam chegar de um banco de dados ou de uma
+          API (assunto que você vai ver mais à frente na trilha): uma lista de "registros", cada um com os mesmos
+          campos, mas valores diferentes. Dominar como ler, percorrer e filtrar esse tipo de estrutura é uma das
+          habilidades mais usadas no dia a dia de quem programa.
+        </p>
+
+        <h2>Arrays e objetos podem se aninhar</h2>
+        <p>
+          Um objeto pode conter um array, um array pode conter objetos, um objeto pode conter outro objeto — essa
+          flexibilidade é o que permite representar informações complexas do mundo real:
+        </p>
+        <pre><code>const usuario = {
+  nome: "Carlos",
+  enderecos: [
+    { rua: "Rua A", numero: 100 },
+    { rua: "Rua B", numero: 200 },
+  ],
+};
+
+console.log(usuario.enderecos[0].rua); // Rua A
+console.log(usuario.enderecos[1].numero); // 200</code></pre>
+        <p>
+          Para acessar um dado "aninhado" (dentro de outro), você simplesmente encadeia o acesso: primeiro entra no
+          array <code>enderecos</code>, depois escolhe a posição (<code>[0]</code>), depois acessa a propriedade
+          desse objeto específico (<code>.rua</code>). Vá com calma nesses casos: leia da esquerda para a direita,
+          um passo de cada vez.
+        </p>
+
+        <h2>Resumo</h2>
+        <ul class="checklist">
+          <li>Arrays guardam listas ordenadas de valores, acessadas por índice numérico começando em 0.</li>
+          <li>Objetos guardam dados com rótulo (chave: valor), acessados por nome em vez de posição.</li>
+          <li>Métodos como <code>push</code>, <code>map</code>, <code>filter</code> e <code>forEach</code> facilitam operações comuns em arrays.</li>
+          <li><code>const</code> impede reatribuir a variável inteira, mas não impede alterar o conteúdo interno de um array ou objeto.</li>
+          <li>Listas de objetos são o padrão mais comum para representar dados reais (produtos, usuários, registros de um banco de dados).</li>
+          <li>Arrays e objetos podem se aninhar (um dentro do outro) para representar informações mais complexas.</li>
+        </ul>
+
+        <div id="lesson-footer-nav" class="lesson-footer-nav"></div>
+      </main>
+    </div>
+  </div>
+  <script src="../../nav.js"></script>
+</body>
+</html>

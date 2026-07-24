@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Índices e performance — Trilha Dev Full Stack</title>
+  <link rel="stylesheet" href="../../style.css" />
+</head>
+<body>
+  <div class="layout">
+    <nav id="sidebar"></nav>
+    <div class="content-wrap">
+      <main class="content">
+        <div class="breadcrumb">5. SQL &amp; Bancos de Dados</div>
+        <h1 class="lesson-title">Índices e performance</h1>
+        <p class="lesson-subtitle">Por que a mesma consulta pode levar 3 milissegundos numa tabela e 30 segundos em outra — e o que fazer sobre isso.</p>
+
+        <div class="box box-analogia">
+          <span class="box-titulo">Analogia</span>
+          Pense num livro grosso de 800 páginas sem nenhum índice remissivo no final. Se alguém pedir "encontre
+          todas as páginas que falam sobre 'transações'", você só tem um jeito: folhear o livro inteiro, página por
+          página, do início ao fim. Agora imagine que o livro tem, no final, um índice remissivo: "transações:
+          páginas 45, 312, 501". Com o índice, você vai direto às páginas certas, sem folhear nada. Um
+          <strong>índice de banco de dados</strong> é exatamente isso: uma estrutura auxiliar que guarda, de forma
+          ordenada, "para este valor de uma coluna, a linha está em tal lugar", permitindo pular direto para o dado
+          certo em vez de examinar a tabela inteira.
+        </div>
+
+        <h2>O que acontece sem índice: table scan</h2>
+        <p>
+          Sem um índice na coluna que você está filtrando, o banco de dados faz o que se chama de
+          <strong>table scan</strong> (ou <em>full scan</em>): ele lê linha por linha, do começo ao fim da tabela,
+          conferindo se cada uma bate com a condição do <code>WHERE</code>. Numa tabela de 200 linhas, isso é
+          instantâneo — o computador nem sente. Numa tabela de 50 milhões de linhas, isso pode levar segundos ou
+          minutos, porque o trabalho cresce proporcionalmente ao tamanho da tabela.
+        </p>
+        <pre><code>SELECT * FROM pedidos
+WHERE cliente_id = 4821;</code></pre>
+        <p>
+          Se <code>cliente_id</code> não tiver um índice e a tabela <code>pedidos</code> tiver milhões de linhas,
+          esse <code>SELECT</code> aparentemente simples pode ficar lento — o banco precisa examinar cada pedido
+          existente para descobrir quais pertencem ao cliente 4821.
+        </p>
+
+        <h2>Criando um índice</h2>
+        <p>
+          A sintaxe para criar um índice é direta: você escolhe um nome para o índice, a tabela e a coluna (ou
+          colunas) que ele vai acelerar.
+        </p>
+        <pre><code>CREATE INDEX idx_pedidos_cliente_id
+ON pedidos (cliente_id);</code></pre>
+        <p>
+          A partir daí, o banco de dados mantém uma estrutura ordenada (geralmente uma árvore, chamada
+          <em>B-tree</em>) apontando cada valor de <code>cliente_id</code> para as linhas correspondentes — como o
+          índice remissivo do livro. A consulta anterior, que antes exigia examinar a tabela inteira, passa a
+          "pular" direto para as linhas do cliente 4821.
+        </p>
+
+        <h2>Quando vale a pena criar um índice</h2>
+        <p>
+          Índice não é "sempre bom, crie em tudo" — ele tem um custo. Cada índice ocupa espaço em disco e precisa
+          ser atualizado toda vez que uma linha é inserida, alterada ou apagada, o que deixa essas operações de
+          escrita um pouco mais lentas. Por isso, a regra prática é: crie índices nas colunas que você
+          <strong>consulta com frequência</strong> em cláusulas <code>WHERE</code>, <code>JOIN</code> ou
+          <code>ORDER BY</code> — tipicamente:
+        </p>
+        <ul>
+          <li>Chaves primárias (a maioria dos bancos já cria esse índice automaticamente).</li>
+          <li>Chaves estrangeiras usadas em <code>JOIN</code>, como <code>cliente_id</code> no exemplo acima.</li>
+          <li>Colunas usadas com frequência em filtros, como <code>email</code> numa tabela de usuários (para buscas de login) ou <code>status</code> num sistema de pedidos.</li>
+        </ul>
+        <p>
+          Por outro lado, não faz sentido criar índice numa coluna que quase nunca aparece num
+          <code>WHERE</code>, ou numa tabela pequena (poucas centenas de linhas), onde o table scan já é rápido o
+          suficiente e o índice só adicionaria custo sem benefício perceptível.
+        </p>
+
+        <div class="box box-dica">
+          <span class="box-titulo">Dica</span>
+          Uma metáfora útil: adicionar índice em toda coluna é como colocar um índice remissivo para <em>cada
+          palavra</em> do livro, incluindo "o", "de" e "para". Tecnicamente funciona, mas o livro (o banco) fica
+          pesado e mais lento para escrever, sem ganho real de utilidade na maioria das buscas.
+        </div>
+
+        <h2>EXPLAIN: pedindo para o banco mostrar o plano</h2>
+        <p>
+          Como saber se uma consulta está usando um índice ou fazendo um table scan? A maioria dos bancos relacionais
+          oferece o comando <code>EXPLAIN</code>, que mostra o <strong>plano de execução</strong> — os passos
+          internos que o banco vai seguir para resolver a consulta, sem executá-la de verdade.
+        </p>
+        <pre><code>EXPLAIN SELECT * FROM pedidos
+WHERE cliente_id = 4821;</code></pre>
+        <p>
+          O resultado (o formato varia entre PostgreSQL, MySQL etc.) costuma indicar se a consulta vai usar um
+          "Index Scan" (bom sinal, está usando o índice) ou um "Seq Scan" / "Full Table Scan" (a tabela inteira será
+          percorrida). Você não precisa decorar todos os detalhes do <code>EXPLAIN</code> agora — o importante é
+          saber que ele existe e que é a ferramenta certa para investigar "por que essa consulta está lenta?".
+        </p>
+
+        <h2>Uma armadilha comum: o problema N+1</h2>
+        <p>
+          Existe um problema de performance muito comum que não tem relação com faltar índice, e sim com a forma
+          como o código da aplicação consulta o banco: o chamado <strong>problema N+1</strong>. Em uma frase: ele
+          acontece quando o código busca uma lista de N registros com uma consulta, e depois, para cada um dos N
+          registros, dispara mais uma consulta separada ao banco — resultando em 1 + N consultas onde uma única
+          consulta com <code>JOIN</code> resolveria tudo de uma vez. Por exemplo, buscar 100 clientes e depois, em
+          um laço de repetição, buscar os pedidos de cada cliente um por um gera 101 idas ao banco em vez de uma só.
+          Esse é um tema mais avançado que você vai encontrar de novo ao estudar ORMs (ferramentas que geram SQL
+          automaticamente a partir de código), mas já vale guardar o nome — reconhecer "isso parece um N+1" é meio
+          caminho andado para resolver problemas de lentidão no futuro.
+        </p>
+
+        <div class="box box-atencao">
+          <span class="box-titulo">Atenção</span>
+          Um índice acelera <code>SELECT</code>, mas não é mágica: ele não ajuda se a consulta usa uma função sobre
+          a coluna indexada (como <code>WHERE LOWER(email) = ...</code>) sem um índice preparado para isso, nem se
+          o <code>WHERE</code> filtra por uma coluna diferente da indexada. Sempre confira com <code>EXPLAIN</code>
+          antes de assumir que "colocar um índice" resolveu o problema.
+        </div>
+
+        <h2>Resumo</h2>
+        <ul class="checklist">
+          <li>Sem índice, o banco faz um table scan: examina a tabela inteira, linha por linha, para achar o que o <code>WHERE</code> pede.</li>
+          <li>Um índice é como o índice remissivo de um livro: permite pular direto para os dados certos, sem varrer tudo.</li>
+          <li><code>CREATE INDEX nome ON tabela (coluna);</code> cria um índice; use em colunas muito consultadas em <code>WHERE</code>/<code>JOIN</code>/<code>ORDER BY</code>.</li>
+          <li>Índices custam espaço e deixam escritas (INSERT/UPDATE/DELETE) um pouco mais lentas — não crie em tudo.</li>
+          <li><code>EXPLAIN</code> mostra o plano de execução de uma consulta, revelando se ela está usando um índice ou fazendo table scan.</li>
+          <li>O problema N+1 é disparar uma consulta extra para cada item de uma lista, em vez de resolver tudo com um único <code>JOIN</code>.</li>
+        </ul>
+
+        <div id="lesson-footer-nav" class="lesson-footer-nav"></div>
+      </main>
+    </div>
+  </div>
+  <script src="../../nav.js"></script>
+</body>
+</html>

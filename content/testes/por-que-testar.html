@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Por que testar seu código? — Trilha Dev Full Stack</title>
+  <link rel="stylesheet" href="../../style.css" />
+</head>
+<body>
+  <div class="layout">
+    <nav id="sidebar"></nav>
+    <div class="content-wrap">
+      <main class="content">
+        <div class="breadcrumb">9. Testes</div>
+        <h1 class="lesson-title">Por que testar seu código?</h1>
+        <p class="lesson-subtitle">O freio de mão do desenvolvimento: você espera nunca precisar, mas é péssimo não ter.</p>
+
+        <div class="box box-analogia">
+          <span class="box-titulo">Analogia</span>
+          Pense em testes automatizados como o <strong>freio de mão do carro</strong>. No dia a dia, você mal
+          percebe que ele existe — você acelera, freia, estaciona, e tudo funciona sem drama. Mas no dia em que o
+          carro começa a escorregar numa ladeira, o freio de mão é a diferença entre um susto e um acidente sério.
+          Testes são assim: na maior parte do tempo eles ficam quietos, "só confirmando" que tudo continua
+          funcionando. Mas no dia em que alguém (talvez você mesmo, seis meses depois) mexer em uma parte do
+          sistema sem perceber que ela quebra outra, são os testes que vão gritar "para tudo, algo quebrou" antes
+          que o problema chegue no usuário final.
+        </div>
+
+        <p>
+          Se você já programou alguma coisa, mesmo pequena, provavelmente já teve a experiência de mudar uma linha
+          de código, tudo parecer certo, e descobrir dias depois que aquela mudança quebrou uma funcionalidade
+          completamente diferente e aparentemente sem relação. Quanto maior o projeto, mais comum isso fica —
+          porque partes do sistema dependem umas das outras de formas que nenhuma pessoa consegue guardar de cabeça
+          por muito tempo. Testar seu código, de forma automatizada, é a técnica que a indústria inteira usa para
+          não depender só da memória e da sorte.
+        </p>
+
+        <h2>O custo real de um bug em produção</h2>
+        <p>
+          "Produção" é o nome que damos ao ambiente onde o sistema está de fato rodando para usuários reais — em
+          oposição ao seu computador, onde você está só testando e experimentando. Um bug que aparece na sua
+          máquina, antes de qualquer coisa ser publicada, custa pouco: você percebe, corrige, e ninguém além de
+          você sabe que ele existiu. O mesmo bug, descoberto depois que o sistema já está em produção, pode custar
+          muito mais caro, e o custo cresce dependendo de quando o problema é encontrado:
+        </p>
+        <ul>
+          <li>
+            <strong>Durante o desenvolvimento:</strong> você mesmo percebe o erro enquanto escreve o código.
+            Custo: minutos.
+          </li>
+          <li>
+            <strong>Durante a revisão de código ou testes internos:</strong> um colega ou uma suíte de testes
+            automatizados encontra o problema antes de ele ir para o ar. Custo: algumas horas, no máximo.
+          </li>
+          <li>
+            <strong>Depois de publicado, encontrado por um usuário:</strong> agora existe um cliente insatisfeito,
+            possivelmente um prejuízo financeiro (imagine um sistema de cobrança que cobra o valor errado), uma
+            correção às pressas sob pressão, e o trabalho extra de investigar o que deu errado num sistema já em
+            uso. Custo: dias, reputação, e às vezes dinheiro de verdade.
+          </li>
+        </ul>
+        <p>
+          Esse padrão — quanto mais tarde um erro é encontrado, mais caro ele fica para corrigir — é conhecido há
+          décadas na engenharia de software, e é a razão de fundo pela qual times investem tempo escrevendo testes
+          em vez de simplesmente "escrever o código e torcer".
+        </p>
+
+        <h2>Testar manualmente vs. testar automatizado</h2>
+        <p>
+          Todo programador testa o próprio código de alguma forma — nem que seja clicando pela interface para ver
+          se o botão funciona. O problema não é testar manualmente uma vez; é depender <em>só</em> disso para
+          sempre. Compare os dois cenários:
+        </p>
+        <p>
+          <strong>Teste manual:</strong> você abre o sistema no navegador, preenche um formulário de cadastro,
+          clica em "salvar" e confere visualmente se apareceu a mensagem de sucesso. Funciona bem para conferir uma
+          mudança pontual, mas tem um problema sério: toda vez que qualquer parte do sistema mudar no futuro,
+          alguém precisa repetir esse processo manual inteiro, de novo, para garantir que nada quebrou. Multiplique
+          isso por dezenas de telas e centenas de mudanças ao longo de um ano, e fica claro que não escala — as
+          pessoas cansam, pulam etapas, e erros passam despercebidos.
+        </p>
+        <p>
+          <strong>Teste automatizado:</strong> você escreve, uma única vez, um código que preenche o mesmo
+          formulário, clica no mesmo botão e confere a mesma mensagem — só que quem executa isso é o computador, em
+          segundos, quantas vezes for necessário. Esse teste pode rodar automaticamente toda vez que alguém propõe
+          uma mudança no código, sem que ninguém precise lembrar de fazer isso manualmente. Ele não cansa, não pula
+          etapas e não erra por distração.
+        </p>
+
+        <div class="box box-dica">
+          <span class="box-titulo">Dica</span>
+          Teste manual não desaparece — ele continua útil para explorar o sistema, testar experiências novas e
+          coisas difíceis de automatizar, como "essa tela parece confusa?". A automação entra para cobrir o
+          trabalho repetitivo de confirmar, todos os dias, que o que já funcionava continua funcionando. Isso tem
+          um nome: <strong>teste de regressão</strong>, ou seja, garantir que uma mudança nova não fez o sistema
+          "regredir" e voltar a ter um problema já resolvido antes.
+        </div>
+
+        <h2>A pirâmide de testes</h2>
+        <p>
+          Quando um time decide investir em testes automatizados, a pergunta natural é: testar o quê, exatamente?
+          Uma função isolada? A tela inteira? O sistema todo, do banco de dados até o clique do usuário? A resposta
+          da indústria para organizar essa decisão é uma imagem conhecida como <strong>pirâmide de testes</strong>,
+          dividida em três camadas:
+        </p>
+        <ul>
+          <li>
+            <strong>Base — testes unitários:</strong> testam uma peça pequena e isolada do código, como uma única
+            função que calcula um desconto. São rápidos (rodam em milissegundos) e baratos de escrever, então o
+            time escreve <em>muitos</em> deles.
+          </li>
+          <li>
+            <strong>Meio — testes de integração:</strong> testam se várias peças funcionam bem <em>juntas</em>,
+            como uma função que salva dados de verdade num banco de dados. São mais lentos que os unitários e um
+            pouco mais trabalhosos de montar, então existem em quantidade moderada.
+          </li>
+          <li>
+            <strong>Topo — testes end-to-end (ponta a ponta):</strong> simulam o usuário real usando o sistema
+            inteiro, do início ao fim, geralmente através de um navegador de verdade. São os mais lentos, mais
+            caros de manter e mais frágeis (quebram por motivos bobos, como uma tela que demorou meio segundo a
+            mais para carregar), então o time escreve poucos, cobrindo só os fluxos mais críticos.
+          </li>
+        </ul>
+
+        <div class="box box-analogia">
+          <span class="box-titulo">Analogia</span>
+          Pense na pirâmide como os exames de um check-up médico. Testes unitários são como medir a pressão e a
+          temperatura — rápidos, baratos, e você pode fazer todo dia sem problema. Testes de integração são como um
+          exame de sangue — um pouco mais caros e demorados, mas ainda rotina. Testes end-to-end são como uma
+          ressonância magnética completa — extremamente informativos, mas caros e demorados demais para fazer toda
+          semana. Você não abandona a ressonância, mas também não a usa para tudo: usa o exame certo, na frequência
+          certa, para cada situação.
+        </div>
+
+        <div class="box box-atencao">
+          <span class="box-titulo">Atenção</span>
+          Um erro comum de quem está começando é inverter a pirâmide: escrever poucos testes unitários e depender
+          principalmente de testes end-to-end, porque "parecem mais realistas". O resultado costuma ser uma suíte
+          de testes lentíssima (minutos ou até horas para rodar), que quebra por motivos aleatórios e que o time
+          aos poucos para de confiar — e um teste em que ninguém confia é praticamente um teste que não existe.
+          Nas próximas lições desta trilha vamos entender, na prática, como escrever bem cada uma dessas camadas.
+        </div>
+
+        <h2>Resumo</h2>
+        <ul class="checklist">
+          <li>Quanto mais tarde um bug é descoberto, mais caro ele custa para corrigir — daí o valor de testar cedo.</li>
+          <li>Teste manual é útil para exploração, mas não escala como forma de garantir que nada quebrou (regressão).</li>
+          <li>Teste automatizado roda em segundos, quantas vezes for preciso, sem depender da memória de ninguém.</li>
+          <li>A pirâmide de testes tem três camadas: unitários (base, muitos), integração (meio, moderado) e end-to-end (topo, poucos).</li>
+          <li>Quanto mais alto na pirâmide, mais lento, mais caro e mais frágil o teste tende a ser.</li>
+        </ul>
+
+        <div id="lesson-footer-nav" class="lesson-footer-nav"></div>
+      </main>
+    </div>
+  </div>
+  <script src="../../nav.js"></script>
+</body>
+</html>

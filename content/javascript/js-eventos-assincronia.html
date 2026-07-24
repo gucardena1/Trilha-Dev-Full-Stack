@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Eventos, Promises e async/await — Trilha Dev Full Stack</title>
+  <link rel="stylesheet" href="../../style.css" />
+</head>
+<body>
+  <div class="layout">
+    <nav id="sidebar"></nav>
+    <div class="content-wrap">
+      <main class="content">
+        <div class="breadcrumb">3. JavaScript</div>
+        <h1 class="lesson-title">Eventos, Promises e async/await</h1>
+        <p class="lesson-subtitle">Como o JavaScript lida com o tempo: coisas que acontecem quando o usuário interage, e coisas que demoram para responder, como buscar dados na internet.</p>
+
+        <h2>Eventos do DOM em profundidade</h2>
+        <p>
+          Na lição anterior você já usou <code>addEventListener</code> para reagir a um clique.
+          Mas existem dezenas de eventos diferentes, e entender como eles se comportam é
+          essencial para construir interfaces que funcionam bem.
+        </p>
+        <ul>
+          <li><code>click</code> — o usuário clicou no elemento</li>
+          <li><code>input</code> — o valor de um campo de formulário mudou (a cada tecla)</li>
+          <li><code>submit</code> — um formulário foi enviado</li>
+          <li><code>keydown</code> / <code>keyup</code> — uma tecla foi pressionada ou solta</li>
+          <li><code>mouseover</code> / <code>mouseout</code> — o mouse entrou ou saiu de cima do elemento</li>
+          <li><code>load</code> — um recurso (página, imagem) terminou de carregar</li>
+        </ul>
+
+        <p>Quando um evento acontece, a função que você registrou recebe um <strong>objeto de evento</strong>, geralmente chamado de <code>event</code> ou <code>e</code>, que carrega informações sobre o que aconteceu:</p>
+        <pre><code>const campo = document.querySelector("#email");
+
+campo.addEventListener("input", function (e) {
+  console.log("Valor atual:", e.target.value);
+});</code></pre>
+        <p><code>e.target</code> é o elemento que disparou o evento — muito útil quando você registra o mesmo listener em vários elementos ao mesmo tempo.</p>
+
+        <p>Formulários merecem atenção especial. Por padrão, enviar um formulário recarrega a página inteira — o que quase sempre não é o que você quer numa aplicação moderna:</p>
+        <pre><code>const form = document.querySelector("#form-login");
+
+form.addEventListener("submit", function (e) {
+  e.preventDefault(); // impede o recarregamento da página
+  console.log("Formulário enviado sem recarregar!");
+});</code></pre>
+
+        <div class="box box-dica">
+          <span class="box-titulo">Dica</span>
+          <code>e.preventDefault()</code> é uma das linhas mais digitadas no JavaScript do
+          mundo real. Ela cancela o "comportamento padrão" do navegador para aquele evento
+          (recarregar a página num submit, seguir um link num clique, etc.), deixando você no
+          controle total do que acontece.
+        </div>
+
+        <h2>Callbacks: passar uma função para outra função</h2>
+        <p>
+          Um <strong>callback</strong> é simplesmente uma função que você passa como argumento
+          para outra função, para que ela seja "chamada de volta" em algum momento — como no
+          próprio <code>addEventListener</code>, que recebe a função a ser executada quando o
+          evento acontecer.
+        </p>
+        <pre><code>function processar(numero, callback) {
+  const resultado = numero * 2;
+  callback(resultado);
+}
+
+processar(5, function (resultado) {
+  console.log("O resultado é:", resultado); // "O resultado é: 10"
+});</code></pre>
+        <p>
+          Callbacks são a base de tudo assíncrono em JavaScript, mas usados em excesso e
+          encadeados uns dentro dos outros, criam um problema conhecido como
+          <strong>"callback hell"</strong> (inferno de callbacks): código que cresce para o
+          lado, cada vez mais difícil de ler. As Promises, que veremos a seguir, existem
+          justamente para resolver isso.
+        </p>
+
+        <h2>Por que existe código assíncrono?</h2>
+        <p>
+          JavaScript executa código de forma <strong>síncrona</strong> por padrão: uma linha
+          de cada vez, na ordem, e cada linha espera a anterior terminar. Isso funciona bem
+          para contas e lógica simples. Mas existem operações que <strong>demoram</strong> um
+          tempo imprevisível: buscar dados de um servidor na internet, ler um arquivo grande,
+          esperar um temporizador.
+        </p>
+        <p>
+          Se o JavaScript travasse a página inteira esperando essas operações lentas
+          terminarem, o navegador ficaria congelado — sem poder rolar a tela, clicar em nada,
+          nem repintar a interface. Por isso o JavaScript trata operações demoradas de forma
+          <strong>assíncrona</strong>: ele "dispara" a operação, continua executando o resto do
+          código normalmente, e só volta a executar o que depende do resultado quando ele
+          finalmente chega.
+        </p>
+
+        <div class="box box-analogia">
+          <span class="box-titulo">Analogia</span>
+          Pense numa padaria com sistema de senha. Você pede seu pão, recebe uma senha (o
+          "ticket") na hora, e vai se sentar. Você não fica parado feito estátua na frente do
+          balcão esperando o pão assar — você faz outras coisas (mexe no celular, conversa) e
+          só volta quando chamam sua senha. A senha é a <strong>Promise</strong>: uma promessa
+          de que, no futuro, você vai receber alguma coisa (o pão) ou vai ser avisado que deu
+          errado (acabou a farinha).
+        </div>
+
+        <h2>Promises: representando um resultado futuro</h2>
+        <p>
+          Uma <strong>Promise</strong> é um objeto que representa o resultado de uma operação
+          assíncrona que ainda não terminou, mas vai terminar — com sucesso ou com falha. Ela
+          tem três estados possíveis: <em>pending</em> (pendente, ainda esperando),
+          <em>fulfilled</em> (cumprida, deu certo) ou <em>rejected</em> (rejeitada, deu erro).
+        </p>
+        <pre><code>const promessaDoPao = new Promise(function (resolve, reject) {
+  const temFarinha = true;
+
+  setTimeout(function () {
+    if (temFarinha) {
+      resolve("Pão quentinho!"); // deu certo
+    } else {
+      reject("Acabou a farinha."); // deu errado
+    }
+  }, 2000); // simula 2 segundos de espera
+});
+
+promessaDoPao
+  .then(function (resultado) {
+    console.log("Sucesso:", resultado);
+  })
+  .catch(function (erro) {
+    console.log("Erro:", erro);
+  });</code></pre>
+        <p>
+          <code>.then()</code> registra o que fazer quando a Promise é cumprida, e
+          <code>.catch()</code> registra o que fazer quando ela é rejeitada. Você geralmente
+          não vai <em>criar</em> Promises do zero com frequência — na prática, você vai
+          <em>consumir</em> Promises que outras funções (como o <code>fetch</code>) já
+          devolvem prontas.
+        </p>
+
+        <h2>fetch: buscando dados de verdade na internet</h2>
+        <p>
+          <code>fetch</code> é a função nativa do navegador para fazer requisições HTTP — ou
+          seja, pedir dados para um servidor. Ela devolve uma Promise:
+        </p>
+        <pre><code>fetch("https://api.exemplo.com/usuarios")
+  .then(function (resposta) {
+    return resposta.json(); // converte a resposta em objeto JavaScript
+  })
+  .then(function (usuarios) {
+    console.log(usuarios); // a lista de usuários, já pronta para usar
+  })
+  .catch(function (erro) {
+    console.log("Deu erro na requisição:", erro);
+  });</code></pre>
+
+        <h2>async/await: escrevendo código assíncrono como se fosse síncrono</h2>
+        <p>
+          Encadear vários <code>.then()</code> ainda pode ficar confuso quando há muitos
+          passos. O <code>async/await</code> é uma forma mais legível de trabalhar com
+          Promises: ele deixa o código assíncrono com a <em>cara</em> de código síncrono, de
+          cima para baixo, sem perder o comportamento de não travar a página.
+        </p>
+        <pre><code>async function buscarUsuarios() {
+  try {
+    const resposta = await fetch("https://api.exemplo.com/usuarios");
+    const usuarios = await resposta.json();
+    console.log(usuarios);
+  } catch (erro) {
+    console.log("Deu erro na requisição:", erro);
+  }
+}
+
+buscarUsuarios();</code></pre>
+        <p>Duas regras simples:</p>
+        <ul>
+          <li>A palavra <code>await</code> só pode ser usada dentro de uma função marcada com <code>async</code>.</li>
+          <li><code>await</code> "pausa" a execução daquela função até a Promise resolver, sem travar o restante da página.</li>
+        </ul>
+        <p>
+          O bloco <code>try/catch</code> substitui o <code>.catch()</code>: tudo que der erro
+          dentro do <code>try</code> é capturado no <code>catch</code>, incluindo falhas de
+          rede ou de conversão de dados.
+        </p>
+
+        <h2>Exemplo prático: buscando dados de uma API pública</h2>
+        <pre><code>async function buscarPiada() {
+  const status = document.querySelector("#status");
+  status.textContent = "Carregando...";
+
+  try {
+    const resposta = await fetch("https://api.exemplo.com/piada-aleatoria");
+    const dados = await resposta.json();
+    status.textContent = dados.piada;
+  } catch (erro) {
+    status.textContent = "Não foi possível carregar a piada agora.";
+  }
+}
+
+document.querySelector("#btn-piada").addEventListener("click", buscarPiada);</code></pre>
+        <p>
+          Repare como o código conta uma história linear: mostra "Carregando...", tenta
+          buscar, e trata tanto o sucesso quanto o erro — tudo isso enquanto o resto da página
+          continua funcionando normalmente.
+        </p>
+
+        <div class="box box-atencao">
+          <span class="box-titulo">Pegadinha comum</span>
+          Esquecer o <code>await</code> antes de uma chamada assíncrona é um dos erros mais
+          comuns em quem está aprendendo. Sem ele, você não recebe o resultado — recebe a
+          <em>própria Promise</em>, ainda pendente. Se o <code>console.log</code> mostrar algo
+          como <code>Promise { &lt;pending&gt; }</code>, é sinal de que faltou um
+          <code>await</code> (ou um <code>.then()</code>).
+        </div>
+
+        <h2>Resumo</h2>
+        <ul class="checklist">
+          <li>Eventos do DOM carregam informações em <code>e.target</code>, e <code>e.preventDefault()</code> cancela o comportamento padrão do navegador.</li>
+          <li>Callback é uma função passada para outra função ser executada mais tarde; abusar deles cria o "callback hell".</li>
+          <li>Código assíncrono existe para que operações demoradas (como buscar dados) não travem a página inteira.</li>
+          <li>Uma Promise representa um resultado futuro: pendente, cumprida (<code>.then()</code>) ou rejeitada (<code>.catch()</code>).</li>
+          <li><code>fetch()</code> faz requisições HTTP e devolve uma Promise com a resposta.</li>
+          <li><code>async/await</code> deixa código assíncrono mais legível, escrito "de cima para baixo", usando <code>try/catch</code> para tratar erros.</li>
+        </ul>
+
+        <div id="lesson-footer-nav" class="lesson-footer-nav"></div>
+      </main>
+    </div>
+  </div>
+  <script src="../../nav.js"></script>
+</body>
+</html>

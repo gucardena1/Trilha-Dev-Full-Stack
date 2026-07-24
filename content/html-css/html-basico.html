@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HTML: a estrutura da página — Trilha Dev Full Stack</title>
+  <link rel="stylesheet" href="../../style.css" />
+</head>
+<body>
+  <div class="layout">
+    <nav id="sidebar"></nav>
+    <div class="content-wrap">
+      <main class="content">
+        <div class="breadcrumb">2. HTML & CSS</div>
+        <h1 class="lesson-title">HTML: a estrutura da página</h1>
+        <p class="lesson-subtitle">Como marcar título, parágrafo, lista, link e imagem — os tijolos de qualquer página da web.</p>
+
+        <div class="box box-analogia">
+          <span class="box-titulo">Analogia</span>
+          Pense em construir uma casa. Antes de escolher a cor da parede ou o tipo de sofá, alguém precisa erguer o esqueleto: onde fica a porta, onde ficam as janelas, onde fica cada cômodo. O HTML é exatamente esse esqueleto de uma página web. Ele não decide se algo é bonito ou colorido — isso é trabalho do CSS, que você vai ver nas próximas lições. O HTML só diz "aqui vai um título", "aqui vai um parágrafo de texto", "aqui vai uma foto". Sem esqueleto, não tem onde pendurar a decoração.
+        </div>
+
+        <h2>O que é HTML, afinal?</h2>
+        <p>
+          HTML significa <strong>HyperText Markup Language</strong> — "linguagem de marcação de hipertexto". "Marcação" é a palavra chave: HTML não é uma linguagem de programação como Python ou JavaScript, que dizem ao computador "faça isso, depois aquilo". HTML apenas <em>marca</em> pedaços de texto dizendo o que cada um significa: isto é um título, isto é uma lista, isto é um link para outra página.
+        </p>
+        <p>
+          Essa marcação é feita com <strong>tags</strong> (etiquetas), que ficam entre os sinais de menor e maior: <code>&lt;p&gt;</code>, <code>&lt;h1&gt;</code>, <code>&lt;a&gt;</code>. Quase toda tag vem em par: uma de abertura, <code>&lt;p&gt;</code>, e uma de fechamento, com uma barra, <code>&lt;/p&gt;</code>. Tudo que fica entre a abertura e o fechamento é o "conteúdo" daquele elemento.
+        </p>
+
+        <pre><code>&lt;p&gt;Isto é um parágrafo de texto.&lt;/p&gt;</code></pre>
+
+        <div class="box box-atencao">
+          <span class="box-titulo">Erro comum</span>
+          Esquecer de fechar uma tag é o erro número um de quem está começando. Escrever <code>&lt;p&gt;Olá mundo</code> sem o <code>&lt;/p&gt;</code> final pode até "funcionar" visualmente em alguns casos, mas confunde o navegador sobre onde um elemento termina e o outro começa, e pode bagunçar todo o layout mais abaixo na página. Sempre feche o que você abriu.
+        </div>
+
+        <h2>A estrutura mínima de um documento HTML</h2>
+        <p>
+          Todo arquivo HTML segue um esqueleto padrão. Ele parece burocrático no início, mas cada parte tem um papel claro:
+        </p>
+
+        <pre><code>&lt;!doctype html&gt;
+&lt;html lang="pt-BR"&gt;
+&lt;head&gt;
+  &lt;meta charset="UTF-8" /&gt;
+  &lt;title&gt;Minha primeira página&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;h1&gt;Olá, mundo!&lt;/h1&gt;
+  &lt;p&gt;Esta é minha primeira página HTML.&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+
+        <ul>
+          <li><code>&lt;!doctype html&gt;</code> — a primeira linha, sempre. Avisa o navegador "isto aqui é HTML5, moderno, interprete assim".</li>
+          <li><code>&lt;html&gt;</code> — a "caixa" que envolve a página inteira. O atributo <code>lang="pt-BR"</code> diz que o conteúdo está em português do Brasil, o que ajuda leitores de tela e o Google a entenderem o idioma.</li>
+          <li><code>&lt;head&gt;</code> — a parte que <strong>não aparece</strong> visualmente na página. É os "bastidores": o título da aba do navegador, links para arquivos de estilo (CSS), configurações. Pense nela como a área técnica de um teatro, que o público não vê.</li>
+          <li><code>&lt;body&gt;</code> — tudo que realmente aparece na tela: textos, imagens, botões, links. É o palco onde a peça acontece.</li>
+        </ul>
+
+        <h2>head vs. body: o bastidor e o palco</h2>
+        <p>
+          Uma confusão comum de quem começa é colocar conteúdo visível dentro do <code>&lt;head&gt;</code>. Isso não vai gerar um erro visível de cara, mas o navegador simplesmente ignora ou trata errado esse conteúdo, porque o <code>&lt;head&gt;</code> não foi feito para exibir nada. Guarde a regra: <strong>tudo que a pessoa que visita o site precisa ver ou ler vai dentro do <code>&lt;body&gt;</code></strong>.
+        </p>
+
+        <h2>Elementos de texto</h2>
+        <p>
+          Dentro do <code>&lt;body&gt;</code>, os elementos mais usados para organizar texto são os títulos e os parágrafos.
+        </p>
+        <p>
+          Existem 6 níveis de título, de <code>&lt;h1&gt;</code> (o mais importante, geralmente único por página) até <code>&lt;h6&gt;</code> (o menos importante). Pense neles como os títulos e subtítulos de um documento do Word: o <code>&lt;h1&gt;</code> é o título do capítulo, o <code>&lt;h2&gt;</code> é uma seção dentro dele, o <code>&lt;h3&gt;</code> uma subseção, e assim por diante.
+        </p>
+
+        <pre><code>&lt;h1&gt;Receitas de bolo&lt;/h1&gt;
+&lt;h2&gt;Bolo de chocolate&lt;/h2&gt;
+&lt;p&gt;Um bolo simples e delicioso para o café da tarde.&lt;/p&gt;
+&lt;h3&gt;Ingredientes&lt;/h3&gt;
+&lt;p&gt;Farinha, açúcar, ovos, chocolate em pó.&lt;/p&gt;</code></pre>
+
+        <p>
+          Além de <code>&lt;p&gt;</code>, existem tags para dar ênfase dentro de um texto:
+        </p>
+        <ul>
+          <li><code>&lt;strong&gt;</code> — deixa o texto em <strong>negrito</strong> e sinaliza que é importante.</li>
+          <li><code>&lt;em&gt;</code> — deixa o texto em <em>itálico</em>, indicando ênfase.</li>
+          <li><code>&lt;br /&gt;</code> — quebra de linha, sem criar um novo parágrafo. É uma das poucas tags que não tem fechamento, porque não tem conteúdo dentro dela.</li>
+        </ul>
+
+        <h2>Links: a tag &lt;a&gt;</h2>
+        <p>
+          A tag <code>&lt;a&gt;</code> (de "anchor", âncora) é o que transforma texto ou imagem em um link clicável. O endereço de destino vai no atributo <code>href</code> ("hypertext reference").
+        </p>
+
+        <pre><code>&lt;a href="https://www.google.com"&gt;Ir para o Google&lt;/a&gt;
+
+&lt;!-- Link para outra página do mesmo site --&gt;
+&lt;a href="contato.html"&gt;Fale conosco&lt;/a&gt;
+
+&lt;!-- Link que abre em nova aba --&gt;
+&lt;a href="https://www.google.com" target="_blank"&gt;Abrir em nova aba&lt;/a&gt;</code></pre>
+
+        <div class="box box-dica">
+          <span class="box-titulo">Dica</span>
+          Um <strong>atributo</strong> é uma informação extra que você coloca dentro da tag de abertura, sempre no formato <code>nome="valor"</code>. <code>href</code> é um atributo da tag <code>&lt;a&gt;</code>. Cada tag tem seu próprio conjunto de atributos possíveis — você vai aprender os mais importantes ao longo da trilha.
+        </div>
+
+        <h2>Imagens: a tag &lt;img&gt;</h2>
+        <p>
+          Para mostrar uma imagem, usamos <code>&lt;img&gt;</code>. Repare que ela não tem tag de fechamento — assim como <code>&lt;br&gt;</code>, ela não "envolve" nenhum conteúdo, apenas exibe um arquivo.
+        </p>
+
+        <pre><code>&lt;img src="gato.jpg" alt="Gato laranja dormindo no sofá" /&gt;</code></pre>
+
+        <p>
+          Dois atributos são essenciais aqui: <code>src</code> ("source", a origem) aponta para o caminho do arquivo de imagem, e <code>alt</code> descreve o que a imagem mostra em texto. O <code>alt</code> aparece se a imagem não carregar, e é lido em voz alta por leitores de tela usados por pessoas com deficiência visual — vamos falar mais sobre isso na próxima lição.
+        </p>
+
+        <h2>Listas</h2>
+        <p>
+          HTML tem duas famílias principais de listas. Ambas usam o mesmo item interno, <code>&lt;li&gt;</code> ("list item"), mudando apenas a tag que envolve tudo:
+        </p>
+
+        <table>
+          <tr><th>Tag</th><th>Tipo de lista</th><th>Quando usar</th></tr>
+          <tr><td><code>&lt;ul&gt;</code></td><td>Não ordenada (com marcadores)</td><td>A ordem dos itens não importa: ingredientes, itens de um menu.</td></tr>
+          <tr><td><code>&lt;ol&gt;</code></td><td>Ordenada (numerada)</td><td>A ordem importa: passo a passo de uma receita, um ranking.</td></tr>
+        </table>
+
+        <pre><code>&lt;ul&gt;
+  &lt;li&gt;Leite&lt;/li&gt;
+  &lt;li&gt;Ovos&lt;/li&gt;
+  &lt;li&gt;Farinha&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;Misture os ingredientes secos&lt;/li&gt;
+  &lt;li&gt;Adicione os ovos e o leite&lt;/li&gt;
+  &lt;li&gt;Leve ao forno por 40 minutos&lt;/li&gt;
+&lt;/ol&gt;</code></pre>
+
+        <div class="box box-atencao">
+          <span class="box-titulo">Erro comum</span>
+          Colocar texto solto dentro de um <code>&lt;ul&gt;</code> ou <code>&lt;ol&gt;</code> sem envolvê-lo em <code>&lt;li&gt;</code>. Todo item de lista precisa estar dentro do seu próprio <code>&lt;li&gt;</code>&mdash;caso contrário o navegador pode exibir o conteúdo de forma estranha ou fora do lugar.
+        </div>
+
+        <h2>Comentários</h2>
+        <p>
+          Assim como em outras linguagens, você pode deixar anotações no código que o navegador ignora completamente, úteis para lembrar você mesmo (ou outra pessoa) do porquê de algo estar ali:
+        </p>
+        <pre><code>&lt;!-- Isto é um comentário e não aparece na página --&gt;</code></pre>
+
+        <h2>Juntando tudo em um exemplo completo</h2>
+        <pre><code>&lt;!doctype html&gt;
+&lt;html lang="pt-BR"&gt;
+&lt;head&gt;
+  &lt;meta charset="UTF-8" /&gt;
+  &lt;title&gt;Página sobre bolos&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;h1&gt;Meu blog de receitas&lt;/h1&gt;
+  &lt;p&gt;Bem-vindo! Aqui você encontra receitas simples de bolo.&lt;/p&gt;
+
+  &lt;h2&gt;Bolo de cenoura&lt;/h2&gt;
+  &lt;img src="bolo-cenoura.jpg" alt="Bolo de cenoura com cobertura de chocolate" /&gt;
+  &lt;p&gt;Um clássico &lt;strong&gt;infalível&lt;/strong&gt; da cozinha brasileira.&lt;/p&gt;
+
+  &lt;h3&gt;Ingredientes&lt;/h3&gt;
+  &lt;ul&gt;
+    &lt;li&gt;3 cenouras&lt;/li&gt;
+    &lt;li&gt;4 ovos&lt;/li&gt;
+    &lt;li&gt;2 xícaras de açúcar&lt;/li&gt;
+  &lt;/ul&gt;
+
+  &lt;p&gt;Veja também nossa &lt;a href="bolo-chocolate.html"&gt;receita de bolo de chocolate&lt;/a&gt;.&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+
+        <p>
+          Repare como cada tag tem um papel único e previsível. Depois de entender essas peças básicas, ler qualquer página HTML do mundo fica muito mais simples: você reconhece os blocos, mesmo que o site pareça complexo por fora.
+        </p>
+
+        <h2>Resumo</h2>
+        <ul class="checklist">
+          <li>HTML marca a estrutura e o significado do conteúdo, não a aparência — isso é papel do CSS.</li>
+          <li>Todo documento tem <code>&lt;html&gt;</code>, <code>&lt;head&gt;</code> (bastidor) e <code>&lt;body&gt;</code> (o que aparece).</li>
+          <li>Tags normalmente vêm em pares de abertura e fechamento; sempre feche o que abrir.</li>
+          <li><code>&lt;h1&gt;</code> a <code>&lt;h6&gt;</code> são títulos; <code>&lt;p&gt;</code> é parágrafo.</li>
+          <li><code>&lt;a href="..."&gt;</code> cria links; <code>&lt;img src="..." alt="..."&gt;</code> exibe imagens.</li>
+          <li><code>&lt;ul&gt;</code>/<code>&lt;ol&gt;</code> com <code>&lt;li&gt;</code> criam listas não ordenadas e ordenadas.</li>
+        </ul>
+
+        <div id="lesson-footer-nav" class="lesson-footer-nav"></div>
+      </main>
+    </div>
+  </div>
+  <script src="../../nav.js"></script>
+</body>
+</html>

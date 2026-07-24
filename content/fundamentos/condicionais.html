@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tomando decisões: if/else — Trilha Dev Full Stack</title>
+  <link rel="stylesheet" href="../../style.css" />
+</head>
+<body>
+  <div class="layout">
+    <nav id="sidebar"></nav>
+    <div class="content-wrap">
+      <main class="content">
+        <div class="breadcrumb">1. Fundamentos & Lógica</div>
+        <h1 class="lesson-title">Tomando decisões: if/else</h1>
+        <p class="lesson-subtitle">Aprenda a fazer o computador escolher um caminho diferente dependendo da situação.</p>
+
+        <div class="box box-analogia">
+          <span class="box-titulo">Analogia</span>
+          Pense num guarda-chuva na porta de casa. Toda manhã você segue uma regrinha mental: "se estiver chovendo,
+          eu levo o guarda-chuva; senão, eu deixo ele em casa". Você não leva o guarda-chuva sempre, e também não
+          deixa de levar sempre — a decisão depende de uma condição (está chovendo ou não) que você checa antes de
+          agir. Um <code>if/else</code> no código é exatamente essa regrinha, só que escrita de um jeito que o
+          computador consegue seguir.
+        </div>
+
+        <h2>A estrutura básica do if</h2>
+        <p>
+          Na lição anterior você aprendeu os operadores de comparação (<code>===</code>, <code>&gt;</code>,
+          <code>&lt;</code> etc.) e os lógicos (<code>&amp;&amp;</code>, <code>||</code>). Eles existem justamente
+          para serem usados dentro de um <code>if</code>: a condição entre parênteses é sempre algo que resulta em
+          <code>true</code> ou <code>false</code>, e o bloco entre chaves <code>{ }</code> só executa se o resultado
+          for <code>true</code>.
+        </p>
+        <pre><code>let estaChovendo = true;
+
+if (estaChovendo) {
+  console.log("Leve o guarda-chuva!");
+}
+// Como a condição é "true", essa linha é executada.</code></pre>
+        <p>
+          Quando você quer que algo aconteça no caso contrário, usa <code>else</code> ("senão"):
+        </p>
+        <pre><code>let idade = 16;
+
+if (idade &gt;= 18) {
+  console.log("Pode tirar carteira de motorista.");
+} else {
+  console.log("Ainda não pode tirar carteira.");
+}
+// Como 16 não é &gt;= 18, a condição é false, então executa o bloco do "else".</code></pre>
+
+        <h2>Encadeando várias condições com else if</h2>
+        <p>
+          Quando existem mais de duas possibilidades, encadeamos com <code>else if</code>. O JavaScript testa as
+          condições em ordem, de cima para baixo, e executa apenas o <strong>primeiro</strong> bloco cuja condição
+          seja verdadeira — os demais são ignorados, mesmo que também fossem verdadeiros.
+        </p>
+        <pre><code>let nota = 7;
+
+if (nota &gt;= 9) {
+  console.log("Conceito A");
+} else if (nota &gt;= 7) {
+  console.log("Conceito B");
+} else if (nota &gt;= 5) {
+  console.log("Conceito C");
+} else {
+  console.log("Reprovado");
+}
+// nota = 7 não é &gt;= 9, então pula.
+// nota = 7 é &gt;= 7, então imprime "Conceito B" e para por aí — não chega a checar as próximas.</code></pre>
+
+        <div class="box box-atencao">
+          <span class="box-titulo">Atenção</span>
+          A ordem das condições importa muito. Se no exemplo acima a gente tivesse escrito primeiro
+          <code>nota >= 5</code> e só depois <code>nota >= 9</code>, um aluno com nota 10 cairia na primeira condição
+          (10 é maior que 5) e nunca chegaria a testar se também era maior que 9. Regra prática: coloque as condições
+          mais restritivas (mais difíceis de satisfazer) primeiro.
+        </div>
+
+        <h2>Comparando com objetos: o switch</h2>
+        <p>
+          Quando você tem muitas condições comparando a <strong>mesma variável</strong> com valores exatos diferentes,
+          existe uma alternativa que costuma ficar mais legível que uma cadeia longa de <code>else if</code>: o
+          <code>switch</code>.
+        </p>
+        <pre><code>let diaDaSemana = 3;
+let nome;
+
+switch (diaDaSemana) {
+  case 1:
+    nome = "Domingo";
+    break;
+  case 2:
+    nome = "Segunda-feira";
+    break;
+  case 3:
+    nome = "Terça-feira";
+    break;
+  default:
+    nome = "Dia inválido";
+}
+
+console.log(nome); // Terça-feira</code></pre>
+        <p>
+          Cada <code>case</code> representa um valor possível, e o <code>break</code> é essencial: ele diz "pare aqui,
+          não continue testando os próximos casos". Se você esquecer o <code>break</code>, o código continua
+          executando os casos seguintes mesmo depois de já ter encontrado uma correspondência — um erro clássico
+          chamado de "fall-through" (passar direto). O <code>default</code> funciona como o <code>else</code> final,
+          cobrindo qualquer valor que não bateu com nenhum <code>case</code>.
+        </p>
+
+        <h2>O operador ternário: um if/else resumido em uma linha</h2>
+        <p>
+          Quando a decisão é simples (só decidir entre dois valores para atribuir a uma variável), existe uma forma
+          curta chamada operador ternário: <code>condição ? valorSeVerdadeiro : valorSeFalso</code>.
+        </p>
+        <pre><code>let idade = 20;
+
+// Com if/else:
+let status;
+if (idade &gt;= 18) {
+  status = "maior de idade";
+} else {
+  status = "menor de idade";
+}
+
+// A mesma coisa, com ternário:
+let status2 = idade &gt;= 18 ? "maior de idade" : "menor de idade";
+
+console.log(status2); // maior de idade</code></pre>
+        <p>
+          O ternário não substitui o <code>if/else</code> em todos os casos — ele é ótimo para decisões simples de uma
+          linha, mas fica difícil de ler se você tentar encadear muitos deles. Use-o com moderação.
+        </p>
+
+        <div class="box box-dica">
+          <span class="box-titulo">Dica</span>
+          Uma pegadinha comum: em JavaScript, valores como <code>0</code>, <code>""</code> (texto vazio),
+          <code>null</code>, <code>undefined</code> e <code>NaN</code> são tratados como "falsos" quando usados numa
+          condição, mesmo sem serem exatamente <code>false</code>. Por exemplo, <code>if (quantidade)</code> vai
+          entrar no bloco do <code>else</code> se <code>quantidade</code> for <code>0</code>. Preste atenção nisso ao
+          testar números que podem legitimamente ser zero.
+        </div>
+
+        <h2>Pensando em árvore de decisão</h2>
+        <p>
+          Uma forma útil de planejar um <code>if/else</code> complexo antes de escrever código é desenhar (no papel
+          mesmo) uma árvore de decisão: cada pergunta gera dois ou mais ramos, e cada ramo leva a uma ação ou a outra
+          pergunta. Por exemplo, para decidir o valor do frete de uma compra: "o valor da compra é maior que R$200?
+          Se sim, frete grátis. Se não, é para a mesma cidade? Se sim, R$10. Se não, R$25." Traduzir essa árvore para
+          código já fica quase automático depois que ela está clara na sua cabeça — e isso é uma técnica que vamos
+          revisitar na última lição desta trilha, sobre como pensar como programador.
+        </p>
+
+        <h2>Resumo</h2>
+        <ul class="checklist">
+          <li><code>if (condição) { ... }</code> executa um bloco só quando a condição é verdadeira; <code>else</code> cobre o caso contrário.</li>
+          <li><code>else if</code> encadeia várias condições, e apenas a primeira verdadeira é executada.</li>
+          <li>A ordem das condições importa: coloque as mais restritivas primeiro.</li>
+          <li><code>switch</code> é uma alternativa legível quando você compara a mesma variável com vários valores exatos — não esqueça o <code>break</code>.</li>
+          <li>O operador ternário (<code>condição ? a : b</code>) resume um if/else simples em uma linha.</li>
+          <li>Valores como <code>0</code>, texto vazio e <code>null</code> contam como "falso" em uma condição, mesmo sem ser <code>false</code>.</li>
+        </ul>
+
+        <div id="lesson-footer-nav" class="lesson-footer-nav"></div>
+      </main>
+    </div>
+  </div>
+  <script src="../../nav.js"></script>
+</body>
+</html>

@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Middleware, autenticação e validação — Trilha Dev Full Stack</title>
+  <link rel="stylesheet" href="../../style.css" />
+</head>
+<body>
+  <div class="layout">
+    <nav id="sidebar"></nav>
+    <div class="content-wrap">
+      <main class="content">
+        <div class="breadcrumb">6. PHP & Laravel</div>
+        <h1 class="lesson-title">Middleware, autenticação e validação</h1>
+        <p class="lesson-subtitle">As últimas camadas de proteção antes de um pedido chegar ao seu Controller: quem pode entrar e o que pode ser enviado.</p>
+
+        <div class="box box-analogia">
+          <span class="box-titulo">Analogia</span>
+          Middleware é como o <strong>segurança na portaria de um prédio</strong>. Antes de qualquer visitante chegar
+          ao apartamento (o Controller), ele passa pela portaria, e o segurança decide: "essa pessoa está na lista de
+          moradores autorizados? Ela apresentou identidade? Ok, pode subir" — ou então "não, você não pode entrar,
+          volte outra hora". O segurança não sabe (nem precisa saber) o que acontece dentro de cada apartamento; ele
+          só controla o acesso na entrada. Um middleware no Laravel faz exatamente isso com cada requisição:
+          intercepta antes dela chegar ao Controller e decide se ela pode passar, é redirecionada, ou é bloqueada.
+        </div>
+
+        <h2>O que é middleware</h2>
+        <p>
+          Um middleware é uma camada de código que roda <strong>antes</strong> (e às vezes depois) de uma
+          requisição chegar ao Controller. Ele pode inspecionar a requisição, tomar uma decisão, e escolher entre
+          deixar a requisição continuar seu caminho normal ou interrompê-la (por exemplo, redirecionando para a
+          página de login). Vários middlewares podem ser encadeados, como vários seguranças em portarias diferentes
+          dentro do mesmo condomínio, cada um checando uma coisa diferente.
+        </p>
+        <pre><code>&lt;?php
+
+namespace App\Http\Middleware;
+
+use Closure;
+use Illuminate\Http\Request;
+
+class VerificarIdade
+{
+    public function handle(Request $request, Closure $next)
+    {
+        if ($request-&gt;input('idade') &lt; 18) {
+            return redirect('/acesso-negado');
+        }
+
+        // Deixa a requisição seguir para o próximo passo (outro middleware ou o Controller)
+        return $next($request);
+    }
+}</code></pre>
+        <p>
+          A chamada <code>$next($request)</code> é o momento em que o "segurança" libera a passagem: se essa linha
+          não for executada, a requisição nunca chega ao Controller. Um middleware é registrado em
+          <code>app/Http/Kernel.php</code> e depois aplicado a rotas específicas:
+        </p>
+        <pre><code>Route::get('/area-restrita', [AreaController::class, 'index'])
+    -&gt;middleware('verificar.idade');</code></pre>
+
+        <div class="box box-dica">
+          <span class="box-titulo">Dica</span>
+          O Laravel já vem com middlewares prontos para as necessidades mais comuns, como <code>auth</code> (exige
+          usuário logado) e <code>guest</code> (exige que o usuário NÃO esteja logado, útil na própria página de
+          login). Você raramente precisa escrever middleware do zero para tarefas básicas de autenticação.
+        </div>
+
+        <h2>Autenticação básica no Laravel</h2>
+        <p>
+          Autenticação é o processo de confirmar "quem é o usuário" (diferente de autorização, que é decidir "o que
+          esse usuário pode fazer"). O Laravel tem um sistema de autenticação embutido que já cuida de hashing de
+          senha, sessões e proteção contra ataques comuns, sem você precisar implementar nada disso manualmente.
+        </p>
+        <pre><code>&lt;?php
+
+use Illuminate\Support\Facades\Auth;
+
+class LoginController extends Controller
+{
+    public function login(Request $request)
+    {
+        $credenciais = $request-&gt;only('email', 'password');
+
+        if (Auth::attempt($credenciais)) {
+            // Login bem-sucedido: o Laravel já cria a sessão do usuário
+            $request-&gt;session()-&gt;regenerate();
+            return redirect('/dashboard');
+        }
+
+        return back()-&gt;withErrors(['email' =&gt; 'Credenciais inválidas']);
+    }
+
+    public function logout(Request $request)
+    {
+        Auth::logout();
+        return redirect('/');
+    }
+}</code></pre>
+        <p>
+          <code>Auth::attempt()</code> recebe email e senha, verifica se existe um usuário com esse email no banco e
+          compara a senha informada com o hash salvo (nunca a senha salva em texto puro — o Laravel usa hashing
+          seguro por padrão). Se bater, ele autentica o usuário e guarda essa informação na sessão. Depois disso,
+          você pode proteger rotas inteiras com o middleware <code>auth</code>:
+        </p>
+        <pre><code>Route::get('/dashboard', [DashboardController::class, 'index'])
+    -&gt;middleware('auth');</code></pre>
+        <p>
+          Com isso, qualquer visitante não autenticado que tentar acessar <code>/dashboard</code> é automaticamente
+          redirecionado para a tela de login, sem que o Controller <code>DashboardController</code> precise verificar
+          isso manualmente — o "segurança da portaria" já resolveu antes de chegar lá.
+        </p>
+
+        <h2>Validação de formulários e requisições</h2>
+        <p>
+          Antes de salvar qualquer dado enviado por um usuário — um formulário de cadastro, por exemplo — é
+          essencial validar se os dados estão corretos: campos obrigatórios preenchidos, formato de e-mail válido,
+          senha com tamanho mínimo, etc. O Laravel oferece uma forma direta de validar dentro do próprio Controller:
+        </p>
+        <pre><code>&lt;?php
+
+public function store(Request $request)
+{
+    $validado = $request-&gt;validate([
+        'nome' =&gt; 'required|string|max:255',
+        'email' =&gt; 'required|email|unique:users,email',
+        'preco' =&gt; 'required|numeric|min:0',
+    ]);
+
+    Produto::create($validado);
+
+    return redirect('/produtos')-&gt;with('sucesso', 'Produto criado!');
+}</code></pre>
+        <p>
+          Se qualquer uma dessas regras falhar, o Laravel automaticamente interrompe a execução, redireciona de
+          volta ao formulário e disponibiliza as mensagens de erro para a view exibir — tudo isso sem você escrever
+          nenhum <code>if</code> manual. Na view Blade, basta exibir os erros:
+        </p>
+        <pre><code>@if ($errors-&gt;any())
+    &lt;ul&gt;
+        @foreach ($errors-&gt;all() as $erro)
+            &lt;li&gt;{{ $erro }}&lt;/li&gt;
+        @endforeach
+    &lt;/ul&gt;
+@endif</code></pre>
+        <p>
+          Para validações mais complexas ou reutilizadas em vários lugares, o Laravel oferece as
+          <strong>Form Requests</strong> — classes próprias que centralizam as regras de validação fora do
+          Controller:
+        </p>
+        <pre><code>php artisan make:request StoreProdutoRequest</code></pre>
+        <pre><code>&lt;?php
+
+namespace App\Http\Requests;
+
+use Illuminate\Foundation\Http\FormRequest;
+
+class StoreProdutoRequest extends FormRequest
+{
+    public function authorize(): bool
+    {
+        return true; // aqui você pode checar permissões específicas, se precisar
+    }
+
+    public function rules(): array
+    {
+        return [
+            'nome' =&gt; 'required|string|max:255',
+            'preco' =&gt; 'required|numeric|min:0',
+        ];
+    }
+}</code></pre>
+        <pre><code>// No Controller, basta trocar Request por essa classe específica:
+public function store(StoreProdutoRequest $request)
+{
+    // Se chegou até aqui, a validação já passou automaticamente
+    Produto::create($request-&gt;validated());
+    return redirect('/produtos');
+}</code></pre>
+
+        <div class="box box-atencao">
+          <span class="box-titulo">Atenção</span>
+          Nunca confie apenas na validação feita no navegador (como o atributo <code>required</code> do HTML) — ela
+          pode ser facilmente ignorada por quem sabe o que está fazendo. A validação de verdade, que protege seus
+          dados, precisa acontecer sempre no servidor, dentro do Controller ou de uma Form Request, como mostrado
+          acima. E lembre-se: assim como o mass assignment da lição anterior, validar os dados não substitui declarar
+          <code>$fillable</code> no Model — as duas proteções trabalham juntas.
+        </div>
+
+        <h2>Juntando tudo</h2>
+        <p>
+          Com middleware, autenticação e validação, você fecha o ciclo básico de segurança de uma aplicação Laravel:
+          o middleware controla <em>quem</em> pode acessar cada rota, a autenticação identifica <em>quem é</em> o
+          usuário fazendo a requisição, e a validação garante que os <em>dados enviados</em> estão no formato
+          esperado antes de qualquer coisa ser salva no banco. Essas três camadas, junto com tudo que você já viu
+          sobre MVC, rotas, Blade, Eloquent e migrations, formam a base necessária para construir uma aplicação
+          Laravel completa e segura do zero.
+        </p>
+
+        <h2>Resumo</h2>
+        <ul class="checklist">
+          <li>Middleware intercepta a requisição antes do Controller, decidindo se ela pode continuar ou deve ser bloqueada/redirecionada.</li>
+          <li><code>$next($request)</code> é o que libera a requisição para a próxima etapa dentro de um middleware.</li>
+          <li>O middleware <code>auth</code>, já pronto no Laravel, protege rotas exigindo usuário autenticado.</li>
+          <li><code>Auth::attempt()</code> verifica credenciais e autentica o usuário, cuidando de sessão e hashing automaticamente.</li>
+          <li><code>$request-&gt;validate([...])</code> valida dados de formulário direto no Controller; Form Requests centralizam regras mais complexas.</li>
+          <li>Nunca confie só na validação do navegador — a validação real e obrigatória acontece no servidor.</li>
+        </ul>
+
+        <div id="lesson-footer-nav" class="lesson-footer-nav"></div>
+      </main>
+    </div>
+  </div>
+  <script src="../../nav.js"></script>
+</body>
+</html>

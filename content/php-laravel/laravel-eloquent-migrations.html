@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Eloquent e migrations — Trilha Dev Full Stack</title>
+  <link rel="stylesheet" href="../../style.css" />
+</head>
+<body>
+  <div class="layout">
+    <nav id="sidebar"></nav>
+    <div class="content-wrap">
+      <main class="content">
+        <div class="breadcrumb">6. PHP & Laravel</div>
+        <h1 class="lesson-title">Eloquent e migrations</h1>
+        <p class="lesson-subtitle">Como o Laravel conversa com o banco de dados sem que você precise escrever SQL na mão o tempo todo.</p>
+
+        <div class="box box-analogia">
+          <span class="box-titulo">Analogia</span>
+          Migrations são como o <strong>histórico de alterações de uma planta de construção civil</strong>. Em vez
+          de reformar uma casa e ninguém anotar o que mudou, cada reforma vira uma "ficha datada": "dia 1, construímos
+          a garagem", "dia 15, adicionamos um banheiro", "dia 30, aumentamos a cozinha". Qualquer pessoa da equipe,
+          em qualquer computador, consegue reconstruir a casa do zero seguindo essas fichas em ordem — e todo mundo
+          sabe exatamente o estado atual da estrutura. Migrations fazem isso com a estrutura do banco de dados: cada
+          arquivo de migration é uma "ficha" datada que descreve uma mudança nas tabelas, e o histórico completo é
+          versionado junto com o código, igual você já faz com Git.
+        </div>
+
+        <h2>O que é um ORM e por que ele existe</h2>
+        <p>
+          Sem um framework, para buscar dados num banco você escreveria SQL diretamente, por exemplo
+          <code>SELECT * FROM produtos WHERE preco &gt; 100</code>, e depois trataria manualmente o resultado bruto
+          devolvido pelo banco. Isso funciona, mas é repetitivo, propenso a erros de digitação, e abre brechas de
+          segurança se você concatenar valores de usuário direto na query (o famoso ataque de SQL Injection).
+        </p>
+        <p>
+          Um <strong>ORM</strong> (Object-Relational Mapper, "mapeador objeto-relacional") é uma camada que traduz
+          entre tabelas do banco de dados e classes/objetos do PHP. Em vez de escrever SQL na mão, você trabalha com
+          objetos comuns da linguagem, e o ORM gera o SQL necessário por trás das cenas, já protegido contra os
+          ataques mais comuns. O ORM do Laravel se chama <strong>Eloquent</strong>.
+        </p>
+        <pre><code>// Sem ORM (SQL puro, mais verboso e mais arriscado)
+$pdo = new PDO(...);
+$stmt = $pdo-&gt;prepare("SELECT * FROM produtos WHERE preco &gt; ?");
+$stmt-&gt;execute([100]);
+$produtos = $stmt-&gt;fetchAll();
+
+// Com Eloquent (muito mais direto)
+$produtos = Produto::where('preco', '&gt;', 100)-&gt;get();</code></pre>
+
+        <h2>Migrations: controle de versão do banco de dados</h2>
+        <p>
+          Diferente de um arquivo de código, uma tabela de banco de dados não pode simplesmente ser "commitada" no
+          Git — ela é uma estrutura que existe dentro do próprio banco. As migrations resolvem esse problema: são
+          arquivos PHP que descrevem, passo a passo, como criar ou alterar tabelas. Elas ficam versionadas junto com
+          o resto do código, então qualquer desenvolvedor que clonar o projeto consegue recriar a estrutura exata do
+          banco rodando um único comando.
+        </p>
+        <pre><code>php artisan make:migration create_produtos_table</code></pre>
+        <p>
+          Isso gera um arquivo em <code>database/migrations</code> com um nome como
+          <code>2026_07_24_000000_create_produtos_table.php</code>, contendo dois métodos: <code>up()</code>
+          (o que fazer para aplicar a mudança) e <code>down()</code> (como desfazer, caso precise reverter).
+        </p>
+        <pre><code>&lt;?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::create('produtos', function (Blueprint $table) {
+            $table-&gt;id();
+            $table-&gt;string('nome');
+            $table-&gt;decimal('preco', 8, 2);
+            $table-&gt;timestamps(); // cria created_at e updated_at automaticamente
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('produtos');
+    }
+};</code></pre>
+        <p>
+          Depois de criar (ou receber de um colega) uma migration, você aplica a mudança de fato no banco com:
+        </p>
+        <pre><code>php artisan migrate</code></pre>
+        <p>
+          Esse comando roda todas as migrations ainda não aplicadas, na ordem correta (baseada na data no nome do
+          arquivo). Assim, um mesmo projeto pode ter sua estrutura de banco reproduzida de forma idêntica na máquina
+          de qualquer desenvolvedor da equipe, ou no servidor de produção.
+        </p>
+
+        <div class="box box-atencao">
+          <span class="box-titulo">Atenção</span>
+          Um erro extremamente comum de quem está aprendendo Laravel é criar a migration mas esquecer de rodar
+          <code>php artisan migrate</code> — e então ficar confuso porque o Eloquent reclama que a tabela "não
+          existe". Criar o arquivo de migration só descreve a mudança; ela só é aplicada de verdade no banco depois
+          do <code>migrate</code>.
+        </div>
+
+        <h2>Criando um Model Eloquent</h2>
+        <p>
+          Um Model é uma classe PHP que representa uma tabela do banco. Por padrão, o Eloquent assume que o Model
+          <code>Produto</code> corresponde à tabela <code>produtos</code> (nome no plural, em minúsculas) — uma
+          convenção que evita configuração repetitiva.
+        </p>
+        <pre><code>php artisan make:model Produto</code></pre>
+        <pre><code>&lt;?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class Produto extends Model
+{
+    protected $fillable = ['nome', 'preco'];
+}</code></pre>
+        <p>
+          Com o Model criado, você já consegue fazer operações no banco sem escrever SQL:
+        </p>
+        <pre><code>// Criar um novo registro
+Produto::create(['nome' =&gt; 'Teclado', 'preco' =&gt; 150]);
+
+// Buscar todos os produtos
+$produtos = Produto::all();
+
+// Buscar um produto específico pelo id
+$produto = Produto::find(1);
+
+// Filtrar com condições
+$caros = Produto::where('preco', '&gt;', 500)-&gt;get();
+
+// Atualizar
+$produto = Produto::find(1);
+$produto-&gt;preco = 200;
+$produto-&gt;save();
+
+// Excluir
+Produto::destroy(1);</code></pre>
+
+        <div class="box box-dica">
+          <span class="box-titulo">Dica</span>
+          A propriedade <code>$fillable</code> lista quais campos podem ser preenchidos em massa (como no
+          <code>Produto::create([...])</code>). Isso é uma proteção de segurança chamada <strong>mass assignment
+          protection</strong>: sem declarar <code>$fillable</code>, o Laravel bloqueia a criação em massa por padrão,
+          evitando que um usuário mal-intencionado envie campos extras (como <code>is_admin =&gt; true</code>) que
+          você não pretendia deixar preencher diretamente por um formulário.
+        </div>
+
+        <h2>Relacionamentos: hasMany e belongsTo</h2>
+        <p>
+          Bancos de dados relacionais existem justamente para relacionar tabelas entre si. Imagine que cada
+          <code>Categoria</code> pode ter vários <code>Produto</code>s, e cada produto pertence a uma única
+          categoria. O Eloquent representa essa relação diretamente nos Models, como métodos:
+        </p>
+        <pre><code>&lt;?php
+// app/Models/Categoria.php
+class Categoria extends Model
+{
+    // Uma categoria TEM VÁRIOS produtos
+    public function produtos()
+    {
+        return $this-&gt;hasMany(Produto::class);
+    }
+}
+
+// app/Models/Produto.php
+class Produto extends Model
+{
+    protected $fillable = ['nome', 'preco', 'categoria_id'];
+
+    // Um produto PERTENCE A uma categoria
+    public function categoria()
+    {
+        return $this-&gt;belongsTo(Categoria::class);
+    }
+}</code></pre>
+        <p>
+          Para essa relação funcionar, a tabela <code>produtos</code> precisa ter uma coluna
+          <code>categoria_id</code> (definida na migration com <code>$table-&gt;foreignId('categoria_id')-&gt;constrained()</code>),
+          que guarda a qual categoria cada produto pertence. Com os relacionamentos definidos, navegar entre os dados
+          fica natural:
+        </p>
+        <pre><code>$categoria = Categoria::find(1);
+foreach ($categoria-&gt;produtos as $produto) {
+    echo $produto-&gt;nome;
+}
+
+$produto = Produto::find(5);
+echo $produto-&gt;categoria-&gt;nome; // acessa a categoria "dona" desse produto</code></pre>
+        <p>
+          Repare que <code>hasMany</code> e <code>belongsTo</code> são "dois lados da mesma moeda": quem tem
+          <code>hasMany</code> é o lado "um" da relação (uma categoria, vários produtos); quem tem
+          <code>belongsTo</code> é o lado "muitos" (cada produto pertence a uma categoria só). Essa dupla é a base
+          de praticamente todo relacionamento simples entre tabelas no Eloquent.
+        </p>
+
+        <h2>Resumo</h2>
+        <ul class="checklist">
+          <li>Um ORM traduz entre tabelas do banco e classes PHP, evitando escrever SQL manualmente na maioria dos casos.</li>
+          <li>Migrations são arquivos versionados que descrevem mudanças na estrutura do banco, aplicadas com <code>php artisan migrate</code>.</li>
+          <li>Esquecer de rodar <code>migrate</code> depois de criar uma migration é um erro comum e gera erro de "tabela não existe".</li>
+          <li>Um Model Eloquent representa uma tabela; por convenção, <code>Produto</code> corresponde à tabela <code>produtos</code>.</li>
+          <li><code>$fillable</code> protege contra mass assignment, definindo quais campos podem ser preenchidos em massa.</li>
+          <li><code>hasMany</code> e <code>belongsTo</code> definem os dois lados de um relacionamento um-para-muitos entre Models.</li>
+        </ul>
+
+        <div id="lesson-footer-nav" class="lesson-footer-nav"></div>
+      </main>
+    </div>
+  </div>
+  <script src="../../nav.js"></script>
+</body>
+</html>

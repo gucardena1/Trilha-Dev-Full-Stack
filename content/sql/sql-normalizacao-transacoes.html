@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Normalização e transações — Trilha Dev Full Stack</title>
+  <link rel="stylesheet" href="../../style.css" />
+</head>
+<body>
+  <div class="layout">
+    <nav id="sidebar"></nav>
+    <div class="content-wrap">
+      <main class="content">
+        <div class="breadcrumb">5. SQL &amp; Bancos de Dados</div>
+        <h1 class="lesson-title">Normalização e transações</h1>
+        <p class="lesson-subtitle">Como desenhar tabelas que não se contradizem, e como garantir que operações compostas nunca fiquem "pela metade".</p>
+
+        <div class="box box-analogia">
+          <span class="box-titulo">Analogia</span>
+          Normalizar um banco de dados é como arrumar um guarda-roupa bagunçado: em vez de jogar tudo misturado numa
+          gaveta só (meias com camisas com o carregador de celular), você separa cada tipo de coisa no lugar certo,
+          de forma que exista <em>um único lugar correto</em> para cada item. Se amanhã você quiser saber quantas
+          meias tem, não precisa vasculhar o guarda-roupa inteiro — você já sabe exatamente onde procurar, e não
+          existe risco de ter "meias" espalhadas (e contadas de forma diferente) em três gavetas ao mesmo tempo.
+        </div>
+
+        <h2>O problema que a normalização resolve</h2>
+        <p>
+          Imagine esta tabela única, guardando pedidos e dados do cliente juntos:
+        </p>
+        <table>
+          <thead>
+            <tr><th>id</th><th>cliente_nome</th><th>cliente_email</th><th>produto</th><th>valor</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>1</td><td>Ana Souza</td><td>ana@email.com</td><td>Teclado</td><td>150.00</td></tr>
+            <tr><td>2</td><td>Ana Souza</td><td>ana@emial.com</td><td>Mouse</td><td>60.00</td></tr>
+            <tr><td>3</td><td>Bruno Lima</td><td>bruno@email.com</td><td>Monitor</td><td>900.00</td></tr>
+          </tbody>
+        </table>
+        <p>
+          Repare no e-mail da linha 2: está escrito <code>ana@emial.com</code>, com um erro de digitação, diferente
+          do e-mail correto na linha 1. Nada nessa estrutura impede essa inconsistência — o mesmo cliente aparece
+          com dois e-mails "diferentes" dependendo de qual pedido você olhar. Esse tipo de problema é o motivo pelo
+          qual existe a <strong>normalização</strong>: um conjunto de boas práticas para organizar tabelas de forma
+          que cada informação tenha um único lugar de verdade, evitando repetição e contradição.
+        </p>
+
+        <h2>As formas normais, na prática</h2>
+        <p>
+          Formalmente existem várias "formas normais" (1FN, 2FN, 3FN...), com definições bem técnicas. Para o uso do
+          dia a dia, vale entender a ideia prática por trás das três primeiras, que já resolvem a grande maioria dos
+          problemas reais:
+        </p>
+        <ul>
+          <li>
+            <strong>1ª Forma Normal (1FN): cada célula guarda um valor só.</strong> Uma coluna
+            <code>telefones</code> com o valor <code>"11999999999, 11888888888"</code> dentro de uma única célula
+            viola a 1FN — ali deveriam existir linhas separadas (numa tabela <code>telefones</code> à parte) ou, no
+            mínimo, uma estrutura própria para múltiplos valores.
+          </li>
+          <li>
+            <strong>2ª Forma Normal (2FN): toda coluna depende da chave inteira, não só de parte dela.</strong> Na
+            tabela de pedidos acima, <code>cliente_nome</code> e <code>cliente_email</code> não dependem do pedido
+            em si — dependem do cliente. Isso é sinal de que essas colunas deveriam morar numa tabela
+            <code>clientes</code> separada, ligada por chave estrangeira (exatamente como fizemos nas lições
+            anteriores).
+          </li>
+          <li>
+            <strong>3ª Forma Normal (3FN): nenhuma coluna depende de outra coluna que não seja a chave.</strong> Por
+            exemplo, se uma tabela de pedidos tivesse <code>cep</code> e também <code>cidade</code>, e a cidade
+            pudesse ser deduzida a partir do CEP, isso é uma dependência "escondida" que deveria ser separada.
+          </li>
+        </ul>
+        <p>Aplicando a normalização ao exemplo anterior, chegamos de volta ao modelo que já usamos nas lições passadas:</p>
+        <table>
+          <thead>
+            <tr><th colspan="3">clientes</th></tr>
+            <tr><th>id</th><th>nome</th><th>email</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>1</td><td>Ana Souza</td><td>ana@email.com</td></tr>
+            <tr><td>2</td><td>Bruno Lima</td><td>bruno@email.com</td></tr>
+          </tbody>
+        </table>
+        <table>
+          <thead>
+            <tr><th colspan="3">pedidos</th></tr>
+            <tr><th>id</th><th>produto</th><th>cliente_id</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>1</td><td>Teclado</td><td>1</td></tr>
+            <tr><td>2</td><td>Mouse</td><td>1</td></tr>
+            <tr><td>3</td><td>Monitor</td><td>2</td></tr>
+          </tbody>
+        </table>
+        <p>
+          Agora o e-mail de Ana Souza existe em um único lugar. Se ele estiver errado, você corrige uma vez só, e
+          todos os pedidos dela automaticamente "enxergam" o e-mail corrigido através da chave estrangeira
+          <code>cliente_id</code>.
+        </p>
+
+        <div class="box box-dica">
+          <span class="box-titulo">Dica</span>
+          Normalização não é um dogma absoluto. Em sistemas com necessidade extrema de velocidade de leitura, às
+          vezes se opta deliberadamente por "desnormalizar" (repetir alguns dados) para evitar <code>JOIN</code>s
+          custosos. Mas isso é uma decisão consciente feita depois de entender bem o modelo normalizado — não um
+          atalho para quem está começando.
+        </div>
+
+        <h2>Transações: operações que precisam acontecer "tudo ou nada"</h2>
+        <p>
+          Agora um problema diferente: imagine uma transferência bancária entre duas contas. Isso exige dois passos
+          no banco de dados — tirar dinheiro da conta A e colocar na conta B:
+        </p>
+        <pre><code>UPDATE contas SET saldo = saldo - 100 WHERE id = 1;
+UPDATE contas SET saldo = saldo + 100 WHERE id = 2;</code></pre>
+        <p>
+          E se, entre esses dois comandos, o servidor cair, a internet falhar ou o programa travar? Existe o risco
+          real de o dinheiro sair da conta 1 e nunca chegar na conta 2 — ele simplesmente desaparece. Para evitar
+          exatamente esse tipo de desastre, os bancos de dados oferecem <strong>transações</strong>: um jeito de
+          agrupar vários comandos SQL para que eles sejam tratados como uma única operação indivisível. Ou tudo é
+          aplicado com sucesso, ou nada é aplicado — nunca fica "pela metade".
+        </p>
+        <pre><code>BEGIN;
+
+UPDATE contas SET saldo = saldo - 100 WHERE id = 1;
+UPDATE contas SET saldo = saldo + 100 WHERE id = 2;
+
+COMMIT;</code></pre>
+        <p>
+          <code>BEGIN</code> abre a transação, avisando ao banco "os próximos comandos fazem parte de um mesmo
+          pacote". <code>COMMIT</code> confirma tudo de uma vez, tornando as mudanças permanentes. Se algo der
+          errado no meio do caminho, a aplicação pode chamar <code>ROLLBACK</code> em vez de <code>COMMIT</code>,
+          desfazendo tudo o que foi feito desde o <code>BEGIN</code> — como se nada tivesse acontecido.
+        </p>
+        <pre><code>BEGIN;
+
+UPDATE contas SET saldo = saldo - 100 WHERE id = 1;
+-- algo deu errado aqui (ex: conta 2 não existe)
+ROLLBACK;
+-- a subtração acima é desfeita, como se nunca tivesse rodado</code></pre>
+
+        <h2>ACID: as quatro garantias por trás de uma transação</h2>
+        <p>
+          As transações confiáveis se apoiam em quatro garantias conhecidas pela sigla <strong>ACID</strong>.
+          Explicando cada uma de forma simples, sem jargão:
+        </p>
+        <ul>
+          <li>
+            <strong>Atomicidade (Atomicity).</strong> Todos os comandos da transação são tratados como uma coisa só
+            — "tudo ou nada", exatamente como no exemplo da transferência bancária.
+          </li>
+          <li>
+            <strong>Consistência (Consistency).</strong> A transação sempre leva o banco de um estado válido para
+            outro estado válido, respeitando todas as regras definidas (chaves únicas, chaves estrangeiras
+            corretas etc.). Nunca fica um estado "quebrado" no meio do caminho.
+          </li>
+          <li>
+            <strong>Isolamento (Isolation).</strong> Mesmo que várias transações aconteçam ao mesmo tempo (centenas
+            de pessoas usando o banco simultaneamente), cada transação enxerga o banco como se fosse a única
+            rodando naquele momento — uma não "vê" os passos intermediários incompletos da outra.
+          </li>
+          <li>
+            <strong>Durabilidade (Durability).</strong> Depois que um <code>COMMIT</code> é confirmado, a mudança é
+            permanente — mesmo que o servidor caia um segundo depois, os dados já gravados não somem.
+          </li>
+        </ul>
+
+        <div class="box box-atencao">
+          <span class="box-titulo">Atenção</span>
+          Fora de uma transação explícita, a maioria dos bancos trata cada comando SQL isolado como sua própria
+          "mini transação" automática. Mas isso não ajuda quando a regra de negócio exige que <em>vários</em>
+          comandos aconteçam juntos, como no exemplo da transferência. Sempre que uma operação envolver mais de um
+          <code>INSERT</code>/<code>UPDATE</code>/<code>DELETE</code> que precisam ser consistentes entre si, vale
+          embrulhar tudo entre <code>BEGIN</code> e <code>COMMIT</code>.
+        </div>
+
+        <h2>Fechando a trilha de SQL</h2>
+        <p>
+          Com estas cinco lições — o que é um banco relacional, os comandos básicos (CRUD), como relacionar tabelas
+          com <code>JOIN</code>, como pensar em performance com índices, e agora como desenhar tabelas confiáveis
+          com normalização e proteger operações compostas com transações — você já tem a base necessária para ler,
+          escrever e entender a imensa maioria dos bancos de dados relacionais usados no mercado. O próximo passo
+          natural é praticar com um banco de verdade (PostgreSQL ou MySQL são ótimos pontos de partida) e começar a
+          integrar essas consultas com o código de uma aplicação real.
+        </p>
+
+        <h2>Resumo</h2>
+        <ul class="checklist">
+          <li>Normalização organiza tabelas para que cada dado tenha um único lugar de verdade, evitando repetição e contradição.</li>
+          <li>1FN: uma célula, um valor. 2FN: colunas dependem da chave inteira. 3FN: nenhuma coluna depende de outra coluna que não seja a chave.</li>
+          <li>Uma transação (<code>BEGIN</code> ... <code>COMMIT</code>/<code>ROLLBACK</code>) agrupa vários comandos SQL como uma operação única, "tudo ou nada".</li>
+          <li>ACID resume as quatro garantias de uma transação confiável: Atomicidade, Consistência, Isolamento e Durabilidade.</li>
+          <li>Operações que envolvem mais de um comando dependente entre si (como transferências) devem sempre estar dentro de uma transação.</li>
+        </ul>
+
+        <div id="lesson-footer-nav" class="lesson-footer-nav"></div>
+      </main>
+    </div>
+  </div>
+  <script src="../../nav.js"></script>
+</body>
+</html>

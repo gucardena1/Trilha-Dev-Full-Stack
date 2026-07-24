@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rotas, controllers e Blade — Trilha Dev Full Stack</title>
+  <link rel="stylesheet" href="../../style.css" />
+</head>
+<body>
+  <div class="layout">
+    <nav id="sidebar"></nav>
+    <div class="content-wrap">
+      <main class="content">
+        <div class="breadcrumb">6. PHP & Laravel</div>
+        <h1 class="lesson-title">Rotas, controllers e Blade</h1>
+        <p class="lesson-subtitle">Colocando o MVC em prática: como uma URL vira código, e como esse código vira uma página de verdade.</p>
+
+        <div class="box box-analogia">
+          <span class="box-titulo">Analogia</span>
+          Se o Laravel fosse um prédio, as <strong>rotas</strong> seriam a <strong>portaria com a lista de
+          apartamentos</strong>: quando alguém chega dizendo "quero ir ao apartamento /produtos", a portaria consulta
+          a lista e diz exatamente para qual andar e sala mandar essa pessoa — ou seja, qual Controller deve cuidar
+          daquele pedido. O Controller, por sua vez, é como o morador daquele apartamento: recebe a visita, organiza
+          o que for preciso, e chama a "sala de estar" (a View, escrita em Blade) para receber o visitante de forma
+          apresentável.
+        </div>
+
+        <h2>Rotas: a porta de entrada de cada URL</h2>
+        <p>
+          Toda URL que existe num site Laravel precisa estar registrada em um arquivo de rotas — o mais comum é
+          <code>routes/web.php</code>. Uma rota conecta um caminho de URL a uma ação: pode ser uma função anônima
+          direta ou, o mais comum em projetos reais, um método de um Controller.
+        </p>
+        <pre><code>&lt;?php
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ProdutoController;
+
+// Rota simples, direto no arquivo (só para testes rápidos)
+Route::get('/ola', function () {
+    return 'Olá, mundo!';
+});
+
+// Rota "de verdade", apontando para um Controller
+Route::get('/produtos', [ProdutoController::class, 'index']);
+Route::get('/produtos/{id}', [ProdutoController::class, 'show']);
+Route::post('/produtos', [ProdutoController::class, 'store']);</code></pre>
+        <p>
+          Cada linha combina um <strong>verbo HTTP</strong> (<code>get</code> para visualizar uma página,
+          <code>post</code> para enviar dados de um formulário, entre outros) com um <strong>caminho</strong>
+          (a parte da URL depois do domínio) e o que deve acontecer quando essa combinação for acessada. O trecho
+          <code>{id}</code> é um <strong>parâmetro de rota</strong>: uma parte variável da URL, como
+          <code>/produtos/7</code> ou <code>/produtos/42</code>, cujo valor (7 ou 42) é enviado automaticamente para
+          o Controller.
+        </p>
+
+        <div class="box box-dica">
+          <span class="box-titulo">Dica</span>
+          Para ver rapidamente todas as rotas registradas em um projeto, rode <code>php artisan route:list</code> no
+          terminal. É uma das ferramentas mais úteis do dia a dia com Laravel.
+        </div>
+
+        <h2>Criando um Controller</h2>
+        <p>
+          Um Controller é apenas uma classe PHP comum, guardada em <code>app/Http/Controllers</code>, com métodos que
+          respondem a cada rota. Você pode criar um novo controller pelo Artisan, sem precisar escrever a estrutura
+          inicial manualmente:
+        </p>
+        <pre><code>php artisan make:controller ProdutoController</code></pre>
+        <p>
+          Isso gera um arquivo <code>app/Http/Controllers/ProdutoController.php</code> já com a estrutura básica de
+          classe pronta. Você então escreve os métodos que as rotas vão chamar:
+        </p>
+        <pre><code>&lt;?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+
+class ProdutoController extends Controller
+{
+    // Chamado pela rota GET /produtos
+    public function index()
+    {
+        $produtos = [
+            ['nome' =&gt; 'Teclado', 'preco' =&gt; 150],
+            ['nome' =&gt; 'Mouse', 'preco' =&gt; 60],
+        ];
+
+        // Envia os dados para a view "produtos.index"
+        return view('produtos.index', ['produtos' =&gt; $produtos]);
+    }
+
+    // Chamado pela rota GET /produtos/{id}
+    public function show($id)
+    {
+        $produto = ['nome' =&gt; 'Teclado', 'preco' =&gt; 150];
+
+        return view('produtos.show', ['produto' =&gt; $produto, 'id' =&gt; $id]);
+    }
+}</code></pre>
+        <p>
+          Repare como o Controller aqui é bem "magro": ele monta ou busca os dados e apenas os repassa para a view,
+          sem escrever nenhum HTML diretamente. Isso é o Controller cumprindo seu papel de "garçom" — ele não cozinha
+          (isso será tarefa do Model, na próxima lição) e não decora o prato (isso é tarefa da View).
+        </p>
+
+        <h2>Blade: o motor de templates do Laravel</h2>
+        <p>
+          Blade é a linguagem de views do Laravel. Os arquivos Blade ficam em <code>resources/views</code> e têm a
+          extensão <code>.blade.php</code>. Ele permite escrever HTML normal e, quando precisar, inserir lógica PHP
+          usando uma sintaxe mais limpa que o PHP puro dentro de tags.
+        </p>
+        <pre><code>{{-- resources/views/produtos/index.blade.php --}}
+&lt;!doctype html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;title&gt;Produtos&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;h1&gt;Nossos produtos&lt;/h1&gt;
+
+    &lt;ul&gt;
+        @foreach ($produtos as $produto)
+            &lt;li&gt;{{ $produto['nome'] }} — R$ {{ $produto['preco'] }}&lt;/li&gt;
+        @endforeach
+    &lt;/ul&gt;
+
+    @if (count($produtos) === 0)
+        &lt;p&gt;Nenhum produto cadastrado ainda.&lt;/p&gt;
+    @endif
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+        <p>
+          A sintaxe do Blade tem algumas peças fundamentais que você vai usar o tempo todo:
+        </p>
+        <ul>
+          <li><code>{{ $variavel }}</code> — exibe o valor de uma variável na tela, já protegido automaticamente contra ataques de injeção de HTML/JavaScript malicioso.</li>
+          <li><code>@if / @else / @endif</code> — condicional, equivalente ao <code>if</code> do PHP puro.</li>
+          <li><code>@foreach / @endforeach</code> — laço de repetição, equivalente ao <code>foreach</code> do PHP.</li>
+          <li><code>{{-- comentário --}}</code> — comentário que não aparece nem no HTML final (diferente de um comentário HTML comum).</li>
+        </ul>
+
+        <h2>Layouts: reaproveitando estrutura entre páginas</h2>
+        <p>
+          Em vez de repetir o mesmo cabeçalho e rodapé em toda página, o Blade permite criar um "layout" base e
+          apenas preencher o conteúdo que muda:
+        </p>
+        <pre><code>{{-- resources/views/layouts/app.blade.php --}}
+&lt;!doctype html&gt;
+&lt;html&gt;
+&lt;head&gt;&lt;title&gt;Minha Loja&lt;/title&gt;&lt;/head&gt;
+&lt;body&gt;
+    &lt;header&gt;Minha Loja&lt;/header&gt;
+
+    @yield('conteudo')
+
+    &lt;footer&gt;© 2026 Minha Loja&lt;/footer&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+
+{{-- resources/views/produtos/index.blade.php --}}
+@extends('layouts.app')
+
+@section('conteudo')
+    &lt;h1&gt;Nossos produtos&lt;/h1&gt;
+    @foreach ($produtos as $produto)
+        &lt;p&gt;{{ $produto['nome'] }}&lt;/p&gt;
+    @endforeach
+@endsection</code></pre>
+        <p>
+          <code>@extends</code> diz "esta view usa aquele layout como base". <code>@section('conteudo')</code>
+          define o que deve entrar exatamente no lugar onde o layout tem <code>@yield('conteudo')</code>. Isso evita
+          duplicar cabeçalho, rodapé e menu em cada página do site.
+        </p>
+
+        <div class="box box-atencao">
+          <span class="box-titulo">Atenção</span>
+          Uma armadilha comum é colocar lógica de negócio complexa dentro da view Blade — por exemplo, cálculos
+          pesados ou consultas ao banco de dados direto no arquivo <code>.blade.php</code>. A view deve ficar
+          responsável apenas por exibir dados que já chegaram prontos do Controller (e do Model). Se você perceber
+          muita lógica dentro de uma view, é sinal de que ela deveria estar no Controller ou no Model.
+        </div>
+
+        <h2>Resumo</h2>
+        <ul class="checklist">
+          <li>Rotas conectam uma URL e um verbo HTTP a uma ação, geralmente um método de Controller.</li>
+          <li>Controllers são classes PHP em <code>app/Http/Controllers</code> que recebem a requisição, buscam dados e os enviam para uma view.</li>
+          <li>A função <code>view()</code> retorna uma view Blade, passando dados para ela usar.</li>
+          <li>Blade usa <code>{{ }}</code> para exibir valores, e diretivas como <code>@if</code> e <code>@foreach</code> para lógica.</li>
+          <li><code>@extends</code> e <code>@section</code>/<code>@yield</code> permitem reaproveitar um layout comum entre várias páginas.</li>
+          <li>A view não deve conter lógica de negócio pesada — apenas exibir dados já prontos.</li>
+        </ul>
+
+        <div id="lesson-footer-nav" class="lesson-footer-nav"></div>
+      </main>
+    </div>
+  </div>
+  <script src="../../nav.js"></script>
+</body>
+</html>

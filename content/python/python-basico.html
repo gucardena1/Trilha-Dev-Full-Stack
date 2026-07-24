@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Python básico — Trilha Dev Full Stack</title>
+  <link rel="stylesheet" href="../../style.css" />
+</head>
+<body>
+  <div class="layout">
+    <nav id="sidebar"></nav>
+    <div class="content-wrap">
+      <main class="content">
+        <div class="breadcrumb">8. Python</div>
+        <h1 class="lesson-title">Python básico</h1>
+        <p class="lesson-subtitle">Uma linguagem que parece pseudocódigo de verdade: simples de ler, poderosa de usar.</p>
+
+        <h2>Por que aprender Python depois de JavaScript?</h2>
+        <p>
+          Se você já passou pela trilha de JavaScript, boa notícia: os conceitos de fundo
+          (variáveis, condicionais, loops, funções) são os mesmos — só muda a "sotaque" da
+          linguagem. Python é hoje uma das linguagens mais usadas do mundo, famosa por três
+          coisas: sintaxe limpa, uma comunidade gigante de bibliotecas prontas, e presença forte
+          em automação, dados, inteligência artificial e backend.
+        </p>
+        <p>
+          Diferente do JavaScript, que nasceu para rodar dentro do navegador, o Python nasceu
+          para rodar "no computador" mesmo: scripts, servidores, análise de dados, ciência,
+          automação de tarefas do dia a dia. Você não escreve Python numa página HTML — você
+          roda arquivos <code>.py</code> diretamente com um interpretador.
+        </p>
+
+        <div class="box box-analogia">
+          <span class="box-titulo">Analogia</span>
+          Se o JavaScript é a língua que você precisa falar para se comunicar dentro de uma loja
+          específica (o navegador), o Python é mais como o inglês: falado em muitos lugares
+          diferentes — automação de escritório, ciência de dados, backend de sites, scripts de
+          sistema — cada um usando um "sotaque" (biblioteca) próprio para o seu contexto.
+        </div>
+
+        <h2>Rodando seu primeiro código</h2>
+        <p>
+          Um arquivo Python é só um arquivo de texto com extensão <code>.py</code>. Para rodar,
+          você usa o interpretador Python no terminal:
+        </p>
+        <pre><code># arquivo: ola.py
+print("Olá, mundo!")</code></pre>
+        <pre><code>$ python3 ola.py
+Olá, mundo!</code></pre>
+        <p>
+          <code>print()</code> é a função mais básica de Python: ela exibe algo na tela. É o
+          equivalente direto do <code>console.log()</code> do JavaScript.
+        </p>
+
+        <h2>A indentação não é estilo, é sintaxe</h2>
+        <p>
+          Aqui está a diferença mais marcante para quem vem de JavaScript, PHP ou Java: em
+          Python, <strong>não existem chaves <code>{ }</code> para marcar blocos de código</strong>.
+          Quem define onde um bloco começa e termina é a <strong>indentação</strong> (os espaços
+          no começo da linha). Isso não é uma escolha de formatação — é parte da gramática da
+          linguagem. Se a indentação estiver errada, o código não roda.
+        </p>
+        <pre><code>idade = 20
+
+if idade >= 18:
+    print("Maior de idade")
+    print("Pode dirigir")
+else:
+    print("Menor de idade")
+
+print("Isso roda sempre, está fora do if")</code></pre>
+        <p>
+          Repare que as duas linhas dentro do <code>if</code> têm exatamente 4 espaços de
+          recuo (o padrão recomendado em Python). A última linha, sem recuo, não faz parte do
+          <code>if</code> — ela roda de qualquer forma. Em JavaScript, o equivalente teria
+          chaves <code>{ }</code> para deixar isso explícito; em Python, o próprio espaço em
+          branco cumpre esse papel.
+        </p>
+
+        <div class="box box-atencao">
+          <span class="box-titulo">Pegadinha comum</span>
+          Nunca misture espaços e tabs na mesma indentação — o Python pode reclamar de
+          <code>IndentationError</code> mesmo quando visualmente parece alinhado. Configure seu
+          editor para usar sempre 4 espaços (não tab) por nível. A maioria dos editores modernos
+          já faz isso automaticamente para arquivos <code>.py</code>.
+        </div>
+
+        <h2>Variáveis e tipos</h2>
+        <p>
+          Criar uma variável em Python é ainda mais direto que em JavaScript: não existe
+          <code>let</code> nem <code>const</code>, só o nome, um sinal de igual e o valor.
+        </p>
+        <pre><code>nome = "Marina"       # string (texto)
+idade = 28            # int (número inteiro)
+altura = 1.68         # float (número com casas decimais)
+ativo = True          # bool (True ou False, sempre com maiúscula)
+nada = None           # equivalente ao "null"/"undefined" do JS</code></pre>
+        <p>
+          Python é uma linguagem de <strong>tipagem dinâmica</strong>: você não declara o tipo,
+          ele é inferido automaticamente pelo valor. Mas, diferente do JavaScript, Python é
+          bem mais rígido na hora de <em>misturar</em> tipos numa operação:
+        </p>
+        <pre><code>idade = 28
+print("Idade: " + idade)   # ERRO! não dá pra somar string com int direto
+
+print("Idade: " + str(idade))  # certo: converte o número pra texto
+print(f"Idade: {idade}")       # melhor ainda: f-string</code></pre>
+        <p>
+          A <strong>f-string</strong> (uma string com <code>f</code> antes das aspas) é a forma
+          moderna e recomendada de montar textos com valores dentro, usando chaves
+          <code>{ }</code> — parecido com os crases (<code>`texto ${valor}`</code>) do
+          JavaScript.
+        </p>
+
+        <div class="box box-dica">
+          <span class="box-titulo">Dica</span>
+          Use <code>type(variavel)</code> para descobrir o tipo de algo em tempo de execução:
+          <code>type(idade)</code> devolve <code>&lt;class 'int'&gt;</code>. É muito útil
+          enquanto você está aprendendo e quer confirmar o que o Python "entendeu" do seu valor.
+        </div>
+
+        <h2>Listas: coleções ordenadas</h2>
+        <p>
+          A <strong>lista</strong> (<code>list</code>) é o equivalente do array em JavaScript:
+          uma coleção ordenada de itens, que pode crescer, encolher e ser alterada.
+        </p>
+        <pre><code>frutas = ["maçã", "banana", "uva"]
+
+print(frutas[0])        # "maçã" — índices começam em 0, como no JS
+print(len(frutas))       # 3 — quantidade de itens
+
+frutas.append("pera")    # adiciona no final
+frutas.remove("banana")  # remove pelo valor
+print(frutas)             # ['maçã', 'uva', 'pera']
+
+for fruta in frutas:
+    print(fruta)</code></pre>
+        <p>
+          O <code>for fruta in frutas</code> já mostra outra marca registrada do Python: os
+          loops são pensados para percorrer coleções diretamente, sem precisar controlar um
+          índice manualmente (embora isso também seja possível com <code>range()</code>, que
+          veremos já já).
+        </p>
+
+        <h2>Dicionários: pares de chave e valor</h2>
+        <p>
+          O <strong>dicionário</strong> (<code>dict</code>) é o equivalente ao objeto literal
+          <code>{ }</code> do JavaScript: guarda dados relacionados usando pares de
+          <em>chave: valor</em>.
+        </p>
+        <pre><code>pessoa = {
+    "nome": "Ana",
+    "idade": 30,
+    "cidade": "São Paulo"
+}
+
+print(pessoa["nome"])          # "Ana"
+pessoa["idade"] = 31            # atualiza um valor
+pessoa["profissao"] = "Dev"    # adiciona uma nova chave
+
+for chave, valor in pessoa.items():
+    print(chave, "->", valor)</code></pre>
+        <p>
+          Uma diferença importante: em Python, acessar uma chave que não existe com
+          <code>pessoa["telefone"]</code> gera um erro (<code>KeyError</code>), diferente do
+          JavaScript, que devolveria <code>undefined</code> silenciosamente. Para acessar com
+          segurança, use <code>pessoa.get("telefone")</code>, que devolve <code>None</code> se
+          a chave não existir, em vez de quebrar o programa.
+        </p>
+
+        <div class="box box-atencao">
+          <span class="box-titulo">Pegadinha comum</span>
+          Python também tem <strong>tuplas</strong> — <code>(1, 2, 3)</code> — que parecem
+          listas, mas são <em>imutáveis</em>: depois de criadas, não dá pra adicionar, remover
+          ou alterar itens. Use lista quando a coleção vai mudar; use tupla quando ela representa
+          um valor fixo, como coordenadas <code>(x, y)</code> que nunca vão ser reatribuídas.
+        </div>
+
+        <h2>Condicionais: if, elif, else</h2>
+        <p>
+          A estrutura é parecida com o JavaScript, com uma troca de nome: em vez de
+          <code>else if</code>, Python usa <code>elif</code>.
+        </p>
+        <pre><code>nota = 7.5
+
+if nota >= 9:
+    print("Excelente")
+elif nota >= 7:
+    print("Bom")
+elif nota >= 5:
+    print("Regular")
+else:
+    print("Precisa melhorar")</code></pre>
+        <p>
+          Os operadores de comparação são os mesmos que você já conhece:
+          <code>==</code>, <code>!=</code>, <code>&gt;</code>, <code>&lt;</code>,
+          <code>&gt;=</code>, <code>&lt;=</code>. Mas os operadores lógicos são escritos por
+          extenso, em vez de símbolos:
+        </p>
+        <pre><code>idade = 25
+tem_carteira = True
+
+if idade >= 18 and tem_carteira:
+    print("Pode dirigir")
+
+if idade &lt; 18 or not tem_carteira:
+    print("Não pode dirigir")</code></pre>
+        <p>
+          Onde JavaScript usa <code>&amp;&amp;</code>, <code>||</code> e <code>!</code>, Python
+          usa as palavras <code>and</code>, <code>or</code> e <code>not</code>.
+        </p>
+
+        <h2>Loops: for e while</h2>
+        <p>
+          O loop <code>for</code> em Python é feito para percorrer sequências. Quando você
+          precisa de um contador numérico clássico, usa a função <code>range()</code>:
+        </p>
+        <pre><code>for i in range(5):       # 0, 1, 2, 3, 4
+    print(i)
+
+for i in range(1, 6):    # 1, 2, 3, 4, 5
+    print(i)</code></pre>
+        <p>O <code>while</code> funciona de forma parecida com o JavaScript, repetindo enquanto uma condição for verdadeira:</p>
+        <pre><code>contador = 0
+while contador &lt; 3:
+    print("Rodando...", contador)
+    contador += 1   # equivalente a contador = contador + 1</code></pre>
+
+        <div class="box box-dica">
+          <span class="box-titulo">Dica</span>
+          Python não tem os operadores <code>++</code> ou <code>--</code> que existem em
+          JavaScript. Para incrementar, use <code>contador += 1</code> (que também funciona com
+          <code>-=</code>, <code>*=</code> e <code>/=</code>).
+        </div>
+
+        <h2>Resumo</h2>
+        <ul class="checklist">
+          <li>Python roda fora do navegador: você executa arquivos <code>.py</code> com um interpretador, geralmente pelo terminal.</li>
+          <li>A indentação (espaços no início da linha) define os blocos de código — não existem chaves <code>{ }</code>.</li>
+          <li>Variáveis não têm <code>let</code>/<code>const</code>: só nome, igual e valor, com tipo inferido automaticamente.</li>
+          <li>Listas (<code>list</code>) são coleções ordenadas e mutáveis; tuplas (<code>tuple</code>) são parecidas, mas imutáveis.</li>
+          <li>Dicionários (<code>dict</code>) guardam pares chave-valor, como os objetos <code>{ }</code> do JavaScript.</li>
+          <li><code>elif</code> substitui o <code>else if</code>, e <code>and</code>/<code>or</code>/<code>not</code> substituem <code>&amp;&amp;</code>/<code>||</code>/<code>!</code>.</li>
+        </ul>
+
+        <div id="lesson-footer-nav" class="lesson-footer-nav"></div>
+      </main>
+    </div>
+  </div>
+  <script src="../../nav.js"></script>
+</body>
+</html>

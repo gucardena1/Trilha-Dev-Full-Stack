@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>O que é um banco relacional — Trilha Dev Full Stack</title>
+  <link rel="stylesheet" href="../../style.css" />
+</head>
+<body>
+  <div class="layout">
+    <nav id="sidebar"></nav>
+    <div class="content-wrap">
+      <main class="content">
+        <div class="breadcrumb">5. SQL &amp; Bancos de Dados</div>
+        <h1 class="lesson-title">O que é um banco relacional</h1>
+        <p class="lesson-subtitle">Antes de escrever qualquer comando SQL, entenda o que é um banco de dados, por que ele existe e como ele organiza informação.</p>
+
+        <div class="box box-analogia">
+          <span class="box-titulo">Analogia</span>
+          Imagine um consultório médico antigo, daqueles com um armário cheio de gavetas. Cada gaveta é rotulada
+          ("Pacientes", "Consultas", "Convênios") e dentro de cada gaveta existem fichas de papel padronizadas: toda
+          ficha de "Pacientes" tem os mesmos campos — nome, data de nascimento, telefone — só que preenchidos com
+          valores diferentes para cada pessoa. Um banco de dados relacional é exatamente esse armário, só que
+          organizado por um computador: as "gavetas" são as <strong>tabelas</strong>, e as "fichas" dentro de cada
+          gaveta são as <strong>linhas</strong>.
+        </div>
+
+        <p>
+          Um <strong>banco de dados</strong> é, de forma simples, um sistema especializado em guardar, organizar e
+          buscar informação de forma confiável e rápida — mesmo quando essa informação cresce para milhões de
+          registros e é acessada por milhares de pessoas ao mesmo tempo. Um <strong>banco de dados relacional</strong>
+          (os mais usados no mundo — MySQL, PostgreSQL, SQL Server, SQLite) organiza tudo em tabelas que podem se
+          relacionar entre si, e usa uma linguagem chamada <strong>SQL</strong> (Structured Query Language) para ler
+          e escrever essas informações.
+        </p>
+
+        <h2>Por que não usar uma planilha de Excel ou um arquivo de texto?</h2>
+        <p>
+          É uma pergunta justa: se uma planilha também tem linhas e colunas, por que não usar só ela para o sistema
+          de uma empresa inteira? A resposta é que planilhas e arquivos de texto funcionam bem para poucos dados e
+          pouca gente mexendo neles, mas quebram rapidamente em cenários reais:
+        </p>
+        <ul>
+          <li>
+            <strong>Concorrência.</strong> Se duas pessoas abrirem o mesmo arquivo Excel ao mesmo tempo e salvarem,
+            uma sobrescreve o trabalho da outra. Um banco de dados foi desenhado para centenas de pessoas lerem e
+            escreverem ao mesmo tempo, sem conflito.
+          </li>
+          <li>
+            <strong>Integridade.</strong> Nada impede que alguém digite "trinta reais" numa célula que devia ter um
+            número, ou deixe um campo obrigatório em branco. Um banco de dados pode <em>forçar</em> regras: "este
+            campo é sempre obrigatório", "este valor tem que ser um número", "este e-mail não pode se repetir".
+          </li>
+          <li>
+            <strong>Velocidade em grande escala.</strong> Procurar um cliente específico entre 50 linhas de Excel é
+            rápido de qualquer jeito; procurar entre 20 milhões de linhas exige estruturas de busca eficientes, que é
+            justamente a especialidade de um banco de dados (vamos ver isso na lição sobre índices).
+          </li>
+          <li>
+            <strong>Relacionamentos sem repetição.</strong> Numa planilha única, para cada pedido você repetiria o
+            nome e o endereço completo do cliente em todas as linhas. Isso desperdiça espaço e, pior: se o cliente
+            mudar de endereço, você precisa corrigir em <em>todas</em> as linhas onde ele aparece, ou os dados ficam
+            inconsistentes. Bancos relacionais resolvem isso separando a informação em tabelas conectadas.
+          </li>
+        </ul>
+
+        <div class="box box-dica">
+          <span class="box-titulo">Dica</span>
+          Não existe problema em usar uma planilha para organizar sua lista de compras ou o orçamento pessoal. O
+          banco de dados relacional entra em cena quando o volume de dados cresce, quando várias pessoas (ou vários
+          sistemas) precisam acessar as mesmas informações ao mesmo tempo, e quando é fundamental que os dados nunca
+          fiquem inconsistentes.
+        </div>
+
+        <h2>Tabela, linha e coluna</h2>
+        <p>
+          Dentro de um banco relacional, cada "gaveta" da nossa analogia é uma <strong>tabela</strong>. Uma tabela
+          guarda um tipo de coisa — clientes, produtos, pedidos — e tem uma estrutura fixa de campos, chamados
+          <strong>colunas</strong>. Cada registro individual dentro da tabela é uma <strong>linha</strong> (também
+          chamada de "registro" ou "tupla").
+        </p>
+        <p>Veja uma tabela simples chamada <code>clientes</code>:</p>
+        <table>
+          <thead>
+            <tr><th>id</th><th>nome</th><th>email</th><th>cidade</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>1</td><td>Ana Souza</td><td>ana@email.com</td><td>Recife</td></tr>
+            <tr><td>2</td><td>Bruno Lima</td><td>bruno@email.com</td><td>Curitiba</td></tr>
+            <tr><td>3</td><td>Carla Dias</td><td>carla@email.com</td><td>São Paulo</td></tr>
+          </tbody>
+        </table>
+        <p>
+          Aqui, <code>id</code>, <code>nome</code>, <code>email</code> e <code>cidade</code> são as colunas — elas
+          definem <em>quais informações</em> cada cliente vai ter. Cada linha (1, 2, 3) é um cliente específico, com
+          um valor preenchido em cada coluna. Todo cliente cadastrado segue exatamente essa mesma estrutura, assim
+          como toda ficha de papel do armário segue o mesmo modelo.
+        </p>
+
+        <h2>Chave primária: o "RG" de cada linha</h2>
+        <p>
+          Repare na coluna <code>id</code> da tabela acima. Ela existe para resolver um problema: nomes se repetem,
+          e-mails podem mudar, cidades são iguais para várias pessoas — mas precisamos de uma forma <em>garantida</em>
+          de apontar para "este cliente específico e nenhum outro". Essa coluna especial é chamada de
+          <strong>chave primária</strong> (<em>primary key</em>, ou PK): um valor único que identifica cada linha
+          da tabela sem ambiguidade, assim como um RG ou CPF identifica uma pessoa de forma única no mundo real.
+        </p>
+        <p>
+          Duas regras acompanham a chave primária: ela nunca pode se repetir dentro da tabela, e nunca pode ficar
+          vazia. Na prática, a maioria dos bancos de dados gera esse número automaticamente (1, 2, 3, 4...) sempre
+          que uma nova linha é inserida, então você raramente precisa se preocupar em definir esse valor manualmente.
+        </p>
+
+        <h2>Chave estrangeira: a "cola" entre tabelas</h2>
+        <p>
+          Agora imagine uma segunda tabela, <code>pedidos</code>, guardando as compras feitas pelos clientes:
+        </p>
+        <table>
+          <thead>
+            <tr><th>id</th><th>produto</th><th>valor</th><th>cliente_id</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>1</td><td>Teclado</td><td>150.00</td><td>1</td></tr>
+            <tr><td>2</td><td>Mouse</td><td>60.00</td><td>1</td></tr>
+            <tr><td>3</td><td>Monitor</td><td>900.00</td><td>2</td></tr>
+          </tbody>
+        </table>
+        <p>
+          A coluna <code>cliente_id</code> não guarda um dado novo — ela guarda o <code>id</code> de uma linha da
+          tabela <code>clientes</code>. É assim que as duas tabelas se conectam: o pedido 1 "aponta" para o cliente de
+          id 1 (Ana Souza), o pedido 3 aponta para o cliente de id 2 (Bruno Lima). Essa coluna que aponta para a
+          chave primária de outra tabela é chamada de <strong>chave estrangeira</strong> (<em>foreign key</em>, ou
+          FK). É graças a esse mecanismo que conseguimos guardar o cliente <em>uma única vez</em> e ainda assim
+          relacioná-lo com quantos pedidos ele fizer, sem duplicar o nome e o e-mail dele em cada linha de pedido.
+        </p>
+
+        <div class="box box-atencao">
+          <span class="box-titulo">Atenção</span>
+          Um erro comum de iniciante é tentar guardar "tudo numa tabela só" — por exemplo, repetir o nome e o e-mail
+          do cliente em cada linha de pedido. Isso parece mais simples no começo, mas gera dados duplicados e abre
+          espaço para inconsistência (e se o e-mail estiver escrito diferente em duas linhas do mesmo cliente?).
+          Separar em tabelas relacionadas por chave primária/estrangeira é o coração do modelo relacional, e vamos
+          aprofundar isso nas próximas lições sobre <code>JOIN</code> e normalização.
+        </div>
+
+        <h2>Onde o SQL entra nessa história</h2>
+        <p>
+          Depois que os dados estão organizados em tabelas, precisamos de uma forma de conversar com o banco: pedir
+          para ele guardar um novo cliente, buscar todos os pedidos de uma pessoa, atualizar um endereço, apagar um
+          registro antigo. Essa "língua" é o <strong>SQL</strong>, e ela é praticamente igual entre os principais
+          bancos relacionais do mercado (PostgreSQL, MySQL, SQL Server, SQLite). Nas próximas lições desta trilha,
+          você vai aprender os quatro comandos mais usados do SQL — <code>SELECT</code>, <code>INSERT</code>,
+          <code>UPDATE</code> e <code>DELETE</code> — e, em seguida, como unir tabelas relacionadas usando
+          <code>JOIN</code>.
+        </p>
+
+        <h2>Resumo</h2>
+        <ul class="checklist">
+          <li>Um banco de dados relacional organiza informação em tabelas, e usa SQL para ler e escrever nelas.</li>
+          <li>Planilhas e arquivos de texto não escalam bem: faltam controle de concorrência, integridade e velocidade em grande volume.</li>
+          <li>Tabela = "gaveta" de um tipo de dado; coluna = campo fixo; linha = um registro individual.</li>
+          <li>Chave primária (PK) identifica cada linha de forma única e nunca se repete, como um RG.</li>
+          <li>Chave estrangeira (FK) é uma coluna que aponta para a PK de outra tabela, criando o relacionamento entre elas.</li>
+        </ul>
+
+        <div id="lesson-footer-nav" class="lesson-footer-nav"></div>
+      </main>
+    </div>
+  </div>
+  <script src="../../nav.js"></script>
+</body>
+</html>

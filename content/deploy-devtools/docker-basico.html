@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Docker básico — Trilha Dev Full Stack</title>
+  <link rel="stylesheet" href="../../style.css" />
+</head>
+<body>
+  <div class="layout">
+    <nav id="sidebar"></nav>
+    <div class="content-wrap">
+      <main class="content">
+        <div class="breadcrumb">11. Deploy, DevOps & Debug</div>
+        <h1 class="lesson-title">Docker básico</h1>
+        <p class="lesson-subtitle">Como empacotar um sistema inteiro, com tudo que ele precisa, para rodar igual em qualquer computador.</p>
+
+        <div class="box box-analogia">
+          <span class="box-titulo">Analogia</span>
+          Pense em como funciona o transporte marítimo de carga. Antes dos contêineres de navio existirem, cada
+          tipo de carga era embalado do seu próprio jeito — caixotes de madeira, sacos, barris — e carregada à
+          mão, de um jeito diferente em cada porto, em cada navio. Isso era lento, caro e cheio de acidentes. A
+          solução foi padronizar: todo mundo passou a colocar a carga dentro de caixas metálicas do mesmo
+          tamanho, os contêineres, que qualquer guindaste, navio ou caminhão do mundo sabe manusear, sem se
+          importar com o que tem dentro. O <strong>Docker</strong> faz isso com programas: empacota um sistema
+          inteiro — código, dependências, configurações — dentro de uma "caixa padronizada" que roda do mesmo
+          jeito em qualquer computador que tenha o Docker instalado.
+        </div>
+
+        <p>
+          Toda pessoa que já programou já ouviu (ou disse) a frase clássica: <strong>"na minha máquina
+          funciona"</strong>. Isso acontece porque um programa depende de um monte de coisas ao redor dele para
+          funcionar — uma versão específica de uma linguagem, certas bibliotecas instaladas, configurações do
+          sistema operacional — e é fácil essas coisas serem ligeiramente diferentes entre o computador de quem
+          programou e o servidor onde o sistema vai rodar de verdade. O Docker existe para acabar com esse
+          problema, garantindo que o ambiente ao redor do programa seja exatamente o mesmo em qualquer lugar.
+        </p>
+
+        <div class="box box-atencao">
+          <span class="box-titulo">Atenção</span>
+          "Funciona na minha máquina" não é uma desculpa, é um sintoma: significa que o ambiente onde o código
+          roda não está bem definido nem reproduzível. O Docker é uma das ferramentas mais usadas hoje justamente
+          para eliminar esse tipo de problema de vez.
+        </div>
+
+        <h2>Container: um "computador isolado" dentro do seu computador</h2>
+        <p>
+          Um <strong>container</strong> é um ambiente isolado, leve, que roda dentro do seu sistema operacional,
+          mas se comporta como se fosse uma máquina própria, com seu próprio sistema de arquivos, suas próprias
+          dependências instaladas e seus próprios processos rodando — sem interferir no resto do computador nem
+          ser interferido por ele. Dentro de um container você pode ter, por exemplo, uma versão específica do
+          Node.js e do PHP, sem que isso afete (ou dependa de) o que já está instalado na sua máquina.
+        </p>
+        <p>
+          Diferente de uma máquina virtual tradicional, que simula um computador inteiro (com seu próprio sistema
+          operacional completo, o que é pesado e lento para ligar), um container compartilha o núcleo do sistema
+          operacional da máquina onde está rodando, isolando apenas o que é necessário. Isso faz containers serem
+          muito mais leves e rápidos de iniciar — geralmente em segundos, contra minutos de uma máquina virtual.
+        </p>
+
+        <h2>Imagem vs. container: a receita e o bolo</h2>
+        <p>
+          Esses dois termos confundem muita gente no começo, mas a diferença é simples: uma <strong>imagem</strong>
+          é como uma receita de bolo — uma descrição de tudo que é necessário para montar aquele ambiente (qual
+          sistema base usar, quais programas instalar, quais arquivos copiar, quais comandos rodar). Um
+          <strong>container</strong> é o bolo pronto, rodando: uma instância real e viva daquela imagem, em
+          execução neste momento.
+        </p>
+        <p>
+          Assim como você pode assar vários bolos a partir da mesma receita, você pode rodar vários containers
+          diferentes a partir da mesma imagem — cada um isolado dos outros, mas todos nascidos exatamente da
+          mesma "receita", o que garante que todos se comportem de forma idêntica.
+        </p>
+
+        <h2>Dockerfile: a receita escrita</h2>
+        <p>
+          A receita que descreve como montar uma imagem é escrita num arquivo de texto chamado
+          <strong>Dockerfile</strong>. Nele, cada linha é uma instrução que diz ao Docker o que fazer para montar
+          o ambiente, passo a passo. Um exemplo simples, para uma aplicação Node.js:
+        </p>
+        <pre><code>FROM node:20-alpine
+
+WORKDIR /app
+
+COPY package.json package-lock.json ./
+RUN npm install
+
+COPY . .
+
+EXPOSE 3000
+CMD ["node", "servidor.js"]</code></pre>
+        <p>
+          Lendo linha por linha: <code>FROM</code> escolhe a imagem base sobre a qual construir (aqui, uma versão
+          leve do Linux já com Node.js 20 instalado); <code>WORKDIR</code> define a pasta de trabalho dentro do
+          container; <code>COPY</code> copia arquivos do seu computador para dentro da imagem; <code>RUN</code>
+          executa um comando durante a montagem da imagem (aqui, instalando as dependências do projeto);
+          <code>EXPOSE</code> documenta em qual porta o programa vai escutar; e <code>CMD</code> define o comando
+          que roda quando um container dessa imagem é finalmente iniciado.
+        </p>
+        <p>
+          Com esse arquivo pronto, dois comandos bastam para construir a imagem e rodar um container a partir
+          dela:
+        </p>
+        <pre><code>docker build -t meu-app .
+docker run -p 3000:3000 meu-app</code></pre>
+        <p>
+          <code>docker build</code> lê o Dockerfile e monta a imagem, dando a ela um nome (<code>-t</code>, de
+          "tag"). <code>docker run</code> inicia um container a partir dessa imagem, e o <code>-p 3000:3000</code>
+          conecta a porta 3000 do seu computador à porta 3000 de dentro do container, permitindo acessar a
+          aplicação pelo navegador normalmente.
+        </p>
+
+        <div class="box box-dica">
+          <span class="box-titulo">Dica</span>
+          Se um sistema inteiro roda dentro de containers, ele passa a rodar exatamente do mesmo jeito no seu
+          computador, no computador de um colega e no servidor de produção — porque todos estão usando a mesma
+          "caixa padronizada", com o mesmo conteúdo dentro, em vez de depender do que cada máquina tem instalado.
+        </div>
+
+        <h2>Docker Compose, em uma frase</h2>
+        <p>
+          Sistemas reais raramente são um container sozinho — normalmente há um container para a aplicação, outro
+          para o banco de dados, outro para o cache, e assim por diante. O <strong>Docker Compose</strong> é a
+          ferramenta que permite descrever, num único arquivo (<code>docker-compose.yml</code>), todos esses
+          containers que compõem um sistema e como eles se conectam entre si, para então subir tudo junto com um
+          único comando: <code>docker compose up</code>.
+        </p>
+
+        <h2>Resumo</h2>
+        <ul class="checklist">
+          <li>Docker empacota um sistema com tudo que ele precisa para rodar igual em qualquer computador.</li>
+          <li>Container é um ambiente isolado e leve, rodando dentro do sistema operacional da máquina.</li>
+          <li>Imagem é a "receita" de como montar o ambiente; container é o "bolo pronto", rodando de verdade.</li>
+          <li>Dockerfile é o arquivo de texto que descreve, passo a passo, como construir uma imagem.</li>
+          <li>Docker Compose descreve e sobe vários containers relacionados (app, banco, cache) de uma vez.</li>
+        </ul>
+
+        <div id="lesson-footer-nav" class="lesson-footer-nav"></div>
+      </main>
+    </div>
+  </div>
+  <script src="../../nav.js"></script>
+</body>
+</html>

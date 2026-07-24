@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Scripts, automação e dados — Trilha Dev Full Stack</title>
+  <link rel="stylesheet" href="../../style.css" />
+</head>
+<body>
+  <div class="layout">
+    <nav id="sidebar"></nav>
+    <div class="content-wrap">
+      <main class="content">
+        <div class="breadcrumb">8. Python</div>
+        <h1 class="lesson-title">Scripts, automação e dados</h1>
+        <p class="lesson-subtitle">Onde o Python realmente brilha no mercado de trabalho — e por que ele virou a "faca suíça" de quem programa.</p>
+
+        <p>
+          Você já viu a sintaxe e a orientação a objetos em Python. Agora vamos falar do que
+          importa na prática: <strong>para que</strong> as empresas realmente usam Python no
+          dia a dia. Ele é usado para construir sites (com Django ou Flask), para ciência de
+          dados e inteligência artificial, mas o uso mais comum — e o mais subestimado por quem
+          está aprendendo — é como <strong>ferramenta de automação e scripts</strong>.
+        </p>
+
+        <div class="box box-analogia">
+          <span class="box-titulo">Analogia</span>
+          Pense num escritório onde alguém, toda sexta-feira, baixa uma planilha, renomeia
+          arquivos, copia números de um sistema para outro e manda um e-mail com o resumo.
+          Isso leva 40 minutos manuais, toda semana, o ano inteiro. Python é a pessoa que você
+          contrata uma vez para aprender a fazer exatamente essa tarefa — e depois ela faz em 3
+          segundos, sempre do mesmo jeito, sem reclamar e sem errar por cansaço.
+        </div>
+
+        <h2>Automação de tarefas repetitivas</h2>
+        <p>
+          Esse é o caso de uso número um do Python no mercado, especialmente fora de empresas de
+          tecnologia: analistas, contadores, profissionais de RH e marketing usam Python para
+          automatizar tarefas manuais e repetitivas que consomem horas todo mês.
+        </p>
+        <p>Um exemplo simples: renomear em lote todos os arquivos de uma pasta.</p>
+        <pre><code>import os
+
+pasta = "./relatorios"
+
+for nome_arquivo in os.listdir(pasta):
+    if nome_arquivo.endswith(".txt"):
+        novo_nome = nome_arquivo.replace(" ", "_").lower()
+        caminho_antigo = os.path.join(pasta, nome_arquivo)
+        caminho_novo = os.path.join(pasta, novo_nome)
+        os.rename(caminho_antigo, caminho_novo)
+        print(f"Renomeado: {nome_arquivo} -> {novo_nome}")</code></pre>
+        <p>
+          <code>import os</code> traz o módulo <code>os</code>, parte da <strong>biblioteca
+          padrão</strong> do Python (já vem instalada, não precisa baixar nada). Ele dá acesso a
+          funções que conversam com o sistema operacional: listar arquivos de uma pasta, criar
+          diretórios, renomear e apagar arquivos, e muito mais.
+        </p>
+
+        <div class="box box-dica">
+          <span class="box-titulo">Dica</span>
+          A biblioteca padrão do Python é enorme e cobre boa parte do que você precisa sem
+          instalar nada extra: <code>os</code> e <code>shutil</code> para arquivos,
+          <code>datetime</code> para datas, <code>csv</code> para planilhas simples,
+          <code>json</code> para dados estruturados, <code>re</code> para busca de padrões em
+          texto (expressões regulares). Antes de instalar uma biblioteca externa, vale checar se
+          a biblioteca padrão já resolve.
+        </div>
+
+        <h2>Scripts de linha de comando</h2>
+        <p>
+          Outro uso muito comum: pequenos programas que rodam no terminal, recebem entradas do
+          usuário (ou de argumentos) e produzem um resultado — sem precisar de interface
+          gráfica nenhuma. É o formato favorito para ferramentas internas de equipes de
+          desenvolvimento.
+        </p>
+        <pre><code># arquivo: conversor.py
+def celsius_para_fahrenheit(celsius):
+    return celsius * 9 / 5 + 32
+
+def main():
+    entrada = input("Digite a temperatura em Celsius: ")
+    celsius = float(entrada)
+    fahrenheit = celsius_para_fahrenheit(celsius)
+    print(f"{celsius}°C equivale a {fahrenheit}°F")
+
+if __name__ == "__main__":
+    main()</code></pre>
+        <pre><code>$ python3 conversor.py
+Digite a temperatura em Celsius: 30
+30.0°C equivale a 86.0°F</code></pre>
+        <p>
+          <code>input()</code> pausa o programa e espera o usuário digitar algo, devolvendo
+          sempre uma <code>string</code> — por isso a conversão com <code>float()</code>.
+        </p>
+        <p>
+          E o que é aquele <code>if __name__ == "__main__":</code>? É uma convenção do Python
+          que significa "só rode a função <code>main()</code> se este arquivo foi executado
+          diretamente (e não importado por outro arquivo)". Você vai ver isso em praticamente
+          todo script Python sério — pode adotar como padrão desde já.
+        </p>
+
+        <div class="box box-atencao">
+          <span class="box-titulo">Pegadinha comum</span>
+          Sem o <code>if __name__ == "__main__":</code>, se outro arquivo Python fizer
+          <code>import conversor</code> para reaproveitar a função <code>celsius_para_fahrenheit</code>,
+          o programa vai executar <code>main()</code> automaticamente — inclusive o
+          <code>input()</code> — mesmo que ninguém quisesse rodar o conversor completo naquele
+          momento. O <code>if __name__</code> evita esse efeito colateral indesejado.
+        </div>
+
+        <h2>Um gostinho de manipulação de dados</h2>
+        <p>
+          Antes de aprender bibliotecas especializadas, dá pra fazer bastante coisa só com
+          listas e dicionários — as estruturas que você já conhece. Imagine uma lista de vendas:
+        </p>
+        <pre><code>vendas = [
+    {"produto": "Notebook", "valor": 3500, "quantidade": 2},
+    {"produto": "Mouse", "valor": 50, "quantidade": 10},
+    {"produto": "Teclado", "valor": 120, "quantidade": 5},
+]
+
+total_geral = 0
+for venda in vendas:
+    subtotal = venda["valor"] * venda["quantidade"]
+    total_geral += subtotal
+    print(f"{venda['produto']}: R$ {subtotal:.2f}")
+
+print(f"Total geral: R$ {total_geral:.2f}")</code></pre>
+        <pre><code>Notebook: R$ 7000.00
+Mouse: R$ 500.00
+Teclado: R$ 600.00
+Total geral: R$ 8100.00</code></pre>
+        <p>
+          Python também tem atalhos elegantes para transformar listas em uma linha, chamados de
+          <strong>list comprehensions</strong> — uma forma compacta de criar uma lista nova a
+          partir de outra:
+        </p>
+        <pre><code>produtos_caros = [v["produto"] for v in vendas if v["valor"] > 100]
+print(produtos_caros)   # ['Notebook', 'Teclado']
+
+subtotais = [v["valor"] * v["quantidade"] for v in vendas]
+print(subtotais)   # [7000, 500, 600]</code></pre>
+        <p>
+          Leia assim: "para cada <code>v</code> em <code>vendas</code>, se o valor for maior que
+          100, pegue o produto". É o mesmo resultado que um <code>filter().map()</code>
+          encadeado em JavaScript, só que em uma sintaxe mais enxuta.
+        </p>
+
+        <h2>Ler e escrever arquivos CSV</h2>
+        <p>
+          CSV (valores separados por vírgula) é o formato mais comum para trocar dados tipo
+          planilha entre sistemas. A biblioteca padrão já sabe lidar com ele:
+        </p>
+        <pre><code>import csv
+
+with open("vendas.csv", mode="r", encoding="utf-8") as arquivo:
+    leitor = csv.DictReader(arquivo)
+    for linha in leitor:
+        print(linha["produto"], linha["valor"])</code></pre>
+        <p>
+          O bloco <code>with open(...) as arquivo:</code> é o jeito recomendado de abrir
+          arquivos em Python: ele garante que o arquivo seja fechado automaticamente ao final do
+          bloco, mesmo que algo dê errado no meio do caminho.
+        </p>
+
+        <h2>Próximos passos: pandas</h2>
+        <p>
+          Quando os dados crescem — milhares ou milhões de linhas, vindas de planilhas, bancos
+          de dados ou APIs — listas e dicionários puros começam a ficar lentos e trabalhosos de
+          manipular. É aí que entra o <strong>pandas</strong>, a biblioteca mais usada do mundo
+          para análise de dados em Python. Ela organiza dados em tabelas (chamadas de
+          <em>DataFrames</em>) e oferece operações prontas para filtrar, agrupar, cruzar e
+          resumir grandes volumes de informação em poucas linhas de código.
+        </p>
+        <p>
+          Você não precisa aprender pandas agora — o importante nesta etapa é entender que os
+          conceitos que você já viu (listas, dicionários, loops, condicionais) são exatamente a
+          base sobre a qual o pandas é construído. Quando chegar a hora de mergulhar em ciência
+          de dados, você não vai estar começando do zero: só vai estar trocando "listas de
+          dicionários" por uma ferramenta mais poderosa para o mesmo tipo de tarefa.
+        </p>
+
+        <div class="box box-dica">
+          <span class="box-titulo">Dica</span>
+          Para instalar bibliotecas externas como o pandas, o Python usa o gerenciador de
+          pacotes <code>pip</code> (algo como o <code>npm</code> do JavaScript):
+          <code>pip install pandas</code>. Ele baixa a biblioteca do PyPI (o repositório oficial
+          de pacotes Python) e a deixa disponível para <code>import</code> nos seus scripts.
+        </div>
+
+        <h2>Resumo</h2>
+        <ul class="checklist">
+          <li>Automação de tarefas repetitivas é o uso mais comum e mais valorizado de Python fora do mundo puramente técnico.</li>
+          <li>A biblioteca padrão (<code>os</code>, <code>csv</code>, <code>datetime</code>, <code>json</code>) já resolve boa parte das tarefas sem instalar nada.</li>
+          <li>Scripts de linha de comando usam <code>input()</code> para receber dados e a convenção <code>if __name__ == "__main__":</code> para evitar efeitos colaterais ao serem importados.</li>
+          <li>List comprehensions (<code>[expr for item in lista if condição]</code>) são um jeito compacto de filtrar e transformar listas.</li>
+          <li><code>with open(...) as arquivo:</code> é a forma segura de abrir e fechar arquivos automaticamente.</li>
+          <li>Pandas é o próximo passo natural para trabalhar com grandes volumes de dados, construído sobre os mesmos conceitos básicos já aprendidos.</li>
+        </ul>
+
+        <div id="lesson-footer-nav" class="lesson-footer-nav"></div>
+      </main>
+    </div>
+  </div>
+  <script src="../../nav.js"></script>
+</body>
+</html>

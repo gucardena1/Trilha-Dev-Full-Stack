@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>O que é deploy e ambientes — Trilha Dev Full Stack</title>
+  <link rel="stylesheet" href="../../style.css" />
+</head>
+<body>
+  <div class="layout">
+    <nav id="sidebar"></nav>
+    <div class="content-wrap">
+      <main class="content">
+        <div class="breadcrumb">11. Deploy, DevOps & Debug</div>
+        <h1 class="lesson-title">O que é deploy e ambientes</h1>
+        <p class="lesson-subtitle">Como um sistema sai do computador de quem programou e vai parar na mão de quem vai usar.</p>
+
+        <div class="box box-analogia">
+          <span class="box-titulo">Analogia</span>
+          Pense numa peça de teatro. Antes da estreia, o elenco faz semanas de ensaio: erra falas, refaz cenas,
+          troca o figurino, tudo isso longe do público, num teatro vazio ou numa sala de ensaio. Só quando tudo
+          está redondo é que a peça estreia de verdade, com plateia, luzes e ingressos vendidos. Um sistema
+          funciona do mesmo jeito: ele é "ensaiado" em computadores isolados, sem ninguém de fora vendo, e só
+          depois de testado é que vai para o "palco" onde as pessoas de verdade vão usá-lo. Esse momento de levar
+          o sistema para o palco final é o que chamamos de <strong>deploy</strong>.
+        </div>
+
+        <p>
+          Quando você programa um site ou um aplicativo, no começo ele existe só dentro do seu próprio
+          computador. Você abre o navegador, digita um endereço como <code>localhost</code> e vê o resultado —
+          mas só você consegue ver, porque o programa está rodando na sua máquina, e a sua máquina não está
+          conectada ao mundo da forma que um site de verdade precisa estar.
+        </p>
+        <p>
+          <strong>Deploy</strong> (às vezes chamado de "implantação" ou, informalmente, "subir para produção" ou
+          "colocar no ar") é o processo de pegar esse sistema que só existia na sua máquina e colocá-lo para
+          rodar em um lugar acessível para as pessoas que vão realmente usá-lo — seja o público em geral, seja os
+          funcionários de uma empresa. É a diferença entre um projeto "que existe" e um projeto "que as pessoas
+          conseguem usar".
+        </p>
+
+        <h2>Servidor, em uma frase</h2>
+        <p>
+          Para que outras pessoas acessem seu sistema pela internet, ele precisa estar rodando em um
+          <strong>computador que fica ligado o tempo todo, conectado à internet, esperando pedidos e
+          respondendo</strong> — isso é um <strong>servidor</strong>. Não é nada magico: é literalmente um
+          computador (seu ou alugado de uma empresa como AWS, Google Cloud, Vercel, Hostinger, entre tantas
+          outras) que nunca desliga e cuja única função é ficar de prontidão para atender quem acessa seu site
+          ou aplicativo.
+        </p>
+
+        <h2>Por que não existe só um lugar para o sistema rodar</h2>
+        <p>
+          Seria arriscado testar mudanças diretamente no sistema que as pessoas já estão usando: um erro poderia
+          derrubar o site, mostrar informação errada ou até apagar dados reais de clientes. Por isso, equipes de
+          desenvolvimento costumam manter o mesmo sistema rodando em <strong>ambientes</strong> diferentes,
+          cada um com uma função clara:
+        </p>
+        <ul>
+          <li>
+            <strong>Desenvolvimento (dev):</strong> é o computador de quem está programando. É onde o código é
+            escrito e testado da forma mais crua possível, muitas vezes quebrando várias vezes ao dia — e tudo
+            bem, porque ninguém além do próprio desenvolvedor está olhando.
+          </li>
+          <li>
+            <strong>Homologação / staging:</strong> uma cópia do ambiente de produção, usada para testar as
+            mudanças de forma mais realista antes de liberá-las de vez. É o "ensaio geral com figurino": o mais
+            parecido possível com a estreia, mas ainda sem plateia paga.
+          </li>
+          <li>
+            <strong>Produção:</strong> o ambiente real, usado pelas pessoas de verdade — clientes, usuários,
+            público. É a "estreia": aqui, um erro tem consequência real, então mudanças chegam até aqui só depois
+            de passar pelos ensaios anteriores.
+          </li>
+        </ul>
+        <p>
+          Vale notar que times menores às vezes pulam o staging e vão direto de dev para produção — mas mesmo
+          nesses casos, a lógica de "testar antes de expor ao público" continua valendo, só que de forma mais
+          simplificada.
+        </p>
+
+        <div class="box box-dica">
+          <span class="box-titulo">Dica</span>
+          Um jeito simples de lembrar a diferença: em <strong>dev</strong> você pode quebrar tudo sem culpa; em
+          <strong>staging</strong> você finge que já quebrou tudo que podia quebrar; em <strong>produção</strong>
+          você torce para não quebrar nada, porque agora tem gente de verdade usando.
+        </div>
+
+        <h2>O que realmente acontece durante um deploy</h2>
+        <p>
+          Fazer deploy costuma envolver alguns passos, que variam de projeto para projeto, mas seguem uma lógica
+          parecida:
+        </p>
+        <ul>
+          <li>Pegar a versão mais recente e testada do código (normalmente guardada com Git).</li>
+          <li>
+            Preparar esse código para rodar fora do computador de quem programou — instalando dependências,
+            compilando arquivos, configurando variáveis de ambiente (como senhas de banco de dados, que nunca
+            devem ficar escritas direto no código).
+          </li>
+          <li>Enviar essa versão preparada para o servidor.</li>
+          <li>Reiniciar o sistema no servidor para que a nova versão passe a valer.</li>
+          <li>Verificar se tudo continua funcionando — o que chamamos de "smoke test", um teste rápido de fumaça para ver se nada está pegando fogo.</li>
+        </ul>
+        <p>
+          Nas próximas lições desta trilha você vai ver como boa parte desse processo pode (e deve) ser
+          automatizado, e como ferramentas como o Docker ajudam a garantir que o sistema rode do mesmo jeito em
+          qualquer ambiente.
+        </p>
+
+        <div class="box box-atencao">
+          <span class="box-titulo">Atenção</span>
+          Uma das armadilhas mais clássicas da profissão é fazer alterações direto em produção, sem testar antes
+          em nenhum outro ambiente. Funciona até o dia em que não funciona — e nesse dia, quem está sofrendo com
+          o erro é o usuário real, não mais um ambiente de teste sem consequências.
+        </div>
+
+        <h2>Resumo</h2>
+        <ul class="checklist">
+          <li>Deploy é o processo de colocar um sistema no ar, acessível para quem vai realmente usá-lo.</li>
+          <li>Servidor é um computador ligado o tempo todo, conectado à internet, esperando e respondendo pedidos.</li>
+          <li>Ambiente de desenvolvimento (dev) é onde o código é escrito e pode quebrar sem problema.</li>
+          <li>Staging é o "ensaio geral", uma cópia realista de produção usada para testar antes de liberar de vez.</li>
+          <li>Produção é o ambiente real, usado por pessoas de verdade — a "estreia" do sistema.</li>
+        </ul>
+
+        <div id="lesson-footer-nav" class="lesson-footer-nav"></div>
+      </main>
+    </div>
+  </div>
+  <script src="../../nav.js"></script>
+</body>
+</html>

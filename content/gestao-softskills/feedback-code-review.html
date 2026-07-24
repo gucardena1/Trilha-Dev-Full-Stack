@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Feedback e code review — Trilha Dev Full Stack</title>
+  <link rel="stylesheet" href="../../style.css" />
+</head>
+<body>
+  <div class="layout">
+    <nav id="sidebar"></nav>
+    <div class="content-wrap">
+      <main class="content">
+        <div class="breadcrumb">12. Gestão & Soft Skills</div>
+        <h1 class="lesson-title">Feedback e code review</h1>
+        <p class="lesson-subtitle">Como dar e receber crítica sobre código de um jeito que fortalece a equipe em vez de machucar as pessoas.</p>
+
+        <div class="box box-analogia">
+          <span class="box-titulo">Analogia</span>
+          Pense num professor de redação corrigindo o texto de um aluno. Existem duas formas de fazer isso: uma é
+          devolver a folha cheia de riscos vermelhos e a nota, sem mais nenhuma explicação — o aluno sabe que
+          errou, mas não sabe por quê nem como melhorar, e provavelmente sai desanimado. A outra é apontar os
+          erros, mas também explicar o porquê, reconhecer os trechos que ficaram bons, e sugerir como reescrever
+          as partes fracas. As duas formas "corrigem o mesmo texto", mas só uma delas realmente ajuda o aluno a
+          escrever melhor da próxima vez. Code review — a revisão do código de um colega antes de ele entrar no
+          projeto — funciona exatamente da mesma forma: pode ser uma ferramenta de crescimento da equipe, ou pode
+          ser uma fonte de ressentimento, dependendo inteiramente de como é conduzida.
+        </div>
+
+        <p>
+          Praticamente todo time de desenvolvimento revisa o código de outras pessoas antes de aceitá-lo no
+          projeto — é uma das práticas mais valiosas para manter qualidade e espalhar conhecimento pela equipe.
+          Mas é também uma das situações mais delicadas socialmente: você está, literalmente, apontando problemas
+          num trabalho que outra pessoa acabou de fazer com esforço. Fazer isso bem é uma habilidade que se
+          aprende, não um talento que se tem ou não se tem.
+        </p>
+
+        <h2>Como dar feedback técnico sem ser rude</h2>
+        <p>
+          A diferença entre um comentário de code review que ajuda e um que machuca raramente está no conteúdo —
+          está no tom e no contexto ao redor dele. Algumas práticas que fazem diferença real:
+        </p>
+        <ul>
+          <li>
+            <strong>Comente o código, não a pessoa.</strong> "Essa função ficou confusa" é sobre o código; "você
+            escreveu isso de um jeito confuso" é sobre a pessoa. A primeira convida a melhorar; a segunda soa como
+            ataque pessoal, mesmo quando não é essa a intenção.
+          </li>
+          <li>
+            <strong>Explique o porquê, não só o quê.</strong> "Troca isso" ensina pouco. "Prefiro extrair isso numa
+            função separada, porque esse bloco está fazendo três coisas diferentes e fica difícil de testar
+            isoladamente" ensina o raciocínio por trás da sugestão, que vale mais do que a correção pontual.
+          </li>
+          <li>
+            <strong>Separe o obrigatório do opcional.</strong> Deixe claro quando um comentário é um bloqueio real
+            ("isso precisa mudar antes de aprovar, porque quebra X") e quando é só uma sugestão de estilo
+            ("só uma ideia, não precisa mudar: poderia simplificar assim").
+          </li>
+          <li>
+            <strong>Reconheça o que está bom.</strong> Um review que só aponta problemas passa a impressão de que
+            tudo estava ruim, mesmo quando 90% do código estava ótimo. Um comentário rápido tipo "gostei de como
+            você tratou esse caso de erro" custa pouco e muda o tom geral da conversa.
+          </li>
+        </ul>
+
+        <pre><code>Ruim:
+"Esse código tá uma bagunça, não faz sentido nenhum."
+
+Bom:
+"Essa parte ficou um pouco difícil de acompanhar —
+a função está fazendo validação, chamada à API e
+formatação de resultado tudo junto. Que tal separar
+em três funções menores? Acho que fica mais fácil de
+testar cada parte depois. No resto, gostei bastante
+de como você tratou o caso de lista vazia."</code></pre>
+
+        <div class="box box-dica">
+          <span class="box-titulo">Dica</span>
+          Uma técnica simples: sempre que for apontar um problema, pergunte-se "eu diria isso da mesma forma se a
+          pessoa estivesse sentada do meu lado?". Mensagens escritas perdem tom de voz e expressão facial, então
+          um comentário que pareceria neutro dito em voz alta pode soar seco ou agressivo quando só está escrito.
+          Reler antes de enviar, pensando nisso, evita boa parte dos mal-entendidos.
+        </div>
+
+        <h2>Como receber crítica sem levar para o pessoal</h2>
+        <p>
+          Do outro lado, receber comentários sobre o próprio código também é uma habilidade que se treina. É
+          extremamente comum, principalmente no início de carreira, sentir uma pontada de "estão dizendo que sou
+          ruim" ao ler um comentário de revisão — mesmo quando ele foi escrito com todo o cuidado do mundo.
+        </p>
+        <p>
+          Uma mudança de perspectiva que ajuda bastante: um comentário de code review é sobre um trecho específico
+          de código, escrito num momento específico, com o conhecimento que você tinha naquele momento — não é um
+          veredito sobre sua capacidade como profissional. Todo mundo, incluindo quem está revisando seu código
+          hoje, já recebeu (e vai continuar recebendo) comentários apontando coisas que poderiam ser melhores.
+          Faz parte do processo normal de qualquer pessoa que programa, não uma exceção vergonhosa.
+        </p>
+        <ul>
+          <li>Leia o comentário inteiro antes de reagir — às vezes a primeira frase soa mais dura do que a intenção completa do comentário.</li>
+          <li>Se um comentário parecer injusto ou você discordar, é totalmente válido explicar seu raciocínio — revisão de código é uma conversa, não uma sentença.</li>
+          <li>Separe "esse código pode melhorar" de "eu sou ruim nisso". A primeira frase é sobre um artefato que pode ser mudado facilmente; a segunda é uma generalização que raramente é verdadeira ou útil.</li>
+        </ul>
+
+        <div class="box box-atencao">
+          <span class="box-titulo">Atenção</span>
+          Uma armadilha comum, dos dois lados, é dar (ou interpretar) feedback só sobre o que está errado, sem
+          contexto nenhum sobre o que está certo ou sobre a intenção por trás do comentário. Um review cheio de
+          correções secas, sem nenhuma palavra de reconhecimento, deixa qualquer pessoa desmotivada — mesmo que
+          tecnicamente todos os apontamentos estivessem corretos. Qualidade técnica e cuidado humano não competem
+          entre si; um bom review tem os dois.
+        </div>
+
+        <h2>O que observar em um code review</h2>
+        <p>
+          Quando for revisar o código de outra pessoa, alguns pontos merecem atenção além de "funciona ou não
+          funciona":
+        </p>
+        <ul>
+          <li><strong>Legibilidade:</strong> outra pessoa (ou você mesmo, daqui a seis meses) consegue entender esse código sem uma explicação extra? Nomes de variáveis e funções fazem sentido?</li>
+          <li><strong>Testes:</strong> existem testes cobrindo o comportamento principal? Eles testam o que realmente importa, ou só simulam cobertura sem checar nada de útil?</li>
+          <li><strong>Casos extremos (edge cases):</strong> o que acontece com uma lista vazia, um valor nulo, um número negativo, um usuário sem permissão? Muitos bugs em produção nascem exatamente desses casos que ninguém pensou em testar.</li>
+          <li><strong>Consistência com o resto do projeto:</strong> o código segue os mesmos padrões e convenções já usados em outras partes, ou introduz um jeito completamente novo de fazer a mesma coisa?</li>
+          <li><strong>Simplicidade:</strong> existe uma forma mais simples de resolver o mesmo problema? Nem sempre "mais simples" significa "menos linhas", mas geralmente significa "mais fácil de entender rápido".</li>
+        </ul>
+
+        <h2>Resumo</h2>
+        <ul class="checklist">
+          <li>Comente o código e o problema técnico, nunca a pessoa — e explique o porquê de cada sugestão.</li>
+          <li>Separe comentários que bloqueiam a aprovação dos que são apenas sugestões opcionais.</li>
+          <li>Reconhecer o que está bom no review evita que ele pareça uma lista só de defeitos.</li>
+          <li>Receber crítica sobre o código não é o mesmo que receber crítica sobre sua capacidade como profissional.</li>
+          <li>Em um review, observe legibilidade, testes, casos extremos e consistência com o restante do projeto.</li>
+        </ul>
+
+        <div id="lesson-footer-nav" class="lesson-footer-nav"></div>
+      </main>
+    </div>
+  </div>
+  <script src="../../nav.js"></script>
+</body>
+</html>

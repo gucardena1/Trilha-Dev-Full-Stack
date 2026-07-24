@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Composition API — Trilha Dev Full Stack</title>
+  <link rel="stylesheet" href="../../style.css" />
+</head>
+<body>
+  <div class="layout">
+    <nav id="sidebar"></nav>
+    <div class="content-wrap">
+      <main class="content">
+        <div class="breadcrumb">7. Vue.js</div>
+        <h1 class="lesson-title">Composition API</h1>
+        <p class="lesson-subtitle">Como organizar a lógica de um componente por assunto, em vez de por tipo — e como reaproveitá-la entre componentes.</p>
+
+        <p>
+          Você já vem usando a Composition API desde a primeira lição, sem talvez perceber o nome
+          formal: toda vez que você escreveu <code>&lt;script setup&gt;</code> e usou
+          <code>ref()</code>, estava usando esse estilo. Nesta lição vamos entender por que ela
+          existe, completar as ferramentas que faltam (<code>reactive</code>, <code>computed</code>,
+          <code>watch</code>) e ver como extrair lógica reutilizável em funções próprias, chamadas
+          <strong>composables</strong>.
+        </p>
+
+        <h2>Options API vs. Composition API</h2>
+        <p>
+          Na Options API (o estilo mais antigo do Vue), um componente organiza seu código por
+          <strong>tipo</strong>: todo o estado dentro de <code>data()</code>, todas as funções
+          dentro de <code>methods</code>, todos os valores derivados dentro de
+          <code>computed</code>. Isso funciona bem para componentes pequenos, mas em componentes
+          grandes com várias funcionalidades diferentes, o código de uma única funcionalidade fica
+          espalhado entre essas várias seções — para entender "como funciona a busca", você precisa
+          pular entre o <code>data</code>, o <code>methods</code> e o <code>computed</code>,
+          catando pedacinhos aqui e ali.
+        </p>
+        <p>
+          A Composition API resolve isso organizando o código por <strong>assunto</strong> (ou
+          "feature"): tudo relacionado à busca fica junto, tudo relacionado à paginação fica junto,
+          em blocos de código próximos dentro do <code>&lt;script setup&gt;</code>. Compare as duas
+          versões de um mesmo componente simples de busca:
+        </p>
+        <pre><code>&lt;!-- Options API --&gt;
+&lt;script&gt;
+export default {
+  data() {
+    return {
+      termoBusca: '',
+      produtos: ['Mouse', 'Teclado', 'Monitor']
+    }
+  },
+  computed: {
+    produtosFiltrados() {
+      return this.produtos.filter(p =&gt;
+        p.toLowerCase().includes(this.termoBusca.toLowerCase())
+      )
+    }
+  }
+}
+&lt;/script&gt;</code></pre>
+        <pre><code>&lt;!-- Composition API --&gt;
+&lt;script setup&gt;
+import { ref, computed } from 'vue'
+
+const termoBusca = ref('')
+const produtos = ref(['Mouse', 'Teclado', 'Monitor'])
+
+const produtosFiltrados = computed(() =&gt;
+  produtos.value.filter(p =&gt;
+    p.toLowerCase().includes(termoBusca.value.toLowerCase())
+  )
+)
+&lt;/script&gt;</code></pre>
+        <p>
+          Para um componente desse tamanho, a diferença parece pequena. Mas imagine um componente
+          com busca, paginação e ordenação ao mesmo tempo: na Options API, cada uma dessas três
+          funcionalidades teria pedaços espalhados em <code>data</code>, <code>computed</code> e
+          <code>methods</code>; na Composition API, cada uma fica isolada em seu próprio bloco de
+          código, de cima a baixo, e você pode até extrair cada bloco para uma função separada
+          (é isso que veremos com composables).
+        </p>
+
+        <h2><code>ref</code> vs. <code>reactive</code></h2>
+        <p>
+          Além de <code>ref()</code>, o Vue oferece <code>reactive()</code> para tornar objetos
+          inteiros reativos, sem precisar de <code>.value</code>:
+        </p>
+        <pre><code>&lt;script setup&gt;
+import { reactive } from 'vue'
+
+const usuario = reactive({
+  nome: 'Ana',
+  idade: 28
+})
+
+function fazerAniversario() {
+  usuario.idade++ // sem .value, porque é reactive
+}
+&lt;/script&gt;
+
+&lt;template&gt;
+  &lt;p&gt;{{ usuario.nome }} tem {{ usuario.idade }} anos&lt;/p&gt;
+  &lt;button @click="fazerAniversario"&gt;Fazer aniversário&lt;/button&gt;
+&lt;/template&gt;</code></pre>
+        <p>
+          Na prática, a recomendação da própria documentação do Vue é: use <code>ref()</code> como
+          padrão para tudo (números, textos, booleanos, arrays e até objetos), e reserve
+          <code>reactive()</code> apenas para casos específicos onde você já sabe que quer um
+          objeto reativo e não vai precisar reatribuí-lo por inteiro. Isso porque <code>reactive</code>
+          tem uma armadilha importante:
+        </p>
+
+        <div class="box box-atencao">
+          <span class="box-titulo">Atenção</span>
+          Se você desestruturar um objeto <code>reactive()</code>, perde a reatividade das
+          propriedades extraídas. Por exemplo:
+          <pre><code>const usuario = reactive({ nome: 'Ana', idade: 28 })
+const { idade } = usuario // "idade" aqui vira um número comum, congelado
+
+idade++ // não atualiza nada na tela, porque "idade" perdeu a ligação com o objeto original</code></pre>
+          Isso acontece porque a reatividade do <code>reactive()</code> vive no objeto como um
+          todo, não nos valores individuais soltos. Já com <code>ref()</code>, a reatividade vive na
+          própria caixinha (<code>.value</code>), então ela pode ser passada adiante, guardada em
+          outra variável, retornada de uma função — e continua reativa, porque você está sempre
+          lidando com a mesma caixinha, só que sob outro nome. Se realmente precisar desestruturar
+          um objeto reativo com segurança, existe uma função chamada <code>toRefs()</code> que
+          converte cada propriedade em um <code>ref</code> individual antes da desestruturação.
+        </div>
+
+        <h2><code>computed</code>: valores derivados que se atualizam sozinhos</h2>
+        <p>
+          Você já viu <code>computed</code> no exemplo de busca acima. A ideia central é: sempre
+          que você tem um valor que é <strong>calculado a partir</strong> de outros valores
+          reativos, use <code>computed</code> em vez de recalcular manualmente. A vantagem é que o
+          Vue guarda o resultado em cache e só recalcula quando uma das dependências realmente
+          muda — diferente de uma função comum, que recalcularia toda vez que fosse chamada, mesmo
+          sem necessidade.
+        </p>
+        <pre><code>const precoComDesconto = computed(() =&gt; preco.value * 0.9)</code></pre>
+
+        <h2><code>watch</code>: reagindo a mudanças com efeitos colaterais</h2>
+        <p>
+          <code>computed</code> serve para <em>derivar</em> um novo valor. Mas às vezes você precisa
+          apenas <em>reagir</em> a uma mudança sem produzir um novo valor reativo — por exemplo,
+          fazer uma chamada à API toda vez que o termo de busca mudar, ou salvar algo no
+          <code>localStorage</code>. Para isso existe <code>watch</code>:
+        </p>
+        <pre><code>&lt;script setup&gt;
+import { ref, watch } from 'vue'
+
+const termoBusca = ref('')
+
+watch(termoBusca, (novoValor, valorAntigo) =&gt; {
+  console.log(`Busca mudou de "${valorAntigo}" para "${novoValor}"`)
+  // aqui poderíamos chamar uma API, por exemplo
+})
+&lt;/script&gt;</code></pre>
+        <p>
+          Uma boa regra prática: se você está apenas transformando um dado em outro dado (formatar
+          um preço, filtrar uma lista, somar valores), use <code>computed</code>. Se você precisa
+          executar uma ação (chamar uma API, mostrar uma notificação, gravar em algum lugar), use
+          <code>watch</code>.
+        </p>
+
+        <h2>Composables: reaproveitando lógica entre componentes</h2>
+        <p>
+          A grande vantagem prática da Composition API é que, como o código não precisa mais estar
+          preso dentro das seções fixas de um componente (<code>data</code>, <code>methods</code>
+          etc.), você pode extrair um pedaço de lógica reativa para uma função JavaScript comum e
+          reutilizá-la em vários componentes diferentes. Essas funções são chamadas de
+          <strong>composables</strong>, e por convenção começam com <code>use</code>. Por exemplo,
+          um composable para controlar um contador:
+        </p>
+        <pre><code>// useContador.js
+import { ref } from 'vue'
+
+export function useContador(valorInicial = 0) {
+  const contador = ref(valorInicial)
+
+  function incrementar() {
+    contador.value++
+  }
+
+  function decrementar() {
+    contador.value--
+  }
+
+  return { contador, incrementar, decrementar }
+}</code></pre>
+        <p>
+          E, em qualquer componente que precise dessa mesma lógica, basta importar e chamar:
+        </p>
+        <pre><code>&lt;script setup&gt;
+import { useContador } from './useContador.js'
+
+const { contador, incrementar, decrementar } = useContador(10)
+&lt;/script&gt;
+
+&lt;template&gt;
+  &lt;button @click="decrementar"&gt;-&lt;/button&gt;
+  {{ contador }}
+  &lt;button @click="incrementar"&gt;+&lt;/button&gt;
+&lt;/template&gt;</code></pre>
+        <p>
+          Repare que <code>useContador</code> é apenas uma função JavaScript normal — nada de mágico
+          além do fato de usar <code>ref</code> internamente. Esse é o real ganho da Composition
+          API sobre a Options API: lógica reativa organizada e reutilizável, sem precisar de padrões
+          mais complexos e menos diretos que o Vue 2 usava para tentar resolver o mesmo problema.
+        </p>
+
+        <div class="box box-dica">
+          <span class="box-titulo">Dica</span>
+          Composables são um ótimo lugar para colocar qualquer lógica que se repete entre
+          componentes: buscar dados de uma API, controlar um formulário, escutar o tamanho da
+          janela, controlar um cronômetro. Se você perceber que está copiando e colando o mesmo
+          bloco de <code>ref</code>/<code>watch</code>/<code>computed</code> em dois componentes
+          diferentes, esse é o sinal de que vale a pena extrair um composable.
+        </div>
+
+        <h2>Resumo</h2>
+        <ul class="checklist">
+          <li>A Composition API organiza o código por assunto/funcionalidade, enquanto a Options API organiza por tipo (data, methods, computed).</li>
+          <li>Use <code>ref()</code> como padrão; reserve <code>reactive()</code> para casos específicos, lembrando que desestruturar um <code>reactive</code> quebra a reatividade das propriedades extraídas.</li>
+          <li><code>computed</code> cria um valor derivado com cache automático; use para transformar dados sem efeitos colaterais.</li>
+          <li><code>watch</code> reage a mudanças para executar ações (chamadas de API, logs, gravações); use quando precisar de um efeito colateral, não de um novo valor.</li>
+          <li>Composables são funções (prefixadas com <code>use</code>) que agrupam lógica reativa reutilizável entre vários componentes.</li>
+        </ul>
+
+        <div id="lesson-footer-nav" class="lesson-footer-nav"></div>
+      </main>
+    </div>
+  </div>
+  <script src="../../nav.js"></script>
+</body>
+</html>

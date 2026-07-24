@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Semântica, formulários e acessibilidade — Trilha Dev Full Stack</title>
+  <link rel="stylesheet" href="../../style.css" />
+</head>
+<body>
+  <div class="layout">
+    <nav id="sidebar"></nav>
+    <div class="content-wrap">
+      <main class="content">
+        <div class="breadcrumb">2. HTML & CSS</div>
+        <h1 class="lesson-title">Semântica, formulários e acessibilidade</h1>
+        <p class="lesson-subtitle">Tags que contam a história certa da página e campos que coletam informação de quem visita.</p>
+
+        <div class="box box-analogia">
+          <span class="box-titulo">Analogia</span>
+          Imagine a planta de uma casa desenhada só com retângulos sem nenhuma legenda: você não sabe se aquele retângulo é a cozinha, o quarto ou a garagem. Funciona, mas ninguém entende nada só de olhar. Agora imagine a mesma planta com cada cômodo etiquetado: "cozinha", "sala", "quarto 1". É a diferença entre uma página feita só de <code>&lt;div&gt;</code> genéricas e uma página com <strong>HTML semântico</strong>: tags que já dizem, pelo próprio nome, o que aquele pedaço da página representa.
+        </div>
+
+        <h2>Por que a semântica importa</h2>
+        <p>
+          Você poderia construir qualquer página inteira usando apenas a tag <code>&lt;div&gt;</code>, que é uma caixa genérica sem significado algum. Ela funciona, mas é como etiquetar todas as caixas de uma mudança como "coisas". Ninguém — nem você no futuro, nem o Google, nem um leitor de tela usado por uma pessoa cega — consegue entender rapidamente o que está ali dentro.
+        </p>
+        <p>
+          Tags semânticas resolvem isso descrevendo o papel do conteúdo. Os três benefícios práticos são:
+        </p>
+        <ul>
+          <li><strong>Leitura por máquinas:</strong> buscadores como o Google entendem melhor do que trata a página, o que ajuda no posicionamento em pesquisas.</li>
+          <li><strong>Acessibilidade:</strong> leitores de tela (softwares que leem a página em voz alta para pessoas com deficiência visual) usam essas tags para anunciar "isto é o menu principal", "isto é o rodapé", permitindo navegação rápida por seções.</li>
+          <li><strong>Organização para quem programa:</strong> fica muito mais fácil entender e dar manutenção num código que já se explica pelos nomes das tags.</li>
+        </ul>
+
+        <h2>As principais tags semânticas de estrutura</h2>
+        <p>Pense numa página de notícias: ela tem um cabeçalho, um menu, o conteúdo principal, uma barra lateral e um rodapé. HTML tem uma tag para cada um desses papéis:</p>
+
+        <table>
+          <tr><th>Tag</th><th>Representa</th></tr>
+          <tr><td><code>&lt;header&gt;</code></td><td>Cabeçalho da página ou de uma seção: logo, título, menu de navegação.</td></tr>
+          <tr><td><code>&lt;nav&gt;</code></td><td>Bloco de links de navegação (menu principal, menu de rodapé).</td></tr>
+          <tr><td><code>&lt;main&gt;</code></td><td>O conteúdo principal e único daquela página. Deve aparecer só uma vez.</td></tr>
+          <tr><td><code>&lt;section&gt;</code></td><td>Uma seção temática dentro da página, geralmente com seu próprio título.</td></tr>
+          <tr><td><code>&lt;article&gt;</code></td><td>Um conteúdo independente que faria sentido sozinho: um post de blog, uma notícia, um comentário.</td></tr>
+          <tr><td><code>&lt;aside&gt;</code></td><td>Conteúdo relacionado mas secundário: uma barra lateral, um box de "veja também".</td></tr>
+          <tr><td><code>&lt;footer&gt;</code></td><td>Rodapé: direitos autorais, links de contato, redes sociais.</td></tr>
+        </table>
+
+        <pre><code>&lt;body&gt;
+  &lt;header&gt;
+    &lt;h1&gt;Blog da Cozinha&lt;/h1&gt;
+    &lt;nav&gt;
+      &lt;a href="/"&gt;Início&lt;/a&gt;
+      &lt;a href="/receitas"&gt;Receitas&lt;/a&gt;
+    &lt;/nav&gt;
+  &lt;/header&gt;
+
+  &lt;main&gt;
+    &lt;article&gt;
+      &lt;h2&gt;Bolo de cenoura&lt;/h2&gt;
+      &lt;p&gt;Uma receita clássica e fácil.&lt;/p&gt;
+    &lt;/article&gt;
+
+    &lt;aside&gt;
+      &lt;h3&gt;Receitas parecidas&lt;/h3&gt;
+      &lt;p&gt;Bolo de chocolate, bolo de fubá.&lt;/p&gt;
+    &lt;/aside&gt;
+  &lt;/main&gt;
+
+  &lt;footer&gt;
+    &lt;p&gt;&amp;copy; 2026 Blog da Cozinha&lt;/p&gt;
+  &lt;/footer&gt;
+&lt;/body&gt;</code></pre>
+
+        <div class="box box-dica">
+          <span class="box-titulo">Dica</span>
+          Regra prática: use <code>&lt;div&gt;</code> apenas quando nenhuma tag semântica descreve o que você está agrupando (por exemplo, um "wrapper" só para aplicar um estilo). Se existe uma tag que já diz o que aquilo é — cabeçalho, artigo, navegação — prefira ela.
+        </div>
+
+        <h2>Formulários: coletando dados de quem visita</h2>
+        <p>
+          Um formulário é como uma ficha de cadastro em papel: tem campos para preencher e, no fim, um botão de "enviar". Em HTML, tudo começa com a tag <code>&lt;form&gt;</code>, que envolve todos os campos.
+        </p>
+
+        <pre><code>&lt;form&gt;
+  &lt;label for="nome"&gt;Nome:&lt;/label&gt;
+  &lt;input type="text" id="nome" name="nome" /&gt;
+
+  &lt;label for="email"&gt;E-mail:&lt;/label&gt;
+  &lt;input type="email" id="email" name="email" /&gt;
+
+  &lt;button type="submit"&gt;Enviar&lt;/button&gt;
+&lt;/form&gt;</code></pre>
+
+        <p>
+          O elemento mais usado dentro de um formulário é o <code>&lt;input&gt;</code>, cujo comportamento muda de acordo com o atributo <code>type</code>:
+        </p>
+
+        <table>
+          <tr><th>Valor de <code>type</code></th><th>O que cria</th></tr>
+          <tr><td><code>text</code></td><td>Campo de texto simples, uma linha.</td></tr>
+          <tr><td><code>email</code></td><td>Campo de texto que valida um formato de e-mail.</td></tr>
+          <tr><td><code>password</code></td><td>Campo de texto que esconde os caracteres digitados.</td></tr>
+          <tr><td><code>number</code></td><td>Campo que aceita apenas números.</td></tr>
+          <tr><td><code>checkbox</code></td><td>Caixa de marcar (sim/não, várias opções podem estar marcadas ao mesmo tempo).</td></tr>
+          <tr><td><code>radio</code></td><td>Botão de opção única entre um grupo (só um pode ficar marcado).</td></tr>
+          <tr><td><code>date</code></td><td>Seletor de data.</td></tr>
+        </table>
+
+        <p>
+          Outros elementos comuns de formulário são o <code>&lt;textarea&gt;</code>, para textos longos de várias linhas, e o <code>&lt;select&gt;</code>, para uma lista suspensa de opções:
+        </p>
+
+        <pre><code>&lt;label for="mensagem"&gt;Mensagem:&lt;/label&gt;
+&lt;textarea id="mensagem" name="mensagem" rows="4"&gt;&lt;/textarea&gt;
+
+&lt;label for="estado"&gt;Estado:&lt;/label&gt;
+&lt;select id="estado" name="estado"&gt;
+  &lt;option value="sp"&gt;São Paulo&lt;/option&gt;
+  &lt;option value="rj"&gt;Rio de Janeiro&lt;/option&gt;
+&lt;/select&gt;</code></pre>
+
+        <h2>label + for: a dupla que ninguém pode esquecer</h2>
+        <p>
+          Repare que cada <code>&lt;input&gt;</code> no exemplo tem um <code>&lt;label&gt;</code> associado, ligado pelo atributo <code>for</code>, que precisa ser idêntico ao <code>id</code> do campo. Isso não é só estético: clicar no texto do label também foca o campo (tente clicar na palavra "Nome:" de um formulário real — o cursor vai para a caixa de texto). E para quem usa leitor de tela, é o <code>label</code> que é lido em voz alta quando o campo recebe foco, dizendo o que se espera ali.
+        </p>
+
+        <div class="box box-atencao">
+          <span class="box-titulo">Erro comum</span>
+          Criar um <code>&lt;input&gt;</code> sem <code>&lt;label&gt;</code>, contando só com um texto solto do lado como "Nome:". Visualmente parece igual, mas para quem usa leitor de tela ou tecnologia assistiva, esse campo não tem nome nenhum — vira "campo de texto em branco". Sempre associe um <code>&lt;label&gt;</code> de verdade, usando <code>for</code> e <code>id</code> combinando.
+        </div>
+
+        <h2>Atributos de acessibilidade essenciais</h2>
+        <p>
+          Além de escolher as tags certas, alguns atributos ajudam diretamente pessoas que usam tecnologia assistiva:
+        </p>
+        <ul>
+          <li><code>alt</code> em imagens — já vimos na lição anterior. Sem ele, uma imagem é só um vazio de silêncio para quem não pode vê-la.</li>
+          <li><code>aria-label</code> — dá um nome acessível a um elemento quando não há texto visível suficiente, como um botão que só tem um ícone: <code>&lt;button aria-label="Fechar"&gt;X&lt;/button&gt;</code>.</li>
+          <li><code>aria-hidden="true"</code> — esconde um elemento decorativo (um ícone puramente visual, por exemplo) de leitores de tela, para não gerar ruído.</li>
+          <li><code>required</code> — marca um campo de formulário como obrigatório; o navegador já bloqueia o envio e avisa a pessoa se ele estiver vazio.</li>
+        </ul>
+
+        <pre><code>&lt;button aria-label="Fechar janela"&gt;✕&lt;/button&gt;
+
+&lt;input type="email" name="email" required /&gt;</code></pre>
+
+        <div class="box box-dica">
+          <span class="box-titulo">Dica</span>
+          Uma forma simples de testar a acessibilidade básica da sua página: navegue por ela usando só a tecla Tab do teclado, sem usar o mouse. Se você consegue chegar em todos os links, botões e campos de formulário, em uma ordem que faz sentido, você já está no caminho certo.
+        </div>
+
+        <h2>Exemplo completo: página semântica com formulário</h2>
+        <pre><code>&lt;body&gt;
+  &lt;header&gt;
+    &lt;h1&gt;Fale conosco&lt;/h1&gt;
+  &lt;/header&gt;
+
+  &lt;main&gt;
+    &lt;section&gt;
+      &lt;h2&gt;Envie sua mensagem&lt;/h2&gt;
+      &lt;form&gt;
+        &lt;label for="nome"&gt;Nome:&lt;/label&gt;
+        &lt;input type="text" id="nome" name="nome" required /&gt;
+
+        &lt;label for="assunto"&gt;Assunto:&lt;/label&gt;
+        &lt;select id="assunto" name="assunto"&gt;
+          &lt;option value="duvida"&gt;Dúvida&lt;/option&gt;
+          &lt;option value="elogio"&gt;Elogio&lt;/option&gt;
+        &lt;/select&gt;
+
+        &lt;label for="mensagem"&gt;Mensagem:&lt;/label&gt;
+        &lt;textarea id="mensagem" name="mensagem" rows="5"&gt;&lt;/textarea&gt;
+
+        &lt;button type="submit"&gt;Enviar&lt;/button&gt;
+      &lt;/form&gt;
+    &lt;/section&gt;
+  &lt;/main&gt;
+
+  &lt;footer&gt;
+    &lt;p&gt;&amp;copy; 2026 Minha Empresa&lt;/p&gt;
+  &lt;/footer&gt;
+&lt;/body&gt;</code></pre>
+
+        <h2>Resumo</h2>
+        <ul class="checklist">
+          <li>Tags semânticas (<code>header</code>, <code>main</code>, <code>section</code>, <code>article</code>, <code>aside</code>, <code>footer</code>) descrevem o papel do conteúdo, não só agrupam caixas.</li>
+          <li>Use <code>&lt;div&gt;</code> só quando nenhuma tag semântica se encaixa.</li>
+          <li>Formulários começam em <code>&lt;form&gt;</code> e usam <code>&lt;input&gt;</code>, <code>&lt;textarea&gt;</code> e <code>&lt;select&gt;</code> para coletar dados.</li>
+          <li>Todo campo precisa de um <code>&lt;label&gt;</code> associado via <code>for</code>/<code>id</code>.</li>
+          <li><code>alt</code>, <code>aria-label</code> e <code>required</code> tornam a página utilizável por mais pessoas.</li>
+          <li>Teste sua página navegando só com o teclado (Tab) para checar acessibilidade básica.</li>
+        </ul>
+
+        <div id="lesson-footer-nav" class="lesson-footer-nav"></div>
+      </main>
+    </div>
+  </div>
+  <script src="../../nav.js"></script>
+</body>
+</html>

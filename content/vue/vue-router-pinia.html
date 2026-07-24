@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vue Router e Pinia — Trilha Dev Full Stack</title>
+  <link rel="stylesheet" href="../../style.css" />
+</head>
+<body>
+  <div class="layout">
+    <nav id="sidebar"></nav>
+    <div class="content-wrap">
+      <main class="content">
+        <div class="breadcrumb">7. Vue.js</div>
+        <h1 class="lesson-title">Vue Router e Pinia</h1>
+        <p class="lesson-subtitle">Como navegar entre "páginas" dentro de uma SPA e como compartilhar dados entre componentes distantes.</p>
+
+        <p>
+          Até agora, todo componente que você viu vivia isolado ou dentro de uma cadeia direta de
+          pai e filho, trocando dados por props e eventos. Isso funciona bem para telas pequenas,
+          mas duas necessidades novas aparecem conforme a aplicação cresce: primeiro, o usuário
+          precisa navegar entre diferentes "telas" (uma página de produtos, uma página de perfil,
+          uma página de login) sem recarregar o site inteiro; segundo, alguns dados precisam ser
+          acessados por componentes que não têm relação direta de pai/filho entre si (o carrinho de
+          compras, por exemplo, é usado tanto no cabeçalho quanto na página de checkout). Essas duas
+          necessidades são resolvidas por duas bibliotecas oficiais do ecossistema Vue: o
+          <strong>Vue Router</strong> e o <strong>Pinia</strong>.
+        </p>
+
+        <h2>O que é uma SPA e por que roteamento importa</h2>
+        <p>
+          Um site tradicional funciona assim: cada URL que você acessa faz o navegador pedir uma
+          página HTML nova inteira ao servidor, e a tela toda "pisca" e recarrega. Uma
+          <strong>SPA</strong> (Single Page Application, "aplicação de página única") funciona
+          diferente: o navegador carrega um único arquivo HTML no começo, e o JavaScript (o Vue,
+          nesse caso) troca o conteúdo da tela dinamicamente conforme o usuário navega, sem nunca
+          recarregar a página inteira. Isso deixa a navegação muito mais rápida e fluida, parecida
+          com um aplicativo de celular. O problema é que, sem nenhuma ferramenta extra, a URL do
+          navegador não mudaria conforme o usuário navega dentro da SPA — e sem URLs diferentes
+          para cada "tela", você perde coisas essenciais como o botão de voltar do navegador,
+          compartilhar um link direto para uma página específica, ou recarregar a página e continuar
+          no mesmo lugar. O Vue Router resolve exatamente isso: ele observa a URL, decide qual
+          componente mostrar com base nela, e atualiza a URL quando o usuário navega — tudo sem
+          nenhum recarregamento de página.
+        </p>
+
+        <h2>Configurando rotas básicas</h2>
+        <p>
+          Um arquivo de configuração de rotas típico associa caminhos de URL a componentes:
+        </p>
+        <pre><code>// router.js
+import { createRouter, createWebHistory } from 'vue-router'
+import Home from './paginas/Home.vue'
+import Produtos from './paginas/Produtos.vue'
+import ProdutoDetalhe from './paginas/ProdutoDetalhe.vue'
+
+const routes = [
+  { path: '/', component: Home },
+  { path: '/produtos', component: Produtos },
+  { path: '/produtos/:id', component: ProdutoDetalhe }
+]
+
+export const router = createRouter({
+  history: createWebHistory(),
+  routes
+})</code></pre>
+        <p>
+          Repare na rota <code>/produtos/:id</code> — os dois-pontos indicam um
+          <strong>parâmetro dinâmico</strong>: qualquer valor nessa posição da URL (por exemplo,
+          <code>/produtos/42</code>) é capturado e fica disponível dentro do componente
+          <code>ProdutoDetalhe</code> através de <code>useRoute()</code>:
+        </p>
+        <pre><code>&lt;script setup&gt;
+import { useRoute } from 'vue-router'
+
+const route = useRoute()
+// se a URL for /produtos/42, route.params.id vale "42"
+console.log(route.params.id)
+&lt;/script&gt;</code></pre>
+        <p>
+          No componente principal da aplicação, você precisa de dois elementos fornecidos pelo Vue
+          Router: <code>&lt;router-link&gt;</code> para criar links de navegação sem recarregar a
+          página, e <code>&lt;router-view&gt;</code>, que é o "espaço reservado" onde o componente
+          da rota atual é exibido:
+        </p>
+        <pre><code>&lt;template&gt;
+  &lt;nav&gt;
+    &lt;router-link to="/"&gt;Início&lt;/router-link&gt;
+    &lt;router-link to="/produtos"&gt;Produtos&lt;/router-link&gt;
+  &lt;/nav&gt;
+
+  &lt;router-view /&gt;
+&lt;/template&gt;</code></pre>
+
+        <div class="box box-dica">
+          <span class="box-titulo">Dica</span>
+          Use sempre <code>&lt;router-link&gt;</code> em vez de uma tag <code>&lt;a href="..."&gt;</code>
+          comum para navegação interna da SPA. Um <code>&lt;a&gt;</code> normal faria o navegador
+          recarregar a página inteira, perdendo justamente a vantagem de velocidade que uma SPA
+          oferece.
+        </div>
+
+        <h2>Quando você precisa de gerenciamento de estado global</h2>
+        <p>
+          Com props e eventos, dados fluem naturalmente entre pai e filho. Mas o que acontece
+          quando dois componentes que <em>não</em> têm relação direta precisam compartilhar
+          informação — por exemplo, o ícone do carrinho no cabeçalho e a página de checkout, que
+          moram em partes completamente diferentes da árvore de componentes? Você poderia tentar
+          "subir" o dado até um ancestral comum e descer via props por vários níveis, mas isso cria
+          um problema conhecido como <em>prop drilling</em>: passar uma prop por três, quatro, cinco
+          componentes intermediários que nem usam aquele dado, só para repassá-lo adiante. Quando
+          isso acontece com frequência na sua aplicação, é sinal de que você precisa de um
+          <strong>gerenciamento de estado global</strong>: um lugar único, fora da árvore de
+          componentes, onde dados compartilhados vivem e de onde qualquer componente pode ler e
+          atualizar diretamente, sem depender de props e eventos passando por intermediários.
+        </p>
+
+        <h2>Pinia: a store oficial do Vue</h2>
+        <p>
+          O Pinia é a biblioteca oficial de gerenciamento de estado do Vue (sucessora do antigo
+          Vuex). Uma <strong>store</strong> no Pinia é, na prática, um composable especial que pode
+          ser usado por qualquer componente da aplicação, sem precisar de props:
+        </p>
+        <pre><code>// stores/carrinho.js
+import { defineStore } from 'pinia'
+import { ref, computed } from 'vue'
+
+export const useCarrinhoStore = defineStore('carrinho', () =&gt; {
+  const itens = ref([])
+
+  const total = computed(() =&gt;
+    itens.value.reduce((soma, item) =&gt; soma + item.preco, 0)
+  )
+
+  function adicionar(produto) {
+    itens.value.push(produto)
+  }
+
+  function remover(indice) {
+    itens.value.splice(indice, 1)
+  }
+
+  return { itens, total, adicionar, remover }
+})</code></pre>
+        <p>
+          Repare que essa store usa exatamente as mesmas ferramentas que você já conhece —
+          <code>ref</code>, <code>computed</code> — só que declaradas fora de qualquer componente,
+          num arquivo próprio. Isso é chamado de "Setup Store" (o mesmo estilo do
+          <code>&lt;script setup&gt;</code>, aplicado a uma store). Agora, qualquer componente da
+          aplicação pode usar essa store diretamente:
+        </p>
+        <pre><code>&lt;!-- Cabecalho.vue --&gt;
+&lt;script setup&gt;
+import { useCarrinhoStore } from '../stores/carrinho.js'
+
+const carrinho = useCarrinhoStore()
+&lt;/script&gt;
+
+&lt;template&gt;
+  &lt;span&gt;🛒 {{ carrinho.itens.length }} itens&lt;/span&gt;
+&lt;/template&gt;</code></pre>
+        <pre><code>&lt;!-- PaginaProduto.vue --&gt;
+&lt;script setup&gt;
+import { useCarrinhoStore } from '../stores/carrinho.js'
+
+const carrinho = useCarrinhoStore()
+
+function comprar(produto) {
+  carrinho.adicionar(produto)
+}
+&lt;/script&gt;</code></pre>
+        <p>
+          Os dois componentes acima podem estar em qualquer lugar da aplicação, sem nenhuma relação
+          de pai/filho entre eles, e mesmo assim compartilham o mesmo estado do carrinho em tempo
+          real: quando <code>PaginaProduto</code> chama <code>carrinho.adicionar(...)</code>, o
+          <code>Cabecalho</code> atualiza sozinho, porque ambos estão lendo da mesma store reativa.
+        </p>
+
+        <div class="box box-atencao">
+          <span class="box-titulo">Atenção</span>
+          Nem todo dado precisa virar estado global. Se um dado só é usado dentro de um componente
+          e talvez em um filho direto, props e <code>ref</code> local já resolvem — criar uma store
+          para isso é complexidade desnecessária. Reserve o Pinia para dados que realmente
+          precisam ser acessados por partes distantes e não relacionadas da aplicação: usuário
+          logado, carrinho de compras, tema (claro/escuro), preferências globais.
+        </div>
+
+        <h2>Resumo</h2>
+        <ul class="checklist">
+          <li>Uma SPA troca o conteúdo da tela via JavaScript sem recarregar a página; o Vue Router mantém a URL sincronizada com o que está sendo mostrado.</li>
+          <li>Rotas associam caminhos de URL a componentes; <code>:parametro</code> na rota captura valores dinâmicos, acessíveis via <code>useRoute().params</code>.</li>
+          <li><code>&lt;router-link&gt;</code> navega sem recarregar a página; <code>&lt;router-view&gt;</code> é onde o componente da rota atual aparece.</li>
+          <li>Gerenciamento de estado global evita "prop drilling" quando componentes sem relação direta precisam compartilhar dados.</li>
+          <li>O Pinia cria stores reativas (com <code>ref</code>/<code>computed</code>) acessíveis por qualquer componente, sem precisar passar props por intermediários.</li>
+        </ul>
+
+        <div id="lesson-footer-nav" class="lesson-footer-nav"></div>
+      </main>
+    </div>
+  </div>
+  <script src="../../nav.js"></script>
+</body>
+</html>

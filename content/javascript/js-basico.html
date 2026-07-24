@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JS básico: variáveis, funções e DOM — Trilha Dev Full Stack</title>
+  <link rel="stylesheet" href="../../style.css" />
+</head>
+<body>
+  <div class="layout">
+    <nav id="sidebar"></nav>
+    <div class="content-wrap">
+      <main class="content">
+        <div class="breadcrumb">3. JavaScript</div>
+        <h1 class="lesson-title">JS básico: variáveis, funções e DOM</h1>
+        <p class="lesson-subtitle">Como dar vida a uma página HTML estática: guardar informação, tomar decisões e reagir ao que o usuário faz.</p>
+
+        <h2>Para que serve o JavaScript?</h2>
+        <p>
+          Se o HTML é o esqueleto de uma página e o CSS é a roupa e a maquiagem, o
+          <strong>JavaScript (JS)</strong> é o sistema nervoso: é ele que faz a página perceber
+          o que acontece (um clique, uma tecla apertada, o carregamento terminar) e reagir a
+          isso. Sem JS, uma página é uma foto. Com JS, ela vira um aplicativo de verdade.
+        </p>
+        <p>
+          JavaScript é a única linguagem de programação que roda nativamente dentro de todos
+          os navegadores. Por isso ela é tão importante: não importa se o site foi feito em
+          Vue, Laravel ou WordPress — no fim, o que roda no navegador do usuário é JavaScript.
+        </p>
+
+        <div class="box box-analogia">
+          <span class="box-titulo">Analogia</span>
+          Imagine uma loja de roupas. O HTML é a prateleira e as araras (a estrutura: onde
+          fica cada coisa). O CSS é a vitrine, a iluminação e a organização visual (o
+          visual). O JavaScript é o vendedor: ele repara quando você pega uma peça, te
+          oferece um provador, calcula o desconto no caixa e te avisa quando o produto que
+          você queria chegou. Ele é a parte "viva" da loja.
+        </div>
+
+        <h2>Como colocar JavaScript numa página HTML</h2>
+        <p>Existem três formas principais. As duas primeiras você vai ver bastante em projetos reais:</p>
+
+        <p><strong>1. Arquivo externo (a forma recomendada)</strong> — separa o HTML do comportamento, como já fazemos com CSS:</p>
+        <pre><code>&lt;!-- No final do &lt;body&gt;, pouco antes de fechar --&gt;
+&lt;script src="script.js"&gt;&lt;/script&gt;
+&lt;/body&gt;</code></pre>
+
+        <p><strong>2. Script inline, direto no HTML</strong> — útil para testes rápidos, mas evite em projetos maiores:</p>
+        <pre><code>&lt;script&gt;
+  console.log("Olá, isso roda assim que a página carrega esse trecho!");
+&lt;/script&gt;</code></pre>
+
+        <p><strong>3. Atributo de evento direto na tag</strong> — funciona, mas é considerado uma prática antiga (mistura estrutura com comportamento):</p>
+        <pre><code>&lt;button onclick="alert('Oi!')"&gt;Clique aqui&lt;/button&gt;</code></pre>
+
+        <div class="box box-dica">
+          <span class="box-titulo">Dica</span>
+          Coloque a tag <code>&lt;script&gt;</code> no <strong>final do <code>&lt;body&gt;</code></strong>,
+          e não no <code>&lt;head&gt;</code>. Assim o navegador já desenhou toda a página antes de
+          rodar o JavaScript, evitando erros do tipo "elemento não encontrado" porque o script
+          tentou procurar algo que ainda não existia na tela.
+        </div>
+
+        <h2>Variáveis: caixas com nome para guardar informação</h2>
+        <p>
+          Uma variável é um espaço na memória do computador que guarda um valor, e que tem um
+          nome para você conseguir usá-lo depois. Em JavaScript moderno, usamos
+          <code>let</code> para valores que podem mudar e <code>const</code> para valores que
+          não vão mudar depois de definidos.
+        </p>
+        <pre><code>let idade = 28;           // um número, pode mudar
+const nome = "Marina";    // um texto (string), não muda
+let ativo = true;         // um booleano: true ou false
+
+idade = 29; // isso funciona, "let" permite reatribuição
+// nome = "Outro"; // isso daria erro, "const" não permite</code></pre>
+
+        <p>Os tipos básicos (chamados de "tipos primitivos") mais usados são:</p>
+        <ul>
+          <li><strong>String</strong> — texto, sempre entre aspas: <code>"olá"</code> ou <code>'olá'</code></li>
+          <li><strong>Number</strong> — números, inteiros ou com casas decimais: <code>10</code>, <code>3.14</code></li>
+          <li><strong>Boolean</strong> — verdadeiro ou falso: <code>true</code>, <code>false</code></li>
+          <li><strong>Array</strong> — uma lista de valores: <code>["maçã", "banana", "uva"]</code></li>
+          <li><strong>Object</strong> — um conjunto de informações relacionadas: <code>{ nome: "Ana", idade: 30 }</code></li>
+        </ul>
+
+        <div class="box box-atencao">
+          <span class="box-titulo">Pegadinha comum</span>
+          Existe também o <code>var</code>, a forma antiga de criar variáveis. Evite usá-la em
+          código novo: ela tem um comportamento de "escopo" confuso que causa bugs difíceis de
+          rastrear. Vamos entender exatamente por quê na lição de ES6+.
+        </div>
+
+        <h2>Funções: blocos de ação reutilizáveis</h2>
+        <p>
+          Uma função é uma receita: um bloco de código com um nome, que você pode "chamar"
+          (executar) sempre que precisar, quantas vezes quiser, sem reescrever tudo de novo.
+        </p>
+        <pre><code>function saudar(nome) {
+  return "Olá, " + nome + "!";
+}
+
+console.log(saudar("Carlos")); // "Olá, Carlos!"
+console.log(saudar("Ana"));    // "Olá, Ana!"</code></pre>
+        <p>
+          <code>nome</code> aqui é um <strong>parâmetro</strong>: uma informação que a função
+          recebe de fora para poder trabalhar. E <code>return</code> é o valor que a função
+          devolve para quem a chamou.
+        </p>
+
+        <h2>Manipulando o DOM: alterando a página em tempo real</h2>
+        <p>
+          O <strong>DOM</strong> (Document Object Model) é a representação da sua página HTML
+          na memória do navegador, organizada como uma árvore de elementos. O JavaScript
+          consegue "conversar" com essa árvore: encontrar elementos, ler o que tem neles e
+          mudá-los.
+        </p>
+
+        <p>A ferramenta mais usada para <strong>encontrar</strong> um elemento é o <code>querySelector</code>, que aceita os mesmos seletores que você já usa no CSS:</p>
+        <pre><code>&lt;p id="mensagem"&gt;Texto original&lt;/p&gt;
+&lt;button id="botao"&gt;Mudar texto&lt;/button&gt;
+
+&lt;script&gt;
+  const paragrafo = document.querySelector("#mensagem");
+  const botao = document.querySelector("#botao");
+&lt;/script&gt;</code></pre>
+
+        <p>Depois de encontrar o elemento, você pode <strong>ler ou alterar seu conteúdo e aparência</strong>:</p>
+        <pre><code>paragrafo.textContent = "Texto novo!";       // troca o texto
+paragrafo.classList.add("destaque");         // adiciona uma classe CSS
+paragrafo.classList.remove("escondido");     // remove uma classe
+paragrafo.classList.toggle("ativo");         // liga/desliga uma classe
+paragrafo.style.color = "blue";              // muda o estilo diretamente</code></pre>
+
+        <p>
+          E para reagir a uma ação do usuário — um clique, por exemplo — usamos
+          <code>addEventListener</code>, que "escuta" um evento e executa uma função quando
+          ele acontece:
+        </p>
+        <pre><code>botao.addEventListener("click", function () {
+  paragrafo.textContent = "Você clicou no botão!";
+  paragrafo.classList.add("destaque");
+});</code></pre>
+
+        <p>
+          Isso é o núcleo de praticamente toda interatividade na web: encontrar um elemento,
+          escutar um evento nele, e alterar algo na tela quando o evento acontece.
+        </p>
+
+        <div class="box box-analogia">
+          <span class="box-titulo">Analogia</span>
+          Pense no <code>querySelector</code> como apontar o dedo para uma pessoa específica
+          numa sala cheia de gente ("aquela ali, com a camisa azul"). O
+          <code>addEventListener</code> é combinar com essa pessoa: "quando você levantar a
+          mão, me avisa" — e o que você faz quando ela avisa é a função que você passou.
+        </div>
+
+        <h2>Um exemplo completo</h2>
+        <pre><code>&lt;p id="contador"&gt;Cliques: 0&lt;/p&gt;
+&lt;button id="btn-contar"&gt;Clique em mim&lt;/button&gt;
+
+&lt;script&gt;
+  let cliques = 0;
+  const textoContador = document.querySelector("#contador");
+  const botaoContar = document.querySelector("#btn-contar");
+
+  botaoContar.addEventListener("click", function () {
+    cliques = cliques + 1;
+    textoContador.textContent = "Cliques: " + cliques;
+  });
+&lt;/script&gt;</code></pre>
+        <p>
+          Repare que <code>cliques</code> precisa ser <code>let</code>, porque seu valor muda
+          a cada clique. Já os elementos que buscamos com <code>querySelector</code> podem ser
+          <code>const</code>, porque a referência ao elemento em si não muda — só o que está
+          dentro dele.
+        </p>
+
+        <div class="box box-dica">
+          <span class="box-titulo">Dica</span>
+          Abra o console do navegador (tecla F12, aba "Console") sempre que estiver
+          aprendendo. É lá que aparecem erros, e é onde <code>console.log(...)</code> imprime
+          valores para você "espiar" o que está acontecendo dentro do seu código.
+        </div>
+
+        <h2>Resumo</h2>
+        <ul class="checklist">
+          <li>JavaScript é a linguagem que dá interatividade às páginas web, rodando dentro do navegador.</li>
+          <li>Prefira incluir JS em um arquivo externo com <code>&lt;script src="..."&gt;</code> no final do <code>&lt;body&gt;</code>.</li>
+          <li>Use <code>let</code> para variáveis que mudam e <code>const</code> para as que não mudam; evite <code>var</code>.</li>
+          <li>Funções são blocos de código reutilizáveis que podem receber parâmetros e devolver (<code>return</code>) um valor.</li>
+          <li><code>document.querySelector()</code> encontra um elemento no DOM; <code>addEventListener()</code> reage a eventos nele.</li>
+          <li><code>textContent</code>, <code>classList</code> e <code>style</code> são as formas mais comuns de alterar um elemento pelo JS.</li>
+        </ul>
+
+        <div id="lesson-footer-nav" class="lesson-footer-nav"></div>
+      </main>
+    </div>
+  </div>
+  <script src="../../nav.js"></script>
+</body>
+</html>

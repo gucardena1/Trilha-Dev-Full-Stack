@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Flexbox e Grid — Trilha Dev Full Stack</title>
+  <link rel="stylesheet" href="../../style.css" />
+</head>
+<body>
+  <div class="layout">
+    <nav id="sidebar"></nav>
+    <div class="content-wrap">
+      <main class="content">
+        <div class="breadcrumb">2. HTML & CSS</div>
+        <h1 class="lesson-title">Flexbox e Grid</h1>
+        <p class="lesson-subtitle">As duas ferramentas modernas para organizar elementos no espaço, sem gambiarra.</p>
+
+        <div class="box box-analogia">
+          <span class="box-titulo">Analogia</span>
+          Pense em organizar móveis numa sala. <strong>Flexbox</strong> é como arrumar pessoas em uma fila única, para tirar uma foto: você decide se ficam lado a lado ou em pé uma atrás da outra, e como distribuir o espaço sobrando entre elas. <strong>Grid</strong> é como desenhar uma grade de estacionamento no chão primeiro, com vagas numeradas em linhas e colunas, e só depois encaixar os carros dentro de cada vaga. Uma organiza em uma direção só; a outra organiza nas duas direções ao mesmo tempo.
+        </div>
+
+        <h2>Por que não usar apenas o CSS "tradicional"</h2>
+        <p>
+          Antes do Flexbox e do Grid existirem, alinhar caixas lado a lado ou centralizar algo verticalmente em CSS era famoso por ser complicado, cheio de truques (como usar <code>float</code> ou posicionamento manual). Flexbox (2013) e Grid (2017) foram criados especificamente para resolver layout de forma direta e previsível. Hoje em dia, são a forma padrão de organizar qualquer página.
+        </p>
+
+        <h2>Flexbox: organizando em uma linha ou coluna</h2>
+        <p>
+          Flexbox trabalha com um <strong>elemento pai</strong>, que vira o "container flexível", e seus <strong>filhos diretos</strong>, que se organizam ao longo de um eixo — horizontal ou vertical. Para ativar, basta uma linha no elemento pai:
+        </p>
+
+        <pre><code>.container {
+  display: flex;
+}</code></pre>
+
+        <p>
+          Só essa linha já coloca todos os filhos diretos lado a lado, na horizontal, por padrão. A partir daí, algumas propriedades no container controlam como esses filhos se distribuem:
+        </p>
+
+        <table>
+          <tr><th>Propriedade</th><th>Faz o quê</th></tr>
+          <tr><td><code>flex-direction</code></td><td>Direção do eixo: <code>row</code> (linha, padrão) ou <code>column</code> (coluna).</td></tr>
+          <tr><td><code>justify-content</code></td><td>Alinhamento ao longo do eixo principal: <code>flex-start</code>, <code>center</code>, <code>space-between</code>, <code>space-around</code>.</td></tr>
+          <tr><td><code>align-items</code></td><td>Alinhamento no eixo cruzado (perpendicular): <code>flex-start</code>, <code>center</code>, <code>stretch</code>.</td></tr>
+          <tr><td><code>gap</code></td><td>Espaço fixo entre os itens, sem precisar de margin manual em cada um.</td></tr>
+        </table>
+
+        <pre><code>&lt;style&gt;
+  .menu {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+  }
+&lt;/style&gt;
+
+&lt;nav class="menu"&gt;
+  &lt;a href="#"&gt;Início&lt;/a&gt;
+  &lt;a href="#"&gt;Produtos&lt;/a&gt;
+  &lt;a href="#"&gt;Contato&lt;/a&gt;
+&lt;/nav&gt;</code></pre>
+
+        <p>
+          Esse exemplo é praticamente o caso de uso número um do Flexbox: um menu de navegação com os links espalhados horizontalmente, com <code>space-between</code> empurrando o primeiro item para a esquerda e o último para a direita.
+        </p>
+
+        <div class="box box-dica">
+          <span class="box-titulo">Dica</span>
+          Centralizar algo vertical e horizontalmente ao mesmo tempo era um pesadelo no CSS antigo. Com Flexbox, é só isto:
+          <pre><code>.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}</code></pre>
+        </div>
+
+        <h3>Controlando os filhos individualmente</h3>
+        <p>
+          Além das propriedades no pai, cada filho pode receber <code>flex-grow</code> (o quanto ele cresce para ocupar espaço sobrando) e <code>flex-shrink</code> (o quanto ele encolhe se faltar espaço). O atalho mais comum é a propriedade <code>flex</code>, que combina as duas:
+        </p>
+        <pre><code>.coluna-principal {
+  flex: 2; /* ocupa 2 partes do espaço disponível */
+}
+.barra-lateral {
+  flex: 1; /* ocupa 1 parte */
+}</code></pre>
+
+        <h2>Grid: organizando em linhas e colunas ao mesmo tempo</h2>
+        <p>
+          Enquanto o Flexbox pensa em uma única fileira (que pode quebrar linha, mas ainda é pensado item a item), o Grid pensa a página inteira como uma grade — como uma planilha, com linhas e colunas definidas de antemão. Também começa com uma linha no elemento pai:
+        </p>
+        <pre><code>.container {
+  display: grid;
+}</code></pre>
+
+        <p>A propriedade mais importante do Grid é <code>grid-template-columns</code>, que define quantas colunas existem e o tamanho de cada uma:</p>
+
+        <pre><code>.galeria {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 16px;
+}</code></pre>
+
+        <p>
+          A unidade <code>fr</code> ("fraction", fração) representa uma parte do espaço disponível. <code>1fr 1fr 1fr</code> cria três colunas de larguras iguais. Se você quisesse uma coluna lateral fixa e o resto flexível, poderia escrever <code>grid-template-columns: 250px 1fr;</code> — uma coluna de exatos 250px e outra que ocupa todo o espaço restante.
+        </p>
+
+        <pre><code>&lt;style&gt;
+  .pagina {
+    display: grid;
+    grid-template-columns: 250px 1fr;
+    gap: 24px;
+  }
+&lt;/style&gt;
+
+&lt;div class="pagina"&gt;
+  &lt;aside&gt;Menu lateral&lt;/aside&gt;
+  &lt;main&gt;Conteúdo principal&lt;/main&gt;
+&lt;/div&gt;</code></pre>
+
+        <p>
+          Uma ferramenta muito prática do Grid é a função <code>repeat()</code>, que evita repetir <code>1fr</code> várias vezes, e <code>auto-fit</code> combinado com <code>minmax()</code>, que cria colunas responsivas automaticamente, sem precisar de media queries:
+        </p>
+        <pre><code>.galeria {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  /* equivalente a: 1fr 1fr 1fr */
+}
+
+.galeria-responsiva {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  /* cria quantas colunas de no mínimo 200px couberem na tela */
+  gap: 16px;
+}</code></pre>
+
+        <h2>Flexbox ou Grid: quando usar cada um</h2>
+        <p>
+          Essa é a dúvida mais comum de quem já conhece as duas ferramentas. A resposta curta: <strong>Flexbox para uma dimensão, Grid para duas dimensões</strong>.
+        </p>
+
+        <table>
+          <tr><th>Situação</th><th>Melhor escolha</th></tr>
+          <tr><td>Menu de navegação horizontal</td><td>Flexbox</td></tr>
+          <tr><td>Centralizar um elemento na tela</td><td>Flexbox</td></tr>
+          <tr><td>Lista de botões que quebram linha naturalmente</td><td>Flexbox (com <code>flex-wrap: wrap</code>)</td></tr>
+          <tr><td>Layout geral da página: cabeçalho, menu lateral, conteúdo, rodapé</td><td>Grid</td></tr>
+          <tr><td>Galeria de fotos em grade uniforme</td><td>Grid</td></tr>
+          <tr><td>Cartões de produtos com alturas e larguras alinhadas em linhas e colunas</td><td>Grid</td></tr>
+        </table>
+
+        <div class="box box-dica">
+          <span class="box-titulo">Dica</span>
+          Na prática, os dois convivem no mesmo projeto sem problema: é comum usar <strong>Grid</strong> para o esqueleto geral da página (as grandes áreas) e <strong>Flexbox</strong> dentro de cada uma dessas áreas (para alinhar botões, ícones e textos). Um não substitui o outro — eles se complementam.
+        </div>
+
+        <div class="box box-atencao">
+          <span class="box-titulo">Erro comum</span>
+          Esquecer que <code>display: flex</code> ou <code>display: grid</code> só afeta os <strong>filhos diretos</strong> do elemento. Um neto (filho de um filho) não é organizado automaticamente pelo Flexbox ou Grid do avô — cada nível de aninhamento precisa da sua própria configuração, se for o caso.
+        </div>
+
+        <h2>Exemplo completo: página com Grid e Flexbox juntos</h2>
+        <pre><code>&lt;style&gt;
+  .pagina {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    grid-template-rows: auto 1fr;
+    min-height: 100vh;
+  }
+
+  .cabecalho {
+    grid-column: 1 / 3; /* ocupa as duas colunas */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+    background: #222;
+    color: white;
+  }
+
+  .menu-lateral {
+    background: #f0f0f0;
+    padding: 16px;
+  }
+
+  .conteudo {
+    padding: 16px;
+  }
+&lt;/style&gt;
+
+&lt;div class="pagina"&gt;
+  &lt;header class="cabecalho"&gt;
+    &lt;strong&gt;Minha Loja&lt;/strong&gt;
+    &lt;nav style="display: flex; gap: 12px;"&gt;
+      &lt;a href="#"&gt;Início&lt;/a&gt;
+      &lt;a href="#"&gt;Carrinho&lt;/a&gt;
+    &lt;/nav&gt;
+  &lt;/header&gt;
+
+  &lt;aside class="menu-lateral"&gt;Categorias&lt;/aside&gt;
+
+  &lt;main class="conteudo"&gt;Produtos aqui&lt;/main&gt;
+&lt;/div&gt;</code></pre>
+        <p>
+          Repare que <code>grid-column: 1 / 3</code> faz o cabeçalho ocupar da primeira até (sem incluir) a terceira linha de grade — ou seja, as duas colunas inteiras. Já dentro do cabeçalho, usamos Flexbox para alinhar o logo e o menu horizontalmente. Essa combinação é exatamente o padrão que você vai ver na maioria dos sites profissionais.
+        </p>
+
+        <h2>Resumo</h2>
+        <ul class="checklist">
+          <li>Flexbox organiza itens em uma única direção (linha ou coluna); ative com <code>display: flex</code>.</li>
+          <li><code>justify-content</code>, <code>align-items</code> e <code>gap</code> controlam alinhamento e espaçamento no Flexbox.</li>
+          <li>Grid organiza itens em linhas e colunas ao mesmo tempo; ative com <code>display: grid</code>.</li>
+          <li><code>grid-template-columns</code> com a unidade <code>fr</code> define o tamanho das colunas.</li>
+          <li>Regra geral: Flexbox para uma dimensão, Grid para duas — e os dois costumam trabalhar juntos.</li>
+          <li><code>display: flex</code>/<code>grid</code> afeta só os filhos diretos, não os netos.</li>
+        </ul>
+
+        <div id="lesson-footer-nav" class="lesson-footer-nav"></div>
+      </main>
+    </div>
+  </div>
+  <script src="../../nav.js"></script>
+</body>
+</html>

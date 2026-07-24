@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Closures, this e padrões avançados — Trilha Dev Full Stack</title>
+  <link rel="stylesheet" href="../../style.css" />
+</head>
+<body>
+  <div class="layout">
+    <nav id="sidebar"></nav>
+    <div class="content-wrap">
+      <main class="content">
+        <div class="breadcrumb">3. JavaScript</div>
+        <h1 class="lesson-title">Closures, this e padrões avançados</h1>
+        <p class="lesson-subtitle">Os conceitos que separam "sei usar JavaScript" de "entendo como JavaScript funciona por dentro" — e alguns padrões de código que você vai encontrar em qualquer projeto profissional.</p>
+
+        <h2>Closures: a mochila que a função carrega</h2>
+        <p>
+          Uma <strong>closure</strong> acontece quando uma função "lembra" das variáveis do
+          lugar onde ela foi criada, mesmo depois que esse lugar já terminou de executar.
+          Parece abstrato, mas você provavelmente já usou closures sem perceber, toda vez que
+          criou uma função dentro de outra função.
+        </p>
+
+        <div class="box box-analogia">
+          <span class="box-titulo">Analogia</span>
+          Imagine que uma função é uma pessoa saindo de casa para uma viagem longa. Antes de
+          sair, ela arruma uma <strong>mochila</strong> com tudo que vai precisar: as
+          variáveis que existiam no ambiente onde ela nasceu. Não importa para onde essa
+          pessoa vá depois (para onde essa função seja chamada), ela sempre carrega a mochila
+          com ela — continua tendo acesso ao que colocou lá dentro, mesmo longe de casa.
+        </div>
+
+        <pre><code>function criarContador() {
+  let contagem = 0; // essa variável vai para a "mochila"
+
+  return function () {
+    contagem = contagem + 1;
+    return contagem;
+  };
+}
+
+const contador1 = criarContador();
+console.log(contador1()); // 1
+console.log(contador1()); // 2
+console.log(contador1()); // 3
+
+const contador2 = criarContador(); // uma mochila NOVA e independente
+console.log(contador2()); // 1</code></pre>
+        <p>
+          <code>criarContador</code> já terminou de executar há muito tempo quando chamamos
+          <code>contador1()</code> pela primeira vez. Ainda assim, a função interna continua
+          enxergando e alterando <code>contagem</code>, porque ela "guardou" essa variável na
+          sua mochila (closure) no momento em que foi criada. Repare também que
+          <code>contador1</code> e <code>contador2</code> têm mochilas separadas — cada
+          chamada de <code>criarContador()</code> cria um novo ambiente independente.
+        </p>
+        <p>
+          Isso é extremamente útil para criar <strong>estado privado</strong>: variáveis que
+          só aquela função específica consegue acessar ou alterar, protegidas do resto do
+          código.
+        </p>
+
+        <div class="box box-atencao">
+          <span class="box-titulo">Pegadinha comum</span>
+          Lembra do problema do <code>var</code> em loops, na lição anterior? Ele acontece
+          exatamente por causa de closures: como <code>var</code> não cria uma variável nova a
+          cada volta do loop, todas as funções criadas dentro dele acabam compartilhando a
+          <em>mesma mochila</em>, com a mesma variável — e por isso todas "veem" o valor final
+          dela. Usar <code>let</code> resolve porque ele cria uma mochila nova a cada
+          iteração.
+        </div>
+
+        <h2>O que é <code>this</code> e por que ele muda</h2>
+        <p>
+          <code>this</code> é uma palavra especial em JavaScript que se refere a "quem está
+          chamando a função" — mas seu valor não é fixo: ele depende de <strong>como</strong> a
+          função foi chamada, não de onde ela foi escrita. Essa é a fonte de mais confusão
+          para quem está aprendendo JS.
+        </p>
+
+        <div class="box box-analogia">
+          <span class="box-titulo">Analogia</span>
+          Pense em <code>this</code> como a palavra "eu" numa carta. Se a Ana escreve "eu
+          gosto de café" e entrega a carta para o Bruno ler em voz alta, "eu" não passa a
+          significar Bruno — mas em JavaScript, de certa forma, é como se acontecesse isso:
+          "this" muda de significado dependendo de quem está "lendo em voz alta" (chamando)
+          a função naquele momento.
+        </div>
+
+        <pre><code>const pessoa = {
+  nome: "Marina",
+  saudar: function () {
+    console.log("Olá, eu sou " + this.nome);
+  }
+};
+
+pessoa.saudar(); // "Olá, eu sou Marina" — this = pessoa, porque pessoa.saudar() chamou
+
+const funcaoSolta = pessoa.saudar;
+funcaoSolta(); // "Olá, eu sou undefined" — this mudou! Agora não há um "dono" claro</code></pre>
+        <p>
+          Repare: é <strong>a mesma função</strong> nos dois casos. O que muda é a forma como
+          ela foi chamada. Quando chamada como <code>pessoa.saudar()</code>, o "dono" da
+          chamada é <code>pessoa</code>, então <code>this</code> aponta para
+          <code>pessoa</code>. Quando chamada solta, sem um objeto na frente, <code>this</code>
+          perde essa referência.
+        </p>
+
+        <h2>Arrow functions e <code>this</code>: a diferença mais importante</h2>
+        <p>
+          Arrow functions <strong>não têm o seu próprio <code>this</code></strong> — elas
+          "herdam" o <code>this</code> do lugar onde foram escritas (o escopo ao redor), e
+          nunca mudam esse valor, não importa como forem chamadas. Isso resolve um problema
+          clássico:
+        </p>
+        <pre><code>const relogio = {
+  hora: 10,
+  iniciar: function () {
+    // "function" normal: this muda dentro do setInterval,
+    // deixaria de apontar para "relogio"
+    setInterval(function () {
+      // this.hora aqui seria undefined
+    }, 1000);
+
+    // arrow function: herda o "this" de fora (de iniciar),
+    // que é o relogio. Continua funcionando corretamente.
+    setInterval(() =&gt; {
+      this.hora = this.hora + 1;
+      console.log(this.hora);
+    }, 1000);
+  }
+};</code></pre>
+
+        <div class="box box-dica">
+          <span class="box-titulo">Dica</span>
+          Regra prática que resolve 90% dos casos: use <strong>arrow functions</strong> para
+          callbacks (funções passadas para outra função, como dentro de
+          <code>setInterval</code>, <code>.then()</code> ou <code>addEventListener</code>)
+          quando você precisar que <code>this</code> continue apontando para o objeto ao
+          redor. Use <strong>funções normais</strong> quando você quer que <code>this</code>
+          seja definido por quem chama a função, como em métodos de objetos.
+        </div>
+
+        <h2>Protótipos: como os objetos "herdam" comportamento</h2>
+        <p>
+          Em JavaScript, quase todo objeto tem um "objeto de apoio" por trás dele, chamado de
+          <strong>protótipo</strong>, de onde ele pode usar propriedades e métodos emprestados.
+          Quando você chama <code>array.map(...)</code>, por exemplo, o array em si não tem
+          um método <code>map</code> "colado" nele — ele existe no protótipo compartilhado por
+          todos os arrays, e o JavaScript sobe essa cadeia (chamada de "prototype chain")
+          procurando o método até encontrar.
+        </p>
+        <pre><code>function Animal(nome) {
+  this.nome = nome;
+}
+
+// Adicionando um método ao protótipo: TODO animal criado
+// com "new Animal(...)" vai poder usar esse método
+Animal.prototype.emitirSom = function () {
+  console.log(this.nome + " faz um som.");
+};
+
+const cachorro = new Animal("Rex");
+cachorro.emitirSom(); // "Rex faz um som."</code></pre>
+        <p>
+          A sintaxe de <code>class</code>, que existe desde o ES6, é hoje a forma preferida de
+          escrever isso — mas por baixo dos panos ela continua usando protótipos:
+        </p>
+        <pre><code>class AnimalClasse {
+  constructor(nome) {
+    this.nome = nome;
+  }
+
+  emitirSom() {
+    console.log(this.nome + " faz um som.");
+  }
+}
+
+const gato = new AnimalClasse("Miau");
+gato.emitirSom(); // "Miau faz um som."</code></pre>
+        <p>
+          Não é preciso dominar protótipos em profundidade para trabalhar com JavaScript no
+          dia a dia — o importante aqui é entender que, quando você usa <code>class</code>,
+          por trás existe esse mecanismo de "cadeia de protótipos" que permite objetos
+          compartilharem comportamento.
+        </p>
+
+        <h2>Padrões comuns: debounce e throttle</h2>
+        <p>
+          Alguns eventos disparam com muita frequência — <code>scroll</code>, <code>resize</code>
+          da janela, ou <code>input</code> enquanto o usuário digita. Se você rodar uma
+          operação pesada (como uma chamada de API) a cada disparo, pode travar a página ou
+          gerar dezenas de requisições desnecessárias. Dois padrões resolvem isso.
+        </p>
+
+        <p><strong>Debounce</strong> espera o usuário "parar" de disparar o evento por um tempo, antes de executar a função:</p>
+        <div class="box box-analogia">
+          <span class="box-titulo">Analogia</span>
+          É como um elevador esperto: ele não sai correndo assim que alguém aperta o botão —
+          espera alguns segundos para ver se mais gente vai chegar e apertar também, e só
+          então fecha a porta e sobe. Debounce é ótimo para caixas de busca: só busca depois
+          que a pessoa parou de digitar.
+        </div>
+        <pre><code>function debounce(funcao, atraso) {
+  let temporizador;
+
+  return function (...args) {
+    clearTimeout(temporizador);
+    temporizador = setTimeout(function () {
+      funcao(...args);
+    }, atraso);
+  };
+}
+
+const buscarComDebounce = debounce(function (termo) {
+  console.log("Buscando por:", termo);
+}, 500);
+
+campoDeBusca.addEventListener("input", function (e) {
+  buscarComDebounce(e.target.value);
+});
+// Só dispara a busca 500ms depois da ÚLTIMA tecla digitada</code></pre>
+
+        <p><strong>Throttle</strong> é diferente: garante que a função execute no máximo uma vez a cada intervalo de tempo, não importa quantas vezes o evento dispare:</p>
+        <pre><code>function throttle(funcao, intervalo) {
+  let podeExecutar = true;
+
+  return function (...args) {
+    if (podeExecutar) {
+      funcao(...args);
+      podeExecutar = false;
+      setTimeout(function () {
+        podeExecutar = true;
+      }, intervalo);
+    }
+  };
+}
+
+const aoRolar = throttle(function () {
+  console.log("Posição da rolagem registrada");
+}, 200);
+
+window.addEventListener("scroll", aoRolar);
+// Executa no máximo uma vez a cada 200ms, mesmo rolando sem parar</code></pre>
+
+        <div class="box box-dica">
+          <span class="box-titulo">Dica</span>
+          Repare que tanto <code>debounce</code> quanto <code>throttle</code> são exemplos
+          práticos de <strong>closures</strong>: a função retornada continua tendo acesso a
+          <code>temporizador</code> ou <code>podeExecutar</code> muito depois de
+          <code>debounce()</code>/<code>throttle()</code> terem terminado de executar. Os
+          conceitos desta lição não são isolados — eles se combinam constantemente no código
+          do dia a dia.
+        </div>
+
+        <h2>Juntando tudo</h2>
+        <p>
+          Closures dão às funções "memória" própria e privada. <code>this</code> determina de
+          quem é o contexto de execução, e muda de acordo com a forma de chamada — exceto em
+          arrow functions, que herdam o <code>this</code> de fora. Protótipos são o mecanismo
+          por trás de como objetos compartilham comportamento, inclusive quando você usa
+          <code>class</code>. E debounce/throttle mostram como esses fundamentos aparecem
+          juntos, resolvendo problemas reais de performance em interfaces.
+        </p>
+
+        <h2>Resumo</h2>
+        <ul class="checklist">
+          <li>Closure é quando uma função "carrega consigo" (como uma mochila) as variáveis do ambiente onde foi criada, mesmo depois desse ambiente ter terminado.</li>
+          <li><code>this</code> depende de como a função é chamada, não de onde ela foi escrita.</li>
+          <li>Arrow functions não têm <code>this</code> próprio: elas herdam o <code>this</code> do escopo ao redor, o que evita bugs comuns em callbacks.</li>
+          <li>Protótipos são o mecanismo por trás de como objetos compartilham métodos, inclusive na sintaxe moderna de <code>class</code>.</li>
+          <li>Debounce espera o usuário parar de agir antes de executar; throttle limita a execução a um intervalo fixo, não importa a frequência do evento.</li>
+          <li>Debounce e throttle são aplicações práticas de closures — os conceitos avançados do JS se combinam o tempo todo em código real.</li>
+        </ul>
+
+        <div id="lesson-footer-nav" class="lesson-footer-nav"></div>
+      </main>
+    </div>
+  </div>
+  <script src="../../nav.js"></script>
+</body>
+</html>

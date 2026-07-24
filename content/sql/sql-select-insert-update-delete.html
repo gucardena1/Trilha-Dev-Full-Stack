@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CRUD: SELECT, INSERT, UPDATE, DELETE — Trilha Dev Full Stack</title>
+  <link rel="stylesheet" href="../../style.css" />
+</head>
+<body>
+  <div class="layout">
+    <nav id="sidebar"></nav>
+    <div class="content-wrap">
+      <main class="content">
+        <div class="breadcrumb">5. SQL &amp; Bancos de Dados</div>
+        <h1 class="lesson-title">CRUD: SELECT, INSERT, UPDATE, DELETE</h1>
+        <p class="lesson-subtitle">Os quatro comandos que resolvem 90% do que você precisa fazer num banco de dados no dia a dia.</p>
+
+        <div class="box box-analogia">
+          <span class="box-titulo">Analogia</span>
+          Pense de novo no armário de fichas do consultório. No dia a dia, uma secretária só faz quatro tipos de
+          ação com aquelas fichas: <strong>procurar</strong> uma ficha para consultar algo, <strong>criar</strong>
+          uma ficha nova para um paciente que chegou, <strong>atualizar</strong> uma ficha existente (o telefone
+          mudou) e <strong>jogar fora</strong> uma ficha que não é mais necessária. Em qualquer sistema que usa
+          banco de dados — uma rede social, um banco, uma loja virtual — é basicamente isso que acontece por trás
+          das telas: procurar, criar, atualizar e apagar dados. Essas quatro ações têm até um apelido conhecido no
+          mundo da programação: <strong>CRUD</strong> (Create, Read, Update, Delete).
+        </div>
+
+        <p>
+          Em SQL, essas quatro ações correspondem a quatro comandos: <code>INSERT</code> (criar), <code>SELECT</code>
+          (ler/buscar), <code>UPDATE</code> (atualizar) e <code>DELETE</code> (apagar). Vamos usar como exemplo a
+          tabela <code>clientes</code> que já apareceu na lição anterior:
+        </p>
+        <table>
+          <thead>
+            <tr><th>id</th><th>nome</th><th>email</th><th>cidade</th><th>idade</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>1</td><td>Ana Souza</td><td>ana@email.com</td><td>Recife</td><td>28</td></tr>
+            <tr><td>2</td><td>Bruno Lima</td><td>bruno@email.com</td><td>Curitiba</td><td>34</td></tr>
+            <tr><td>3</td><td>Carla Dias</td><td>carla@email.com</td><td>São Paulo</td><td>41</td></tr>
+          </tbody>
+        </table>
+
+        <h2>SELECT: buscando dados</h2>
+        <p>
+          <code>SELECT</code> é o comando mais usado do SQL — ele não altera nada, só <em>lê</em> os dados que já
+          existem. A forma mais simples pede todas as colunas de todas as linhas de uma tabela:
+        </p>
+        <pre><code>SELECT * FROM clientes;</code></pre>
+        <p>
+          O asterisco <code>*</code> significa "todas as colunas". Na prática, é mais comum (e mais eficiente) pedir
+          só as colunas que você realmente precisa:
+        </p>
+        <pre><code>SELECT nome, cidade FROM clientes;</code></pre>
+        <p>
+          Para filtrar quais linhas devem aparecer, usamos a cláusula <code>WHERE</code> — é ela que responde à
+          pergunta "buscar o quê, exatamente?":
+        </p>
+        <pre><code>SELECT * FROM clientes
+WHERE cidade = 'Recife';</code></pre>
+        <pre><code>SELECT * FROM clientes
+WHERE idade &gt; 30;</code></pre>
+        <p>
+          Para ordenar o resultado, usamos <code>ORDER BY</code> (por padrão em ordem crescente; <code>DESC</code>
+          inverte para decrescente):
+        </p>
+        <pre><code>SELECT nome, idade FROM clientes
+ORDER BY idade DESC;</code></pre>
+        <p>
+          E para limitar quantas linhas voltam — muito útil quando a tabela tem milhões de registros e você só quer
+          "os 10 primeiros" — existe o <code>LIMIT</code>:
+        </p>
+        <pre><code>SELECT nome, idade FROM clientes
+ORDER BY idade DESC
+LIMIT 10;</code></pre>
+        <p>
+          Repare na ordem: <code>WHERE</code> filtra, <code>ORDER BY</code> ordena, <code>LIMIT</code> corta a
+          quantidade — nessa sequência. É praticamente assim que você vai escrever a maioria das consultas do dia a
+          dia.
+        </p>
+
+        <div class="box box-dica">
+          <span class="box-titulo">Dica</span>
+          Convenção comum: escrever palavras-chave do SQL (<code>SELECT</code>, <code>FROM</code>,
+          <code>WHERE</code>...) em maiúsculas e nomes de tabelas/colunas em minúsculas. O SQL não exige isso, mas
+          ajuda demais na hora de ler o código depois — inclusive o seu próprio código de semanas atrás.
+        </div>
+
+        <h2>INSERT: criando um registro novo</h2>
+        <p>
+          Para adicionar uma linha nova numa tabela, usamos <code>INSERT INTO</code>, informando as colunas e, em
+          seguida, os valores na mesma ordem:
+        </p>
+        <pre><code>INSERT INTO clientes (nome, email, cidade, idade)
+VALUES ('Diego Alves', 'diego@email.com', 'Salvador', 25);</code></pre>
+        <p>
+          Note que a coluna <code>id</code> não aparece na lista — como vimos na lição anterior, a chave primária
+          costuma ser gerada automaticamente pelo próprio banco, então você não precisa (e normalmente nem deve)
+          informá-la manualmente.
+        </p>
+
+        <h2>UPDATE: alterando um registro existente</h2>
+        <p>
+          Para modificar dados que já existem, usamos <code>UPDATE</code> junto com <code>SET</code> (o que muda) e
+          <code>WHERE</code> (quais linhas mudam):
+        </p>
+        <pre><code>UPDATE clientes
+SET cidade = 'Belo Horizonte'
+WHERE id = 2;</code></pre>
+        <p>
+          Esse comando muda a cidade apenas do cliente cujo <code>id</code> é 2 (Bruno Lima). Dá para atualizar
+          várias colunas de uma vez, separando por vírgula:
+        </p>
+        <pre><code>UPDATE clientes
+SET cidade = 'Belo Horizonte', idade = 35
+WHERE id = 2;</code></pre>
+
+        <h2>DELETE: apagando um registro</h2>
+        <p>
+          Para remover uma linha, usamos <code>DELETE FROM</code> com <code>WHERE</code> indicando qual linha:
+        </p>
+        <pre><code>DELETE FROM clientes
+WHERE id = 3;</code></pre>
+        <p>Isso remove definitivamente o cliente Carla Dias (id 3) da tabela.</p>
+
+        <div class="box box-atencao">
+          <span class="box-titulo">Atenção</span>
+          Este é, sem exagero, um dos erros mais famosos (e mais dolorosos) da carreira de qualquer pessoa que
+          trabalha com banco de dados: rodar <code>UPDATE</code> ou <code>DELETE</code> <strong>sem a cláusula
+          <code>WHERE</code></strong>. Sem <code>WHERE</code>, o comando afeta <em>todas</em> as linhas da tabela —
+          ou seja, <code>DELETE FROM clientes;</code> apaga a tabela inteira, e <code>UPDATE clientes SET
+          cidade = 'Recife';</code> muda a cidade de todo mundo para Recife. Antes de rodar um <code>UPDATE</code> ou
+          <code>DELETE</code> em produção, é uma boa prática rodar primeiro o mesmo filtro com um
+          <code>SELECT</code>, para conferir exatamente quais linhas serão afetadas.
+        </div>
+
+        <h2>Combinando os quatro comandos numa rotina comum</h2>
+        <p>
+          Um fluxo típico de uso seria: um novo cliente se cadastra no site (<code>INSERT</code>), a tela de perfil
+          dele busca os dados salvos (<code>SELECT</code>), ele edita o telefone (<code>UPDATE</code>) e, se decidir
+          encerrar a conta, o registro é removido (<code>DELETE</code>). Praticamente qualquer sistema com "login e
+          cadastro" que você já usou faz essas quatro operações por trás dos panos, dezenas de vezes por segundo.
+        </p>
+        <p>
+          Você também pode combinar filtros mais elaborados usando <code>AND</code> e <code>OR</code> dentro do
+          <code>WHERE</code>:
+        </p>
+        <pre><code>SELECT * FROM clientes
+WHERE cidade = 'Recife' AND idade &gt;= 18;</code></pre>
+        <p>
+          Isso retorna apenas clientes de Recife que também têm 18 anos ou mais — as duas condições precisam ser
+          verdadeiras ao mesmo tempo.
+        </p>
+
+        <h2>Resumo</h2>
+        <ul class="checklist">
+          <li><code>SELECT</code> busca dados; use <code>WHERE</code> para filtrar, <code>ORDER BY</code> para ordenar e <code>LIMIT</code> para limitar a quantidade de linhas.</li>
+          <li><code>INSERT INTO tabela (colunas) VALUES (valores)</code> cria uma linha nova.</li>
+          <li><code>UPDATE tabela SET coluna = valor WHERE ...</code> altera linhas existentes.</li>
+          <li><code>DELETE FROM tabela WHERE ...</code> remove linhas existentes.</li>
+          <li>Nunca rode <code>UPDATE</code> ou <code>DELETE</code> sem <code>WHERE</code> — sem ele, o comando afeta a tabela inteira.</li>
+        </ul>
+
+        <div id="lesson-footer-nav" class="lesson-footer-nav"></div>
+      </main>
+    </div>
+  </div>
+  <script src="../../nav.js"></script>
+</body>
+</html>

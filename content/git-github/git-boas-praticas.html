@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Boas práticas de commits — Trilha Dev Full Stack</title>
+  <link rel="stylesheet" href="../../style.css" />
+</head>
+<body>
+  <div class="layout">
+    <nav id="sidebar"></nav>
+    <div class="content-wrap">
+      <main class="content">
+        <div class="breadcrumb">4. Git & GitHub</div>
+        <h1 class="lesson-title">Boas práticas de commits</h1>
+        <p class="lesson-subtitle">Refinando hábitos: como escrever commits que seu "eu do futuro" (e sua equipe) vão agradecer.</p>
+
+        <div class="box box-analogia">
+          <span class="box-titulo">Analogia</span>
+          Pense no histórico de commits de um projeto como o diário de bordo de um navio. Um bom diário de bordo
+          registra, de forma objetiva e datada, exatamente o que aconteceu em cada trecho da viagem — "às 14h,
+          ajustamos o curso 5 graus a leste por causa de uma corrente" — permitindo que qualquer tripulante,
+          mesmo anos depois, entenda o que aconteceu e por quê. Um diário de bordo ruim só diria "coisas
+          aconteceram" em toda página. Commits são o diário de bordo do seu código.
+        </div>
+
+        <p>
+          Se você chegou até aqui, já sabe usar Git no dia a dia: cria branches, resolve conflitos, abre pull
+          requests. Esta lição não ensina comandos novos — ela é sobre <strong>refinar hábitos</strong>. A diferença
+          entre um repositório fácil de entender daqui a um ano e um repositório indecifrável quase sempre está nos
+          detalhes que vamos ver agora.
+        </p>
+
+        <h2>Mensagens de commit: boas vs. ruins</h2>
+        <p>
+          Compare estas duas mensagens de commit para a mesma mudança:
+        </p>
+        <pre><code>fix
+mudanças
+wip
+asdkjasd
+teste</code></pre>
+        <p>
+          contra:
+        </p>
+        <pre><code>Corrige cálculo de frete para pedidos com mais de 10kg
+
+O arredondamento estava truncando o peso antes de aplicar a
+tabela de faixas, fazendo pedidos de 10,4kg caírem na faixa
+de até 10kg. Agora o arredondamento acontece só na exibição.</code></pre>
+        <p>
+          A primeira mensagem não diz nada — daqui a três meses, ninguém (nem quem escreveu) vai saber o que
+          "mudanças" significa sem abrir o commit inteiro e tentar adivinhar pelo código. A segunda mensagem conta
+          uma história: o que foi corrigido, qual era a causa raiz do problema e o que mudou para resolvê-lo. Um
+          bom padrão para seguir é: primeira linha curta (até ~50 caracteres) no imperativo ("corrige", "adiciona",
+          "remove" — não "corrigido" ou "corrigindo"), seguida de uma linha em branco e, se necessário, um corpo
+          explicando o contexto e o motivo.
+        </p>
+
+        <div class="box box-dica">
+          <span class="box-titulo">Dica</span>
+          Um teste rápido para saber se sua mensagem de commit está boa: complete a frase "Se aplicado, este commit
+          vai ___________". Se a mensagem encaixa naturalmente ali ("vai corrigir cálculo de frete para pedidos com
+          mais de 10kg"), está no caminho certo. Se a mensagem for "fix" ou "mudanças", a frase não faz sentido
+          nenhum.
+        </div>
+
+        <h2>Commits pequenos e atômicos</h2>
+        <p>
+          Um commit <strong>atômico</strong> é aquele que representa uma única mudança lógica e completa — se você
+          precisasse desfazer só aquele commit (com <code>git revert</code>, por exemplo), o projeto continuaria
+          funcionando de forma coerente, sem deixar a metade de uma funcionalidade pelo caminho. Evite misturar, num
+          único commit, uma correção de bug com uma refatoração de estilo de código e a adição de uma funcionalidade
+          nova — cada uma dessas coisas deveria ser seu próprio commit.
+        </p>
+        <p>
+          As vantagens de commits pequenos e focados aparecem principalmente quando algo dá errado: fica muito mais
+          fácil usar <code>git log</code> para encontrar exatamente quando um bug foi introduzido, e muito mais
+          seguro reverter só aquela mudança específica sem afetar o resto. Um commit gigante que mistura vinte
+          coisas diferentes é praticamente impossível de reverter parcialmente.
+        </p>
+
+        <div class="box box-atencao">
+          <span class="box-titulo">Atenção</span>
+          Commits atômicos não significam commits <em>minúsculos demais</em> a ponto de deixarem o projeto quebrado
+          entre um commit e outro (por exemplo, um commit que só adiciona metade de uma função, sem ela funcionar
+          ainda). O critério é lógico, não de tamanho: cada commit deve deixar o projeto num estado coerente,
+          mesmo que pequeno.
+        </div>
+
+        <h2>Conventional Commits: um padrão para o prefixo da mensagem</h2>
+        <p>
+          Muitas equipes adotam um padrão chamado <strong>Conventional Commits</strong>, que prefixa a primeira
+          linha da mensagem com uma palavra-chave indicando o tipo de mudança. Isso padroniza o histórico e permite
+          até automatizar coisas como a geração de changelogs. O formato básico é:
+        </p>
+        <pre><code>tipo(escopo opcional): descrição curta no imperativo</code></pre>
+        <p>Os tipos mais comuns são:</p>
+        <ul>
+          <li><code>feat:</code> uma funcionalidade nova (ex: <code>feat(carrinho): adiciona cupom de desconto</code>)</li>
+          <li><code>fix:</code> uma correção de bug (ex: <code>fix(frete): corrige arredondamento de peso</code>)</li>
+          <li><code>docs:</code> mudanças só em documentação</li>
+          <li><code>style:</code> formatação, espaçamento, ponto e vírgula — sem alterar comportamento</li>
+          <li><code>refactor:</code> reorganização do código sem mudar o comportamento externo</li>
+          <li><code>test:</code> adição ou ajuste de testes</li>
+          <li><code>chore:</code> tarefas de manutenção (atualizar dependências, configurar ferramentas)</li>
+        </ul>
+        <pre><code>git commit -m "fix(auth): impede login com senha vazia"
+git commit -m "feat(perfil): adiciona upload de foto de usuário"
+git commit -m "chore(deps): atualiza versão do axios"</code></pre>
+
+        <h2>.gitignore: o que nunca deveria virar commit</h2>
+        <p>
+          Nem tudo dentro da pasta do projeto deveria entrar no repositório. Dependências instaladas (como a pasta
+          <code>node_modules</code>), arquivos gerados automaticamente (builds, caches), arquivos de configuração
+          da sua máquina (como <code>.env</code> com senhas e chaves de API) e arquivos do seu editor não devem ser
+          versionados — eles são grandes, mudam constantemente sem relevância nenhuma para o histórico, e no caso de
+          senhas, representam um risco de segurança real se forem parar num repositório público.
+        </p>
+        <p>
+          O arquivo <code>.gitignore</code>, na raiz do projeto, lista padrões de arquivos e pastas que o Git deve
+          simplesmente ignorar, nunca sugerindo adicioná-los:
+        </p>
+        <pre><code># .gitignore
+node_modules/
+.env
+dist/
+*.log
+.DS_Store</code></pre>
+
+        <div class="box box-atencao">
+          <span class="box-titulo">Atenção</span>
+          Se um arquivo sensível (como <code>.env</code>) já foi commitado antes de você adicionar o
+          <code>.gitignore</code>, apenas adicioná-lo ao <code>.gitignore</code> não remove o arquivo do histórico
+          — ele continua lá, em commits antigos, acessível a qualquer pessoa com acesso ao repositório. Nesse caso é
+          preciso removê-lo do histórico com ferramentas específicas (como <code>git filter-repo</code>) e, o mais
+          importante, trocar imediatamente qualquer senha ou chave que tenha vazado.
+        </div>
+
+        <h2>Quando (não) usar --force</h2>
+        <p>
+          O comando <code>git push --force</code> sobrescreve o histórico do repositório remoto com o seu histórico
+          local, mesmo que eles tenham divergido — é uma operação destrutiva, porque pode apagar commits que outras
+          pessoas já enviaram e que você simplesmente não tem localmente. Existem usos legítimos, principalmente
+          quando você reorganiza o histórico da <strong>sua própria branch pessoal</strong>, que mais ninguém está
+          usando, antes de abrir um pull request:
+        </p>
+        <pre><code># Mais seguro que --force: falha se alguém mais mudou a branch remota
+git push --force-with-lease origin minha-branch-pessoal</code></pre>
+        <p>
+          A regra prática é simples: <strong>nunca faça force push em branches compartilhadas</strong>, e
+          principalmente nunca na <code>main</code> ou em qualquer branch que outras pessoas também estejam usando.
+          Se você sobrescrever o histórico remoto de uma branch em que outra pessoa também trabalha, o próximo
+          <code>git pull</code> dela vai gerar um estado confuso, e commits que ela já tinha podem simplesmente
+          desaparecer do remoto sem aviso.
+        </p>
+
+        <div class="box box-dica">
+          <span class="box-titulo">Dica</span>
+          A maioria dos projetos sérios configura proteções na branch <code>main</code> no próprio GitHub, impedindo
+          fisicamente qualquer force push nela, mesmo por engano. Se você tem acesso de administrador a um
+          repositório de equipe, vale a pena habilitar essa proteção logo no início do projeto.
+        </div>
+
+        <h2>Resumo</h2>
+        <ul class="checklist">
+          <li>Mensagens de commit devem explicar o "porquê", não só repetir o óbvio ("fix", "mudanças").</li>
+          <li>Commits atômicos representam uma única mudança lógica e coerente, facilitando reverter e depurar.</li>
+          <li>Conventional Commits padroniza mensagens com prefixos como <code>feat:</code>, <code>fix:</code>, <code>chore:</code>.</li>
+          <li>O <code>.gitignore</code> impede que dependências, builds e segredos entrem no repositório.</li>
+          <li>Force push nunca deve ser usado em branches compartilhadas, especialmente a <code>main</code>; prefira <code>--force-with-lease</code> quando realmente necessário.</li>
+        </ul>
+
+        <div id="lesson-footer-nav" class="lesson-footer-nav"></div>
+      </main>
+    </div>
+  </div>
+  <script src="../../nav.js"></script>
+</body>
+</html>

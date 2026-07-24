@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Performance no backend — Trilha Dev Full Stack</title>
+  <link rel="stylesheet" href="../../style.css" />
+</head>
+<body>
+  <div class="layout">
+    <nav id="sidebar"></nav>
+    <div class="content-wrap">
+      <main class="content">
+        <div class="breadcrumb">10. Arquitetura &amp; Performance</div>
+        <h1 class="lesson-title">Performance no backend</h1>
+        <p class="lesson-subtitle">A última lição da trilha: como um sistema que funciona bem com 10 usuários pode desmoronar com 10 mil — e como perceber e evitar isso sem cair na armadilha oposta de otimizar o que nunca vai importar.</p>
+
+        <div class="box box-analogia">
+          <span class="box-titulo">Analogia</span>
+          Imagine perguntar, uma por uma, a idade de cada pessoa numa fila de cem pessoas, andando até o guichê de
+          atendimento e voltando a cada pergunta — cem viagens de ida e volta, quando você poderia ter perguntado uma
+          vez só "me deem a lista de idades de todo mundo aqui". Esse é o problema de <strong>N+1 queries</strong>:
+          fazer uma viagem ao banco de dados para cada item de uma lista, quando uma única viagem bem feita resolveria
+          tudo de uma vez. E cache é como um post-it colado no guichê com a resposta de uma pergunta frequente já
+          escrita: da próxima vez que alguém perguntar a mesma coisa, o atendente nem precisa ir buscar a informação
+          de novo — só lê o post-it. Rápido, mas só funciona enquanto a resposta escrita nele continuar sendo
+          verdadeira.
+        </div>
+
+        <h2>N+1 queries: o vilão silencioso mais comum</h2>
+        <p>
+          O problema de <strong>N+1 queries</strong> acontece quando o código busca uma lista de N itens (1 consulta)
+          e depois, para cada um desses N itens, faz uma consulta adicional ao banco de dados — resultando em N+1
+          consultas totais, quando o ideal seria 1 ou 2. É um dos bugs de performance mais comuns em sistemas que usam
+          ORMs (ferramentas que mapeiam objetos para tabelas), porque o ORM esconde a consulta SQL por trás de uma
+          chamada de método que parece inofensiva.
+        </p>
+        <pre><code>// Ruim: N+1 queries
+// 1 consulta para buscar os pedidos...
+const pedidos = await db.query("SELECT * FROM pedidos LIMIT 100");
+
+// ...e mais 1 consulta PARA CADA pedido, buscando o cliente dele (100 consultas extras!)
+for (const pedido of pedidos) {
+  pedido.cliente = await db.query(
+    "SELECT * FROM clientes WHERE id = ?", [pedido.cliente_id]
+  );
+}
+// Total: 101 consultas ao banco, para uma tela que só precisava de 1
+
+// Melhor: uma única consulta com JOIN, trazendo tudo de uma vez
+const pedidosComCliente = await db.query(`
+  SELECT pedidos.*, clientes.nome AS cliente_nome, clientes.email AS cliente_email
+  FROM pedidos
+  JOIN clientes ON clientes.id = pedidos.cliente_id
+  LIMIT 100
+`);
+// Total: 1 consulta ao banco
+
+// Alternativa comum em ORMs: "eager loading" — pedir explicitamente para trazer o relacionamento junto
+const pedidos2 = await Pedido.findAll({
+  include: [Cliente], // o ORM monta o JOIN por trás dos panos, numa única consulta
+  limit: 100
+});</code></pre>
+        <p>
+          O problema de N+1 fica pior conforme o volume cresce: com 10 pedidos na tela de testes, ninguém percebe a
+          diferença entre 1 consulta e 11. Com 10 mil pedidos em produção, a diferença entre 1 consulta e 10.001
+          consultas é a diferença entre uma tela que carrega em 50 milissegundos e uma que trava por vários segundos
+          — ou derruba o banco de dados sob carga.
+        </p>
+
+        <div class="box box-dica">
+          <span class="box-titulo">Dica</span>
+          A maioria dos ORMs modernos (Sequelize, Prisma, Eloquent, Hibernate) tem uma opção de "log de queries" que
+          mostra, no console, cada consulta SQL real que está sendo executada. Ativar esse log durante o
+          desenvolvimento é a forma mais rápida de perceber um N+1 antes que ele chegue à produção: se você vê a
+          mesma consulta se repetindo dezenas de vezes seguidas para uma única tela, é sinal de alerta.
+        </div>
+
+        <h2>Cache: o post-it com a resposta pronta</h2>
+        <p>
+          <strong>Cache</strong> é guardar o resultado de uma operação cara (uma consulta complexa ao banco, uma
+          chamada a uma API externa lenta, um cálculo pesado) para reaproveitar esse resultado da próxima vez que a
+          mesma pergunta for feita, em vez de refazer todo o trabalho do zero. É o post-it colado no guichê: escrever
+          a resposta uma vez custa caro, mas ler o post-it depois é praticamente grátis.
+        </p>
+        <pre><code>// Sem cache: toda requisição recalcula o ranking do zero, consultando o banco inteiro
+async function obterRankingProdutosMaisVendidos() {
+  return db.query(`
+    SELECT produto_id, COUNT(*) as total_vendas
+    FROM itens_pedido
+    GROUP BY produto_id
+    ORDER BY total_vendas DESC
+    LIMIT 10
+  `); // consulta pesada, sobre uma tabela gigante
+}
+
+// Com cache: guarda o resultado por um tempo, e só recalcula quando o post-it "vence"
+const cache = new Map();
+const TEMPO_DE_VIDA_MS = 5 * 60 * 1000; // 5 minutos
+
+async function obterRankingProdutosMaisVendidosComCache() {
+  const cacheado = cache.get("ranking_produtos");
+  const agora = Date.now();
+
+  if (cacheado &amp;&amp; (agora - cacheado.timestamp) &lt; TEMPO_DE_VIDA_MS) {
+    return cacheado.dados; // "lê o post-it", sem consultar o banco
+  }
+
+  const dados = await obterRankingProdutosMaisVendidos(); // refaz o trabalho pesado
+  cache.set("ranking_produtos", { dados, timestamp: agora }); // escreve um post-it novo
+  return dados;
+}</code></pre>
+        <p>
+          Na prática, sistemas em produção raramente guardam cache num objeto em memória local como no exemplo acima
+          — usam ferramentas dedicadas como <strong>Redis</strong> ou <strong>Memcached</strong>, que funcionam como
+          um "quadro de post-its" compartilhado entre várias instâncias do servidor, com controle preciso de tempo de
+          expiração.
+        </p>
+        <div class="box box-atencao">
+          <span class="box-titulo">Atenção — cache desatualizado ("stale")</span>
+          O maior risco de cache não é técnico, é conceitual: o post-it pode ficar "velho" — a resposta escrita nele
+          deixa de refletir a realidade atual (o produto mais vendido mudou, o preço foi atualizado), mas o sistema
+          continua entregando a resposta antiga porque ainda não "venceu" o tempo de expiração. Esse problema tem até
+          um nome dentro do time: invalidação de cache, considerada uma das coisas mais difíceis de acertar em
+          engenharia de software. Como regra prática: cache é seguro para dados que podem estar levemente
+          desatualizados por alguns minutos sem causar dano (um ranking, uma contagem de curtidas); é perigoso para
+          dados que precisam estar sempre corretos no instante exato (saldo de uma conta bancária, estoque disponível
+          no momento da compra).
+        </div>
+
+        <h2>Filas e jobs assíncronos: não fazer tudo na hora</h2>
+        <p>
+          Nem toda tarefa que uma requisição dispara precisa terminar antes de responder ao usuário. Enviar um
+          e-mail de boas-vindas, gerar uma nota fiscal em PDF, processar uma imagem enviada, recalcular um relatório
+          — tudo isso pode ser <strong>lento</strong> sem que o usuário precise esperar por isso na tela.
+          <strong>Filas</strong> (queues) e <strong>jobs assíncronos</strong> resolvem esse problema: em vez de fazer
+          o trabalho pesado dentro da própria requisição HTTP, o sistema só coloca uma "tarefa" numa fila e responde
+          imediatamente ao usuário; um processo separado (o "worker") vai, no seu próprio ritmo, pegando tarefas da
+          fila e executando-as.
+        </p>
+        <pre><code>// Ruim: o usuário espera o e-mail ser enviado antes de receber qualquer resposta
+async function cadastrarUsuario(dados) {
+  const usuario = await db.criar("usuarios", dados);
+  await emailService.enviar(usuario.email, "Bem-vindo!"); // pode levar segundos, e a pessoa fica esperando
+  return usuario;
+}
+
+// Melhor: a resposta não depende do envio do e-mail
+async function cadastrarUsuario(dados) {
+  const usuario = await db.criar("usuarios", dados);
+  filaDeEmails.adicionar({ tipo: "boas-vindas", email: usuario.email }); // só enfileira, retorna na hora
+  return usuario;
+}
+
+// Em outro processo, rodando continuamente e de forma independente:
+filaDeEmails.processarCadaTarefa(async (tarefa) => {
+  await emailService.enviar(tarefa.email, "Bem-vindo!");
+});</code></pre>
+        <p>
+          Esse padrão também torna o sistema mais resiliente: se o serviço de e-mail estiver fora do ar por alguns
+          minutos, a fila simplesmente acumula as tarefas e as processa assim que o serviço voltar, em vez de fazer o
+          cadastro do usuário falhar inteiro por causa de um problema num serviço secundário.
+        </p>
+
+        <h2>Quando otimizar prematuramente é ruim</h2>
+        <p>
+          Existe uma frase famosa na engenharia de software, atribuída a Donald Knuth: "otimização prematura é a raiz
+          de todo mal". A ideia não é "nunca otimize" — é que otimizar <em>antes de medir</em> costuma desperdiçar
+          tempo em partes do sistema que nunca seriam o gargalo real, ao custo de tornar o código mais complexo e
+          difícil de manter em troca de um ganho que talvez nem exista.
+        </p>
+        <ul>
+          <li><strong>Meça antes de otimizar.</strong> Ferramentas de profiling (no backend) e logs de tempo de resposta apontam exatamente onde o tempo está sendo gasto de verdade — muitas vezes é surpreendente, e diferente do que a intuição sugeria.</li>
+          <li><strong>Otimize o gargalo real, não o código "feio".</strong> Uma função pouco elegante que roda uma vez por dia não merece o mesmo cuidado que uma consulta que roda em toda requisição de todo usuário.</li>
+          <li><strong>Complexidade tem custo permanente.</strong> Um cache mal justificado, uma fila desnecessária para uma tarefa que já é rápida, um índice extra no banco que raramente é usado — tudo isso é código e infraestrutura a mais para manter, entender e debugar, mesmo que o ganho de performance seja irrelevante.</li>
+        </ul>
+
+        <div class="box box-dica">
+          <span class="box-titulo">Dica</span>
+          Uma pergunta prática antes de otimizar qualquer coisa: "eu tenho um número real (um log, uma métrica, um
+          teste de carga) que mostra que isso é lento o suficiente para importar?". Se a resposta for "não, mas
+          parece que pode ficar lento", vale documentar a preocupação e seguir em frente — otimizar de verdade quando
+          o número aparecer.
+        </div>
+
+        <h2>Resumo</h2>
+        <ul class="checklist">
+          <li>N+1 queries acontecem quando cada item de uma lista dispara uma consulta extra ao banco — resolva com JOIN ou eager loading.</li>
+          <li>Cache guarda a resposta de um trabalho caro para reaproveitar depois, mas corre o risco de ficar desatualizado ("stale").</li>
+          <li>Filas e jobs assíncronos tiram trabalho lento de dentro da requisição, deixando o usuário esperar só pelo essencial.</li>
+          <li>Cache é seguro para dados que toleram pequeno atraso; é arriscado para dados que precisam estar sempre exatos.</li>
+          <li>Otimize com base em medição real (profiling, métricas), não em suposição — otimização prematura custa complexidade sem garantir ganho.</li>
+        </ul>
+
+        <div id="lesson-footer-nav" class="lesson-footer-nav"></div>
+      </main>
+    </div>
+  </div>
+  <script src="../../nav.js"></script>
+</body>
+</html>

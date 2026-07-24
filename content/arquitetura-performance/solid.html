@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Princípios SOLID — Trilha Dev Full Stack</title>
+  <link rel="stylesheet" href="../../style.css" />
+</head>
+<body>
+  <div class="layout">
+    <nav id="sidebar"></nav>
+    <div class="content-wrap">
+      <main class="content">
+        <div class="breadcrumb">10. Arquitetura &amp; Performance</div>
+        <h1 class="lesson-title">Princípios SOLID</h1>
+        <p class="lesson-subtitle">Cinco ideias que, juntas, ajudam a manter um sistema fácil de mudar mesmo depois que ele cresce e ganha dezenas de arquivos e desenvolvedores.</p>
+
+        <div class="box box-analogia">
+          <span class="box-titulo">Analogia</span>
+          Pense numa casa bem projetada versus uma reforma feita "na marra". Numa casa bem projetada, o encanamento
+          fica dentro das paredes com pontos de acesso previstos, a fiação elétrica segue um padrão, e trocar uma
+          torneira não exige quebrar o chão da cozinha inteira. Numa reforma malfeita, tudo está entrelaçado: mexer
+          na tomada da sala derruba a energia do quarto, e trocar um cano obriga a arrancar o piso todo. SOLID é um
+          conjunto de boas práticas de "encanamento" para código: se cada parte tem uma responsabilidade clara e
+          pontos de conexão bem definidos, você consegue trocar uma peça sem que a casa inteira desabe.
+        </div>
+
+        <p>
+          SOLID é um acrônimo criado a partir de cinco princípios de design orientado a objetos, popularizados por
+          Robert C. Martin ("Uncle Bob"). Eles não são leis matemáticas — são heurísticas, atalhos de experiência
+          coletiva que ajudam a evitar armadilhas comuns de acoplamento e rigidez. Vamos ver os cinco, um a um, com
+          analogia e código.
+        </p>
+
+        <table>
+          <thead>
+            <tr><th>Letra</th><th>Princípio</th><th>Ideia central</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>S</td><td>Single Responsibility</td><td>Uma classe deve ter um único motivo para mudar</td></tr>
+            <tr><td>O</td><td>Open/Closed</td><td>Aberta para extensão, fechada para modificação</td></tr>
+            <tr><td>L</td><td>Liskov Substitution</td><td>Uma subclasse deve poder substituir sua classe-mãe sem quebrar nada</td></tr>
+            <tr><td>I</td><td>Interface Segregation</td><td>Muitas interfaces específicas são melhores que uma genérica e inchada</td></tr>
+            <tr><td>D</td><td>Dependency Inversion</td><td>Depender de abstrações, não de implementações concretas</td></tr>
+          </tbody>
+        </table>
+
+        <h2>S — Single Responsibility Principle (Princípio da Responsabilidade Única)</h2>
+        <p>
+          Uma classe (ou módulo) deve ter <strong>um único motivo para mudar</strong>. Se uma classe mistura regra de
+          negócio, acesso a banco de dados e formatação de e-mail, ela vai precisar ser alterada por três motivos
+          completamente diferentes — e cada alteração corre o risco de quebrar as outras responsabilidades sem
+          querer.
+        </p>
+        <pre><code>// Ruim: uma classe com três motivos para mudar
+class Funcionario {
+  calcularSalario() { /* regra de negócio */ }
+  salvarNoBanco() { /* acesso a dados */ }
+  gerarReciboPdf() { /* geração de relatório */ }
+}
+
+// Melhor: cada responsabilidade em sua própria classe
+class Funcionario {
+  calcularSalario() { /* só regra de negócio */ }
+}
+
+class FuncionarioRepository {
+  salvar(funcionario) { /* só acesso a dados */ }
+}
+
+class ReciboPdfGenerator {
+  gerar(funcionario) { /* só geração de PDF */ }
+}</code></pre>
+        <p>
+          Se amanhã trocar o banco de dados de MySQL para PostgreSQL, você mexe só em
+          <code>FuncionarioRepository</code>. Se mudar o layout do recibo, mexe só em
+          <code>ReciboPdfGenerator</code>. A classe <code>Funcionario</code> nem percebe essas mudanças.
+        </p>
+
+        <h2>O — Open/Closed Principle (Aberto/Fechado)</h2>
+        <p>
+          Uma entidade de código deve estar <strong>aberta para extensão, mas fechada para modificação</strong>. Na
+          prática: quando surge um caso novo, você deveria conseguir adicionar código novo em vez de ficar reabrindo
+          e editando uma função que já funciona (e já foi testada) para enfiar mais um <code>if</code> nela.
+        </p>
+        <pre><code>// Ruim: toda vez que surge uma forma de pagamento nova, essa função precisa ser editada
+function calcularTaxa(formaPagamento, valor) {
+  if (formaPagamento === "cartao") return valor * 0.03;
+  if (formaPagamento === "boleto") return valor * 0.01;
+  if (formaPagamento === "pix") return 0;
+  // daqui a um mês: "if (formaPagamento === 'cripto') ..."
+}
+
+// Melhor: cada forma de pagamento é uma implementação própria, plugável
+class TaxaCartao {
+  calcular(valor) { return valor * 0.03; }
+}
+class TaxaBoleto {
+  calcular(valor) { return valor * 0.01; }
+}
+class TaxaPix {
+  calcular(valor) { return 0; }
+}
+
+function calcularTaxa(estrategiaTaxa, valor) {
+  return estrategiaTaxa.calcular(valor);
+}
+
+// Para adicionar cripto, basta criar uma nova classe, sem tocar em calcularTaxa
+class TaxaCripto {
+  calcular(valor) { return valor * 0.015; }
+}</code></pre>
+        <p>
+          A função <code>calcularTaxa</code> nunca mais precisa ser reaberta: novas formas de pagamento chegam como
+          código novo, não como edições em código antigo que já funcionava.
+        </p>
+
+        <h2>L — Liskov Substitution Principle (Substituição de Liskov)</h2>
+        <p>
+          Se uma classe <code>B</code> herda de uma classe <code>A</code>, você deveria poder usar um objeto
+          <code>B</code> em qualquer lugar que espera um <code>A</code>, sem que o programa quebre ou se comporte de
+          forma inesperada. O exemplo clássico (e um pouco contraintuitivo) é o de retângulos e quadrados.
+        </p>
+        <pre><code>// Ruim: Quadrado "herda" de Retangulo, mas quebra a expectativa de quem usa Retangulo
+class Retangulo {
+  setLargura(l) { this.largura = l; }
+  setAltura(a) { this.altura = a; }
+  area() { return this.largura * this.altura; }
+}
+
+class Quadrado extends Retangulo {
+  setLargura(l) { this.largura = l; this.altura = l; } // efeito colateral inesperado!
+  setAltura(a) { this.altura = a; this.largura = a; }
+}
+
+function testarArea(retangulo) {
+  retangulo.setLargura(5);
+  retangulo.setAltura(10);
+  console.log(retangulo.area()); // espera 50, mas se for um Quadrado, dá 100
+}</code></pre>
+        <p>
+          Quem escreveu <code>testarArea</code> confiava que "setar largura" não mudaria a altura — uma suposição
+          razoável para qualquer <code>Retangulo</code>. Mas <code>Quadrado</code> quebra essa suposição, então ele
+          não é um substituto seguro. A correção geralmente não é "consertar" a herança, e sim perceber que
+          <code>Quadrado</code> não deveria herdar de <code>Retangulo</code> — os dois deveriam implementar uma
+          interface comum <code>Forma</code>, sem uma fingir ser a outra.
+        </p>
+
+        <h2>I — Interface Segregation Principle (Segregação de Interfaces)</h2>
+        <p>
+          É melhor ter várias interfaces pequenas e específicas do que uma única interface enorme que obriga quem a
+          implementa a lidar com métodos que nunca vai usar.
+        </p>
+        <pre><code>// Ruim: uma interface "genérica demais" para todo tipo de trabalhador
+interface Trabalhador {
+  trabalhar();
+  almocar();
+  receberSalario();
+}
+
+// Um robô que "trabalha" é forçado a implementar "almocar", que não faz sentido pra ele
+class RoboMontador implements Trabalhador {
+  trabalhar() { /* ok */ }
+  almocar() { throw new Error("Robôs não almoçam"); } // gambiarra forçada pela interface
+  receberSalario() { throw new Error("Robôs não recebem salário"); }
+}
+
+// Melhor: interfaces menores e específicas
+interface PodeTrabalhar { trabalhar(); }
+interface PodeAlmocar { almocar(); }
+interface RecebeSalario { receberSalario(); }
+
+class RoboMontador implements PodeTrabalhar {
+  trabalhar() { /* só o que faz sentido para um robô */ }
+}
+
+class FuncionarioHumano implements PodeTrabalhar, PodeAlmocar, RecebeSalario {
+  trabalhar() { /* ... */ }
+  almocar() { /* ... */ }
+  receberSalario() { /* ... */ }
+}</code></pre>
+        <p>
+          Cada classe implementa só as interfaces que fazem sentido pra ela, sem métodos vazios ou que lançam erro só
+          para "cumprir tabela".
+        </p>
+
+        <h2>D — Dependency Inversion Principle (Inversão de Dependência)</h2>
+        <p>
+          Módulos de alto nível (regras de negócio) não deveriam depender diretamente de módulos de baixo nível
+          (detalhes técnicos, como qual banco de dados ou qual serviço de e-mail está sendo usado). Ambos deveriam
+          depender de uma <strong>abstração</strong> (uma interface) — assim, trocar o detalhe técnico não exige tocar
+          na regra de negócio.
+        </p>
+        <pre><code>// Ruim: a regra de negócio depende diretamente de um serviço concreto
+class NotificadorPedido {
+  constructor() {
+    this.emailService = new EmailGmailService(); // acoplado a uma implementação específica
+  }
+  notificar(pedido) {
+    this.emailService.enviar(pedido.clienteEmail, "Seu pedido foi confirmado!");
+  }
+}
+
+// Melhor: a regra de negócio depende de uma abstração (interface), não de um serviço específico
+class NotificadorPedido {
+  constructor(servicoDeNotificacao) { // qualquer coisa que "sabe notificar"
+    this.servicoDeNotificacao = servicoDeNotificacao;
+  }
+  notificar(pedido) {
+    this.servicoDeNotificacao.enviar(pedido.clienteEmail, "Seu pedido foi confirmado!");
+  }
+}
+
+// Hoje pode ser e-mail, amanhã pode ser SMS ou WhatsApp, sem mudar NotificadorPedido
+const notificador = new NotificadorPedido(new EmailGmailService());
+// ou
+const notificadorSms = new NotificadorPedido(new SmsTwilioService());</code></pre>
+        <p>
+          Essa técnica de "passar a dependência de fora" se chama <strong>injeção de dependência</strong>, e é a
+          forma prática mais comum de aplicar esse princípio no dia a dia.
+        </p>
+
+        <div class="box box-dica">
+          <span class="box-titulo">Dica</span>
+          Uma boa forma de perceber violações de SOLID sem decorar as cinco letras: pergunte "se eu precisar trocar
+          <em>só</em> essa peça (o banco, o serviço de e-mail, a regra de desconto), quantos arquivos eu preciso
+          abrir?". Se a resposta for "vários, e nem todos óbvios", provavelmente há um princípio sendo violado ali.
+        </div>
+
+        <div class="box box-atencao">
+          <span class="box-titulo">Atenção — over-engineering</span>
+          SOLID é uma ferramenta para gerenciar a complexidade de sistemas que crescem, não um checklist obrigatório
+          para todo pedaço de código. Criar uma interface, uma injeção de dependência e três camadas de abstração
+          para uma função que soma dois números e nunca vai mudar é <em>over-engineering</em>: você paga o custo de
+          complexidade extra sem nunca colher o benefício de flexibilidade. Aplique SOLID onde existe variação real
+          esperada (várias formas de pagamento, vários bancos de dados possíveis, regras de negócio que mudam com
+          frequência) — não em cada classe do projeto por precaução.
+        </div>
+
+        <h2>Resumo</h2>
+        <ul class="checklist">
+          <li>S — cada classe deve ter um único motivo para mudar.</li>
+          <li>O — extensível com código novo, sem precisar reabrir e editar código que já funciona.</li>
+          <li>L — uma subclasse deve poder substituir a classe-mãe sem surpresas de comportamento.</li>
+          <li>I — prefira várias interfaces pequenas e específicas a uma única interface genérica e inchada.</li>
+          <li>D — regras de negócio devem depender de abstrações, não de implementações técnicas concretas.</li>
+          <li>SOLID resolve dor de sistemas que crescem e mudam; aplicado sem necessidade, vira over-engineering.</li>
+        </ul>
+
+        <div id="lesson-footer-nav" class="lesson-footer-nav"></div>
+      </main>
+    </div>
+  </div>
+  <script src="../../nav.js"></script>
+</body>
+</html>

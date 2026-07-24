@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Clean Code — Trilha Dev Full Stack</title>
+  <link rel="stylesheet" href="../../style.css" />
+</head>
+<body>
+  <div class="layout">
+    <nav id="sidebar"></nav>
+    <div class="content-wrap">
+      <main class="content">
+        <div class="breadcrumb">10. Arquitetura &amp; Performance</div>
+        <h1 class="lesson-title">Clean Code</h1>
+        <p class="lesson-subtitle">Código funciona quando o computador entende. Código limpo funciona quando o próximo humano também entende — e esse humano, quase sempre, é você mesmo daqui a seis meses.</p>
+
+        <div class="box box-analogia">
+          <span class="box-titulo">Analogia</span>
+          Imagine duas cozinhas de restaurante. Na primeira, cada tempero está num pote rotulado, os utensílios ficam
+          sempre no mesmo gancho, e qualquer cozinheiro novo consegue montar um prato em cinco minutos só olhando a
+          organização. Na segunda, tudo funciona — a comida sai gostosa — mas só o chef original sabe onde está cada
+          coisa, por que o sal fica ao lado do açúcar e o que significa aquele post-it colado no forno. As duas
+          cozinhas produzem o mesmo prato hoje. Só uma delas continua funcionando quando o chef tira férias, contrata
+          alguém novo, ou quando o cardápio precisa mudar às pressas. Clean code é a primeira cozinha: código que
+          continua sendo modificável mesmo depois que a pressa e a memória de curto prazo de quem escreveu já se
+          foram.
+        </div>
+
+        <p>
+          "Clean Code" não é um conjunto de regras rígidas — é um objetivo: escrever código que comunica sua intenção
+          sem exigir que o leitor rode o programa mentalmente para entender o que ele faz. Todo código será lido
+          muito mais vezes do que será escrito: você escreve uma função uma vez, mas ela vai ser lida em cada revisão
+          de código, em cada debug, em cada nova funcionalidade que passar perto dela. Investir um pouco mais de
+          cuidado agora economiza muito mais tempo depois.
+        </p>
+
+        <h2>Nomes bons contam a história sozinhos</h2>
+        <p>
+          O nome de uma variável, função ou classe é a primeira (e às vezes única) documentação que alguém vai ler.
+          Um nome ruim obriga o leitor a abrir a implementação para entender o que a coisa faz; um nome bom elimina
+          essa necessidade na maior parte do tempo.
+        </p>
+        <pre><code>// Ruim: o que é "d"? dias? distância? desconto?
+function calc(d, p) {
+  return p - (p * d / 100);
+}
+
+// Bom: o nome já responde "o que isso calcula"
+function calcularPrecoComDesconto(percentualDesconto, precoOriginal) {
+  return precoOriginal - (precoOriginal * percentualDesconto / 100);
+}</code></pre>
+        <p>
+          Repare que o segundo exemplo é mais longo — e está certo que esteja. Nomes curtos só valem a pena quando o
+          escopo é minúsculo (um índice <code>i</code> num laço de três linhas, por exemplo). Fora isso, prefira um
+          nome específico e um pouco mais longo a um nome genérico e curto. Boas perguntas para testar um nome:
+        </p>
+        <ul>
+          <li><strong>Funções:</strong> o nome deveria ser um verbo que descreve exatamente a ação (<code>enviarEmail</code>, <code>validarCpf</code>, <code>buscarUsuarioPorId</code>).</li>
+          <li><strong>Variáveis e booleanos:</strong> nomes que soam como perguntas de sim/não ajudam muito (<code>estaAtivo</code>, <code>temPermissao</code>, <code>podeEditar</code>).</li>
+          <li><strong>Evite abreviações obscuras.</strong> <code>qtdItensCarr</code> economiza cinco caracteres e custa cinco segundos de confusão a cada leitura.</li>
+        </ul>
+
+        <h2>Funções pequenas, com uma única responsabilidade</h2>
+        <p>
+          Uma função deveria fazer <em>uma coisa</em>, fazer bem, e ter um nome que descreva exatamente essa coisa.
+          Quando uma função mistura várias responsabilidades — validar, calcular, salvar no banco e enviar e-mail,
+          tudo junto — ela fica difícil de testar, difícil de reaproveitar e difícil de entender de relance.
+        </p>
+        <pre><code>// Ruim: uma função fazendo cinco coisas diferentes
+function finalizarPedido(pedido) {
+  if (!pedido.itens || pedido.itens.length === 0) {
+    throw new Error("Pedido vazio");
+  }
+  let total = 0;
+  for (const item of pedido.itens) {
+    total += item.preco * item.quantidade;
+  }
+  if (pedido.cupom) {
+    total = total * 0.9;
+  }
+  db.salvar("pedidos", { ...pedido, total });
+  emailService.enviar(pedido.clienteEmail, "Pedido confirmado!");
+  return total;
+}
+
+// Melhor: cada função tem uma única responsabilidade
+function validarPedido(pedido) {
+  if (!pedido.itens || pedido.itens.length === 0) {
+    throw new Error("Pedido vazio");
+  }
+}
+
+function calcularTotal(pedido) {
+  const subtotal = pedido.itens.reduce((soma, item) => soma + item.preco * item.quantidade, 0);
+  return pedido.cupom ? subtotal * 0.9 : subtotal;
+}
+
+function finalizarPedido(pedido) {
+  validarPedido(pedido);
+  const total = calcularTotal(pedido);
+  db.salvar("pedidos", { ...pedido, total });
+  emailService.enviar(pedido.clienteEmail, "Pedido confirmado!");
+  return total;
+}</code></pre>
+        <p>
+          A versão dividida é mais fácil de testar isoladamente (você pode testar <code>calcularTotal</code> sem
+          precisar de um banco de dados de verdade), mais fácil de reaproveitar (talvez outro fluxo também precise
+          calcular o total sem finalizar o pedido) e a função <code>finalizarPedido</code> virou quase uma frase em
+          português: valida, calcula, salva, envia e-mail.
+        </p>
+        <p>
+          Uma regra prática (não uma lei absoluta): se você precisa usar a palavra "e" para descrever o que uma
+          função faz ("valida e calcula e salva"), ela provavelmente deveria ser dividida.
+        </p>
+
+        <div class="box box-dica">
+          <span class="box-titulo">Dica</span>
+          Um sinal prático de que uma função está fazendo coisa demais: o tamanho da indentação. Muitos níveis de
+          <code>if</code>, <code>for</code> aninhados dentro de <code>if</code> costumam indicar que ali dentro cabem
+          duas ou três funções menores, cada uma com seu próprio nome.
+        </div>
+
+        <h2>Comentários: o último recurso, não o primeiro</h2>
+        <p>
+          Existe uma armadilha comum: achar que código bem comentado é sinônimo de código limpo. Na prática, o
+          comentário mais perigoso é aquele que descreve o <em>que</em> o código faz — porque o código já diz isso,
+          e o comentário só corre o risco de ficar desatualizado quando o código mudar e ninguém lembrar de atualizar
+          o texto ao lado.
+        </p>
+        <pre><code>// Ruim: o comentário só repete o código, e ainda pode "mentir" no futuro
+// incrementa o contador em 1
+contador = contador + 1;
+
+// Ruim: o comentário existe porque o código não é claro
+// verifica se usuário pode comprar (tem mais de 18 e não está bloqueado)
+if (u.idade >= 18 &amp;&amp; !u.bloq) { ... }
+
+// Bom: o próprio código já é a explicação
+const podeComprar = usuario.idade >= 18 &amp;&amp; !usuario.estaBloqueado;
+if (podeComprar) { ... }</code></pre>
+        <p>
+          Isso não significa "nunca comente nada". Comentários continuam valiosos para explicar o <em>por quê</em> de
+          uma decisão que não é óbvia pelo código — uma regra de negócio estranha exigida por um cliente, uma
+          limitação de uma API externa, um workaround temporário para um bug de terceiros. O teste é simples: se o
+          comentário pode ser substituído por um nome melhor de variável ou função, ele deveria ser. Se ele explica um
+          "porquê" que não existe em lugar nenhum do código, ele deveria ficar.
+        </p>
+
+        <h2>DRY na prática (sem virar obsessão)</h2>
+        <p>
+          <strong>DRY</strong> significa "Don't Repeat Yourself" — não repita a si mesmo. A ideia central é que cada
+          pedaço de conhecimento sobre o sistema (uma regra de negócio, uma fórmula, uma validação) deveria existir em
+          um único lugar no código. Quando a mesma lógica está copiada e colada em três arquivos diferentes, um dia
+          alguém vai corrigir um bug em um dos três e esquecer os outros dois — e agora o sistema tem um
+          comportamento inconsistente e difícil de rastrear.
+        </p>
+        <pre><code>// Ruim: a regra "desconto de 10% com cupom" está duplicada
+function totalCarrinho(itens, temCupom) {
+  let total = itens.reduce((s, i) => s + i.preco, 0);
+  if (temCupom) total = total * 0.9;
+  return total;
+}
+
+function totalAssinatura(valorMensal, temCupom) {
+  let total = valorMensal;
+  if (temCupom) total = total * 0.9; // mesma regra, copiada aqui de novo
+  return total;
+}
+
+// Melhor: a regra existe em um único lugar
+function aplicarDesconto(valor, temCupom) {
+  return temCupom ? valor * 0.9 : valor;
+}
+
+function totalCarrinho(itens, temCupom) {
+  const total = itens.reduce((s, i) => s + i.preco, 0);
+  return aplicarDesconto(total, temCupom);
+}
+
+function totalAssinatura(valorMensal, temCupom) {
+  return aplicarDesconto(valorMensal, temCupom);
+}</code></pre>
+
+        <div class="box box-atencao">
+          <span class="box-titulo">Atenção</span>
+          DRY é sobre <em>conhecimento</em> repetido, não sobre <em>texto</em> parecido. Duas funções que parecem
+          similares hoje mas representam regras de negócio diferentes (o desconto de cliente novo e o desconto de
+          Black Friday, por exemplo) não deveriam ser fundidas numa função só só porque o código é parecido — se
+          amanhã uma regra mudar e a outra não, você vai precisar desfazer a fusão às pressas. Extrair uma abstração
+          compartilhada cedo demais, para coisas que só coincidem por acaso, costuma criar mais confusão do que
+          resolver. Prefira duplicar uma vez e observar se a duplicação realmente representa a mesma regra antes de
+          unificar.
+        </div>
+
+        <h2>Juntando tudo: um exemplo antes e depois</h2>
+        <pre><code>// Antes
+function proc(u) {
+  if (u.a >= 18) {
+    if (u.doc &amp;&amp; u.doc.length === 11) {
+      let x = 0;
+      for (let i = 0; i &lt; u.compras.length; i++) {
+        x += u.compras[i].v;
+      }
+      return x > 1000 ? x * 0.95 : x;
+    }
+  }
+  return 0;
+}
+
+// Depois
+function ehMaiorDeIdade(usuario) {
+  return usuario.idade >= 18;
+}
+
+function temCpfValido(usuario) {
+  return Boolean(usuario.cpf) &amp;&amp; usuario.cpf.length === 11;
+}
+
+function calcularTotalCompras(usuario) {
+  return usuario.compras.reduce((total, compra) => total + compra.valor, 0);
+}
+
+function aplicarDescontoPorVolume(total) {
+  const LIMITE_PARA_DESCONTO = 1000;
+  const PERCENTUAL_DESCONTO = 0.95;
+  return total > LIMITE_PARA_DESCONTO ? total * PERCENTUAL_DESCONTO : total;
+}
+
+function calcularTotalElegivel(usuario) {
+  if (!ehMaiorDeIdade(usuario) || !temCpfValido(usuario)) {
+    return 0;
+  }
+  const total = calcularTotalCompras(usuario);
+  return aplicarDescontoPorVolume(total);
+}</code></pre>
+        <p>
+          A segunda versão tem mais linhas — mas cada função é lida em segundos, tem um nome que já explica o que ela
+          faz, e pode ser testada isoladamente. Esse é o núcleo de clean code: trocar "linhas de código mais curtas"
+          por "tempo de leitura mais curto".
+        </p>
+
+        <h2>Resumo</h2>
+        <ul class="checklist">
+          <li>Nomes bons eliminam a necessidade de ler a implementação para entender a intenção.</li>
+          <li>Funções pequenas com uma única responsabilidade são mais fáceis de testar, ler e reaproveitar.</li>
+          <li>Comentários devem explicar o "porquê", não o "o quê" — o código já deveria dizer o "o quê" sozinho.</li>
+          <li>DRY é sobre não duplicar conhecimento (regras de negócio), não sobre evitar qualquer texto parecido.</li>
+          <li>Unificar código parecido cedo demais, sem confirmar que é a mesma regra, cria acoplamento indevido.</li>
+        </ul>
+
+        <div id="lesson-footer-nav" class="lesson-footer-nav"></div>
+      </main>
+    </div>
+  </div>
+  <script src="../../nav.js"></script>
+</body>
+</html>

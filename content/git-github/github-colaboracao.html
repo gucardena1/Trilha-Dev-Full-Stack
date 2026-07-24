@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GitHub: pull requests e code review — Trilha Dev Full Stack</title>
+  <link rel="stylesheet" href="../../style.css" />
+</head>
+<body>
+  <div class="layout">
+    <nav id="sidebar"></nav>
+    <div class="content-wrap">
+      <main class="content">
+        <div class="breadcrumb">4. Git & GitHub</div>
+        <h1 class="lesson-title">GitHub: pull requests e code review</h1>
+        <p class="lesson-subtitle">Como equipes de verdade usam o GitHub para revisar código antes de juntá-lo ao projeto.</p>
+
+        <div class="box box-analogia">
+          <span class="box-titulo">Analogia</span>
+          Pense num artigo enviado para uma revista científica. O autor não simplesmente publica o texto direto —
+          ele envia para revisores, que leem com calma, apontam problemas, sugerem melhorias e só aprovam a
+          publicação depois que tudo estiver adequado. Um <strong>pull request</strong> no GitHub é exatamente esse
+          processo aplicado a código: antes de uma mudança entrar na versão principal do projeto, ela passa por uma
+          revisão formal de outras pessoas da equipe.
+        </div>
+
+        <p>
+          Nas lições anteriores você aprendeu Git puro: repositórios, commits, branches, merges. Tudo isso funciona
+          perfeitamente sozinho, no seu computador. O GitHub entra em cena quando várias pessoas precisam
+          colaborar de forma organizada — e é aí que aparecem conceitos que não existem no Git em si, mas sim como
+          recursos que o GitHub adiciona por cima dele.
+        </p>
+
+        <h2>Git x GitHub: reforçando a diferença</h2>
+        <p>
+          Vale reforçar, porque é uma confusão muito comum: <strong>Git</strong> é o programa que roda no seu
+          computador e controla versões de arquivos — ele existiria e funcionaria perfeitamente mesmo sem internet.
+          <strong>GitHub</strong> é um site (de propriedade da Microsoft) que hospeda repositórios Git na nuvem e
+          adiciona uma camada de colaboração em cima deles: interface visual, pull requests, issues, revisão de
+          código, automações, e muito mais. Existem alternativas ao GitHub — GitLab e Bitbucket, por exemplo — que
+          também hospedam repositórios Git e oferecem recursos parecidos, mas com nomes um pouco diferentes.
+        </p>
+
+        <h2>Fork vs. branch: dois jeitos de "ter sua própria cópia"</h2>
+        <p>
+          Quando você quer contribuir com um projeto, existem dois cenários diferentes, com soluções diferentes:
+        </p>
+        <ul>
+          <li>
+            <strong>Branch:</strong> usada quando você <em>já tem permissão</em> de escrita no repositório (por
+            exemplo, é funcionário da empresa dona do projeto). Você cria uma branch nova dentro do mesmo
+            repositório, trabalha nela e depois abre um pull request para juntá-la à <code>main</code>.
+          </li>
+          <li>
+            <strong>Fork:</strong> usado quando você <em>não tem</em> permissão de escrita — por exemplo, ao
+            contribuir com um projeto de código aberto de terceiros. Um fork cria uma cópia completa e independente
+            do repositório na sua própria conta do GitHub. Você faz as mudanças no seu fork e, quando estiver
+            pronto, abre um pull request pedindo para que o dono do projeto original traga suas mudanças de volta.
+          </li>
+        </ul>
+        <p>
+          Em resumo: branch é para trabalhar <em>dentro</em> de um repositório que você já tem acesso; fork é para
+          criar sua própria cópia de um repositório que você não controla, para depois propor as mudanças de volta.
+        </p>
+
+        <h2>Criando um pull request</h2>
+        <p>
+          Depois de criar uma branch, fazer commits nela e enviá-la para o GitHub com <code>git push</code>, o
+          próprio GitHub costuma exibir um botão sugerindo "Compare & pull request". O processo, de forma resumida:
+        </p>
+        <pre><code>git checkout -b corrige-calculo-frete
+# ... edita os arquivos, testa ...
+git add .
+git commit -m "Corrige arredondamento no cálculo de frete"
+git push origin corrige-calculo-frete</code></pre>
+        <p>
+          A partir daí, no site do GitHub, você abre um <strong>pull request</strong> (também chamado de PR)
+          escolhendo qual branch quer juntar (a sua) e em qual branch ela deve entrar (geralmente a
+          <code>main</code>). Um bom PR inclui:
+        </p>
+        <ul>
+          <li>Um <strong>título claro</strong>, resumindo o que foi feito.</li>
+          <li>Uma <strong>descrição</strong> explicando o "porquê" da mudança, não só o "o quê" — o código já mostra
+            o que mudou, a descrição deveria explicar o motivo e qualquer contexto necessário para entender.</li>
+          <li>Referência a alguma <strong>issue</strong> relacionada, se existir (ex: "Resolve #42").</li>
+          <li>Se fizer sentido, prints de tela, vídeos curtos ou instruções de como testar a mudança.</li>
+        </ul>
+
+        <div class="box box-dica">
+          <span class="box-titulo">Dica</span>
+          Pull requests pequenos e focados numa única mudança são muito mais fáceis de revisar do que um PR gigante
+          misturando dez coisas diferentes. Um revisor cansado, olhando 2000 linhas alteradas de uma vez, tende a
+          aprovar rápido demais só para "se livrar" da revisão — o que anula o próprio propósito do processo.
+        </div>
+
+        <h2>O que revisar num code review</h2>
+        <p>
+          Revisar código de outra pessoa (ou pedir para revisarem o seu) é uma das atividades mais importantes do
+          trabalho em equipe, e vai muito além de só procurar erros de sintaxe. Alguns pontos que um bom revisor
+          costuma observar:
+        </p>
+        <ul>
+          <li><strong>Corretude:</strong> o código realmente faz o que a descrição do PR diz que faz? Existem casos
+            extremos (entradas vazias, números negativos, listas vazias) que não foram considerados?</li>
+          <li><strong>Legibilidade:</strong> outra pessoa, sem contexto nenhum, conseguiria entender esse código só
+            de lê-lo? Nomes de variáveis e funções fazem sentido?</li>
+          <li><strong>Consistência:</strong> o código segue os padrões e convenções já usados no resto do projeto?</li>
+          <li><strong>Testes:</strong> existem testes cobrindo a nova funcionalidade ou a correção do bug? (Assunto
+            de uma trilha própria sobre testes.)</li>
+          <li><strong>Escopo:</strong> o PR faz só o que se propõe a fazer, sem misturar mudanças não relacionadas?</li>
+          <li><strong>Segurança e desempenho:</strong> a mudança introduz algum risco óbvio, como dados sensíveis
+            expostos ou uma operação lenta demais rodando repetidamente?</li>
+        </ul>
+        <p>
+          Um bom feedback de code review é específico e educado — em vez de "isso está errado", algo como "acho que
+          esse laço pode falhar se a lista vier vazia, já testou esse caso?" abre uma conversa em vez de soar como
+          uma crítica pessoal.
+        </p>
+
+        <h2>Issues: organizando o que precisa ser feito</h2>
+        <p>
+          Uma <strong>issue</strong> (item, em inglês) é um registro no GitHub descrevendo um problema a resolver ou
+          uma funcionalidade a construir — como um cartão num quadro de tarefas. Issues podem ter descrição
+          detalhada, responsáveis atribuídos, etiquetas (como "bug", "melhoria", "urgente") e comentários de
+          discussão. Um pull request pode referenciar uma issue diretamente na descrição, usando palavras como
+          <code>Closes #42</code> ou <code>Resolve #42</code> — quando esse PR for juntado à <code>main</code>, o
+          GitHub fecha automaticamente a issue correspondente.
+        </p>
+
+        <div class="box box-atencao">
+          <span class="box-titulo">Atenção</span>
+          Um erro comum de quem está começando é abrir um pull request enorme, sem descrição nenhuma, direto contra
+          a <code>main</code> de um projeto importante. Antes de abrir um PR, sempre confira: a branch está
+          atualizada com a <code>main</code> (rode um <code>git pull</code> nela antes)? O escopo está pequeno e
+          focado? A descrição explica o "porquê"? Isso poupa tempo seu e de quem vai revisar.
+        </div>
+
+        <h2>Resumo</h2>
+        <ul class="checklist">
+          <li>Git controla versões no seu computador; GitHub hospeda repositórios na nuvem e adiciona colaboração.</li>
+          <li>Branch é para quem já tem acesso ao repositório; fork cria uma cópia própria para quem não tem.</li>
+          <li>Um pull request (PR) propõe formalmente juntar uma branch a outra, geralmente com revisão antes.</li>
+          <li>Um bom code review olha corretude, legibilidade, consistência, testes, escopo e segurança.</li>
+          <li>Issues organizam tarefas e bugs, e podem ser fechadas automaticamente por um PR relacionado.</li>
+        </ul>
+
+        <div id="lesson-footer-nav" class="lesson-footer-nav"></div>
+      </main>
+    </div>
+  </div>
+  <script src="../../nav.js"></script>
+</body>
+</html>

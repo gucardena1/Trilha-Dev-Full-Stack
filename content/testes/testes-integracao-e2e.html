@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Integração e end-to-end — Trilha Dev Full Stack</title>
+  <link rel="stylesheet" href="../../style.css" />
+</head>
+<body>
+  <div class="layout">
+    <nav id="sidebar"></nav>
+    <div class="content-wrap">
+      <main class="content">
+        <div class="breadcrumb">9. Testes</div>
+        <h1 class="lesson-title">Integração e end-to-end</h1>
+        <p class="lesson-subtitle">Subindo a pirâmide: testando peças juntas, e depois o sistema inteiro como o usuário o vê.</p>
+
+        <div class="box box-analogia">
+          <span class="box-titulo">Analogia</span>
+          Voltando à fábrica de carros: testar cada peça isolada (o teste unitário) não garante que, quando o motor
+          for encaixado no chassi e ligado ao câmbio, tudo funcione junto sem vazar óleo ou travar. Um teste de
+          <strong>integração</strong> é ligar o motor já montado no chassi, com o câmbio de verdade, e ver se a
+          combinação funciona. Um teste <strong>end-to-end</strong> é colocar o carro montado inteiro na pista,
+          com um motorista de verdade, e dirigir do ponto A ao ponto B exatamente como um cliente faria — freando,
+          acelerando, ligando o rádio, tudo junto, na ordem real.
+        </div>
+
+        <h2>Relembrando as três camadas</h2>
+        <p>
+          Na primeira lição desta trilha vimos a pirâmide de testes. Agora vamos aprofundar a diferença entre suas
+          três camadas com exemplos concretos, porque a confusão entre elas é uma das mais comuns entre quem está
+          começando a testar.
+        </p>
+
+        <h3>Teste unitário: uma função, sozinha</h3>
+        <p>
+          Exemplo: uma função <code>validarCPF(cpf)</code> que recebe uma string e retorna verdadeiro ou falso.
+          O teste unitário chama essa função diretamente, com vários CPFs de exemplo (válidos e inválidos), e
+          confere os retornos — sem abrir banco de dados, sem rede, sem nada além da função em si.
+        </p>
+
+        <h3>Teste de integração: várias peças, juntas de verdade</h3>
+        <p>
+          Exemplo: uma função <code>cadastrarUsuario(dados)</code> que valida o CPF, e depois <em>salva</em> o
+          usuário num banco de dados de verdade (geralmente um banco de testes, separado do de produção, mas real
+          — não um mock). O teste de integração chama essa função e depois consulta o próprio banco para conferir
+          se o registro foi realmente gravado, com os dados certos. Ele está testando se a peça "validação" e a
+          peça "banco de dados" funcionam corretamente <em>juntas</em> — algo que um teste unitário, isolando tudo
+          com mocks, nunca chegaria a verificar.
+        </p>
+        <pre><code>// Exemplo em Vitest, testando a integração real com um banco de dados de teste
+import { describe, it, expect, beforeEach } from 'vitest';
+import { cadastrarUsuario } from './usuarios.js';
+import { conectarBancoDeTeste, buscarUsuarioPorEmail } from './db-teste.js';
+
+describe('cadastrarUsuario (integração com o banco)', () => {
+  beforeEach(async () => {
+    await conectarBancoDeTeste(); // banco real de testes, limpo a cada execução
+  });
+
+  it('grava o usuário no banco com os dados corretos', async () => {
+    // Act: chama a função real, que por sua vez fala com o banco de verdade
+    await cadastrarUsuario({ nome: 'Ana', email: 'ana@exemplo.com', cpf: '111.444.777-35' });
+
+    // Assert: confere diretamente no banco se o registro existe
+    const usuarioSalvo = await buscarUsuarioPorEmail('ana@exemplo.com');
+    expect(usuarioSalvo.nome).toBe('Ana');
+  });
+});</code></pre>
+        <p>
+          Note que esse teste é necessariamente mais lento que um unitário — ele precisa de uma conexão real com
+          um banco de dados, mesmo que seja um banco de testes rodando localmente. Por isso, times costumam ter bem
+          menos testes de integração do que unitários, reservando-os para os pontos em que peças diferentes se
+          encontram (código e banco, código e API externa, código e sistema de arquivos).
+        </p>
+
+        <h3>Teste end-to-end: o sistema inteiro, do ponto de vista do usuário</h3>
+        <p>
+          Exemplo: um teste que abre um navegador de verdade, acessa a tela de cadastro do site, digita nome,
+          e-mail e CPF nos campos, clica no botão "Cadastrar", espera a página recarregar e confere se a mensagem
+          "Cadastro realizado com sucesso" aparece na tela. Esse teste passa pelo front-end, pelo back-end e pelo
+          banco de dados — a mesma jornada completa que uma pessoa real percorreria, sem pular nenhuma etapa.
+        </p>
+        <p>
+          As ferramentas mais usadas hoje para esse tipo de teste são o <strong>Cypress</strong> e o
+          <strong>Playwright</strong>, ambas capazes de controlar um navegador de verdade (Chrome, Firefox) de
+          forma automatizada, clicando, digitando e conferindo o que aparece na tela, exatamente como uma pessoa
+          faria manualmente.
+        </p>
+        <pre><code>// Exemplo simplificado em Playwright
+import { test, expect } from '@playwright/test';
+
+test('usuário consegue se cadastrar com sucesso', async ({ page }) => {
+  await page.goto('https://meusite.exemplo.com/cadastro');
+
+  await page.fill('#nome', 'Ana Souza');
+  await page.fill('#email', 'ana@exemplo.com');
+  await page.fill('#cpf', '111.444.777-35');
+  await page.click('button:has-text("Cadastrar")');
+
+  await expect(page.locator('.mensagem-sucesso')).toHaveText('Cadastro realizado com sucesso');
+});</code></pre>
+
+        <h2>Comparando as três lado a lado</h2>
+        <ul>
+          <li>
+            <strong>O que é testado:</strong> unitário testa uma função isolada; integração testa peças reais
+            trabalhando juntas (código + banco, código + API); end-to-end testa o sistema inteiro, do clique do
+            usuário até a resposta final na tela.
+          </li>
+          <li>
+            <strong>Velocidade:</strong> unitário roda em milissegundos; integração leva de dezenas de
+            milissegundos a poucos segundos; end-to-end pode levar vários segundos por teste, já que precisa
+            carregar páginas reais num navegador real.
+          </li>
+          <li>
+            <strong>Fragilidade:</strong> unitário quase nunca falha por motivos externos; integração pode falhar
+            se o banco de teste estiver mal configurado; end-to-end é o mais frágil — pode falhar por uma tela que
+            demorou um pouco mais para carregar, sem que exista nenhum bug real.
+          </li>
+          <li>
+            <strong>Quantidade recomendada:</strong> muitos unitários, uma quantidade moderada de integração, e
+            poucos end-to-end — cobrindo só os fluxos mais críticos do sistema (login, checkout de uma compra,
+            cadastro).
+          </li>
+        </ul>
+
+        <div class="box box-dica">
+          <span class="box-titulo">Dica</span>
+          Uma boa pergunta para decidir em qual camada colocar um teste novo é: "o que exatamente eu quero
+          proteger?". Se é a lógica de uma função específica, teste unitário. Se é a comunicação entre duas peças
+          do sistema (por exemplo, "meu código grava certo no banco?"), teste de integração. Se é "o usuário
+          consegue completar essa tarefa importante do início ao fim?", teste end-to-end.
+        </div>
+
+        <div class="box box-atencao">
+          <span class="box-titulo">Atenção</span>
+          Um erro comum é tentar testar tudo com end-to-end "porque é mais parecido com a realidade". Isso cria uma
+          suíte de testes lentíssima — dez minutos ou mais para rodar tudo — que times acabam rodando só uma vez
+          por dia, perdendo o benefício de detectar erros rapidamente. Pior: testes end-to-end tendem a falhar por
+          motivos que nada têm a ver com bugs reais (uma animação que demorou, um elemento que carregou fora de
+          ordem), o que corrói a confiança do time na suíte inteira. Cobertura de 100% também não é garantia de
+          qualidade — é perfeitamente possível ter 100% das linhas de código "cobertas" por testes que não
+          verificam nada de relevante, só executam o código sem checar se o resultado está correto.
+        </div>
+
+        <h2>Resumo</h2>
+        <ul class="checklist">
+          <li>Teste de integração verifica se peças reais (código, banco, API) funcionam corretamente juntas.</li>
+          <li>Teste end-to-end simula o usuário real usando o sistema inteiro, do início ao fim, num navegador de verdade.</li>
+          <li>Cypress e Playwright são ferramentas populares para escrever testes end-to-end.</li>
+          <li>Quanto mais alto na pirâmide, mais lento e mais frágil o teste tende a ser — por isso são mais raros.</li>
+          <li>100% de cobertura não garante qualidade; o que importa é testar comportamentos que realmente importam.</li>
+        </ul>
+
+        <div id="lesson-footer-nav" class="lesson-footer-nav"></div>
+      </main>
+    </div>
+  </div>
+  <script src="../../nav.js"></script>
+</body>
+</html>

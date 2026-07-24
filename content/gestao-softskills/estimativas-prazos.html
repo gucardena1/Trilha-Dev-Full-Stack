@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Estimativas e prazos — Trilha Dev Full Stack</title>
+  <link rel="stylesheet" href="../../style.css" />
+</head>
+<body>
+  <div class="layout">
+    <nav id="sidebar"></nav>
+    <div class="content-wrap">
+      <main class="content">
+        <div class="breadcrumb">12. Gestão & Soft Skills</div>
+        <h1 class="lesson-title">Estimativas e prazos</h1>
+        <p class="lesson-subtitle">Por que "quanto tempo vai levar isso?" é uma das perguntas mais difíceis de responder bem — e como responder melhor mesmo assim.</p>
+
+        <div class="box box-analogia">
+          <span class="box-titulo">Analogia</span>
+          Pense em uma reforma de casa. Um pedreiro experiente olha para uma parede e diz "isso deve levar uns
+          três dias". Ele já fez esse tipo de trabalho dezenas de vezes, então tem uma boa noção. Mas aí, ao
+          abrir a parede, descobre um cano enferrujado que ninguém sabia que estava ali, ou um fio elétrico fora
+          do lugar. De repente três dias viram sete, não porque o pedreiro é ruim no que faz, mas porque parte do
+          trabalho de reforma é literalmente descobrir problemas escondidos que só aparecem depois que você já
+          começou. Estimar tempo de desenvolvimento de software tem exatamente essa mesma característica: você
+          está, com frequência, prevendo o tamanho de um buraco antes de cavar ele.
+        </div>
+
+        <p>
+          Estimar prazos é uma das tarefas mais desconfortáveis do trabalho de desenvolvedor, e é importante
+          entender desde cedo que isso não é um sinal de incompetência sua — é uma característica praticamente
+          inevitável do tipo de trabalho que você faz. Software lida com sistemas complexos, com peças que
+          interagem de formas nem sempre óbvias, e é comum que um problema "simples de descrever" esconda
+          detalhes que só aparecem quando você já está no meio da implementação.
+        </p>
+
+        <h2>Por que estimar é difícil</h2>
+        <p>Algumas razões concretas fazem estimativas de software serem naturalmente imprecisas:</p>
+        <ul>
+          <li><strong>Trabalho desconhecido não pode ser estimado com precisão.</strong> Se você nunca integrou com aquela API específica antes, não tem como saber de antemão quantas peculiaridades ela vai ter.</li>
+          <li><strong>Tarefas "simples" costumam esconder casos extremos.</strong> "Só um formulário de cadastro" vira validação de e-mail, senha, campos obrigatórios, mensagens de erro, acessibilidade, e por aí vai.</li>
+          <li><strong>Interrupções não entram na conta.</strong> Reuniões, dúvidas de colegas, um bug urgente que aparece — tudo isso consome tempo que raramente é contado na estimativa original.</li>
+          <li><strong>Otimismo natural.</strong> É humano imaginar o caminho mais tranquilo ("vai ser tranquilo, só preciso fazer X, Y e Z") em vez do caminho realista, com imprevistos no meio.</li>
+        </ul>
+
+        <h2>Técnicas simples que ajudam de verdade</h2>
+        <p>
+          Você não precisa de uma fórmula matemática complicada para estimar melhor — algumas práticas simples já
+          fazem grande diferença:
+        </p>
+        <ul>
+          <li>
+            <strong>Quebrar em partes menores.</strong> Voltando à lição sobre quebrar demandas: é muito mais fácil
+            (e mais preciso) estimar cinco subtarefas pequenas e somar do que tentar adivinhar de uma vez o
+            tamanho de uma tarefa gigante. Estimar "o sistema de login inteiro" é chute; estimar "criar a tela",
+            "validar os campos", "conectar com o banco" e "tratar erros de senha errada" separadamente é
+            engenharia.
+          </li>
+          <li>
+            <strong>Buffer para imprevistos.</strong> Depois de somar o tempo estimado das partes, é saudável
+            adicionar uma margem extra — muitas equipes usam algo entre 20% e 50%, dependendo de quão familiar é o
+            tipo de trabalho. Isso não é "enganar" ninguém; é reconhecer honestamente que imprevistos acontecem
+            quase sempre.
+          </li>
+          <li>
+            <strong>Comparar com tarefas parecidas do passado.</strong> Se uma tarefa parecida levou três dias da
+            última vez, é um ponto de partida muito melhor do que estimar do zero, "no chute".
+          </li>
+          <li>
+            <strong>Separar "não sei" de "vai demorar muito".</strong> Às vezes o problema não é o tamanho da
+            tarefa, é que você nunca fez algo parecido. Nesse caso, é honesto dizer isso: "nunca integrei com esse
+            serviço, então minha estimativa tem bastante incerteza — posso investigar um dia antes de te dar um
+            número mais confiável".
+          </li>
+        </ul>
+
+        <div class="box box-dica">
+          <span class="box-titulo">Dica</span>
+          Quando pedirem uma estimativa rápida, em vez de um número único e "assustador de preciso" ("vai levar 3
+          dias e 4 horas"), dê uma faixa realista ("entre 2 e 4 dias, dependendo de como a integração com o banco
+          de dados vai se comportar"). Faixas comunicam honestamente a incerteza que realmente existe, em vez de
+          fingir uma precisão que ninguém tem.
+        </div>
+
+        <h2>Comunicar atraso cedo, não tarde</h2>
+        <p>
+          Mesmo com boas técnicas de estimativa, prazos vão escapar de vez em quando — isso é normal e acontece
+          até com os profissionais mais experientes. O que separa uma situação incômoda de uma situação realmente
+          ruim não é o atraso em si, é <strong>quando</strong> ele é comunicado.
+        </p>
+        <p>
+          Avisar no primeiro sinal de atraso dá à equipe (ou ao cliente) tempo de reagir: ajustar o plano, pedir
+          ajuda extra, avisar outras pessoas que dependem daquele trabalho, ou simplesmente aceitar o novo prazo
+          com calma. Avisar só quando o prazo já venceu tira todas essas opções da mesa e transforma um contratempo
+          gerenciável em uma crise de última hora.
+        </p>
+
+        <table>
+          <thead>
+            <tr><th>Situação</th><th>Avisar cedo</th><th>Avisar tarde</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Quando o problema aparece</td><td>Assim que percebe o risco de atraso</td><td>Só na data de entrega, ou depois</td></tr>
+            <tr><td>Reação possível da equipe</td><td>Replanejar, ajudar, avisar outros times</td><td>Nenhuma — o prazo já passou</td></tr>
+            <tr><td>Como isso é percebido</td><td>Profissional, transparente</td><td>Falta de comunicação, mesmo que o trabalho tenha sido bom</td></tr>
+          </tbody>
+        </table>
+
+        <h2>Um exemplo de como avisar bem</h2>
+        <pre><code>Ruim (na sexta-feira, dia da entrega):
+"Oi, então... não vai dar tempo de terminar hoje."
+
+Bom (na terça, três dias antes):
+"Oi! Um aviso rápido sobre a tarefa do relatório:
+encontrei uma complicação na integração com o banco
+de dados antigo que não estava prevista. Acho que
+vou precisar de mais 1 a 2 dias além do combinado.
+Já resolvi a metade e continuo nisso — só queria
+avisar cedo caso precise reorganizar algo do seu
+lado. Consigo te dar um número mais certo até amanhã
+de manhã."</code></pre>
+        <p>
+          Repare que o segundo aviso não esconde o problema nem passa a impressão de incompetência — ele mostra
+          que a pessoa está no controle da situação, mesmo que a situação seja "vou atrasar". Isso constrói
+          confiança a longo prazo, porque demonstra que você vai avisar sempre que algo sair do previsto, em vez de
+          deixar quem depende de você descobrir sozinho, tarde demais.
+        </p>
+
+        <div class="box box-atencao">
+          <span class="box-titulo">Atenção</span>
+          Uma armadilha muito comum é prometer um prazo apertado sem antes quebrar a tarefa em partes — só para
+          parecer prestativo ou evitar uma conversa desconfortável no momento. O desconforto de pedir mais tempo
+          antes de começar é sempre menor do que o desconforto de explicar, depois, por que um prazo já prometido
+          não vai ser cumprido.
+        </div>
+
+        <h2>Resumo</h2>
+        <ul class="checklist">
+          <li>Estimar é difícil porque parte do trabalho de programar é descobrir problemas que só aparecem no meio do caminho.</li>
+          <li>Quebrar tarefas grandes em partes menores torna a estimativa muito mais confiável do que estimar "no chute".</li>
+          <li>Adicionar um buffer de tempo para imprevistos é honesto, não é enganação.</li>
+          <li>Dar uma faixa de tempo em vez de um número único comunica melhor a incerteza real.</li>
+          <li>Avisar sobre um possível atraso assim que ele aparece no radar é sempre melhor do que avisar na data final.</li>
+        </ul>
+
+        <div id="lesson-footer-nav" class="lesson-footer-nav"></div>
+      </main>
+    </div>
+  </div>
+  <script src="../../nav.js"></script>
+</body>
+</html>

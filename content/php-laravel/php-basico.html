@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PHP básico — Trilha Dev Full Stack</title>
+  <link rel="stylesheet" href="../../style.css" />
+</head>
+<body>
+  <div class="layout">
+    <nav id="sidebar"></nav>
+    <div class="content-wrap">
+      <main class="content">
+        <div class="breadcrumb">6. PHP & Laravel</div>
+        <h1 class="lesson-title">PHP básico</h1>
+        <p class="lesson-subtitle">A linguagem que roda "nos bastidores" da maioria dos sites do mundo: o que ela faz, onde vive e como escrever suas primeiras linhas.</p>
+
+        <div class="box box-analogia">
+          <span class="box-titulo">Analogia</span>
+          Pense num restaurante. Você (o navegador) senta na mesa e faz um pedido. O garçom leva esse pedido até a
+          cozinha, e é lá — longe da sua vista — que a comida é de fato preparada. Você só recebe o prato pronto.
+          O PHP é o "cozinheiro" que trabalha nessa cozinha escondida: ele roda no servidor (o computador que hospeda
+          o site), prepara alguma coisa (busca dados, calcula um preço, monta uma página) e entrega o resultado já
+          pronto para o seu navegador, que só sabe exibir HTML. Você nunca vê o código PHP rodando — só o prato final.
+        </div>
+
+        <h2>O que é PHP e por que ele existe</h2>
+        <p>
+          PHP é uma <strong>linguagem de programação de servidor</strong>. Isso significa que o código PHP não roda no
+          seu navegador (como o JavaScript roda) — ele roda numa máquina remota, o <strong>servidor</strong>, antes de
+          qualquer coisa chegar até você. O servidor executa o código PHP, monta uma página HTML (ou um JSON, ou um PDF,
+          o que for necessário) e manda esse resultado já pronto pela internet até o seu navegador. O navegador nunca
+          "vê" o PHP em si — só o resultado final.
+        </p>
+        <p>
+          Isso é diferente do JavaScript que você talvez já tenha visto: aquele roda direto no navegador do usuário.
+          O PHP existe justamente para fazer o trabalho que precisa acontecer "escondido" — coisas que não podem
+          depender do computador do usuário, como consultar um banco de dados, verificar uma senha, calcular o total
+          de um carrinho de compras com preços que só o servidor conhece, ou gerar conteúdo diferente para cada
+          visitante. PHP foi criado nos anos 90 e hoje move boa parte da internet: sites como Wikipedia, Facebook (nas
+          origens) e milhões de sistemas administrativos e e-commerces são construídos com ele. É também a base sobre
+          a qual o framework Laravel, que você vai estudar nas próximas lições, foi construído.
+        </p>
+
+        <h2>Como um arquivo PHP funciona</h2>
+        <p>
+          Um arquivo PHP normalmente tem a extensão <code>.php</code> e pode misturar HTML comum com trechos de
+          código PHP. Tudo que está entre <code>&lt;?php</code> e <code>?&gt;</code> é interpretado como código PHP;
+          o resto é tratado como texto/HTML puro e enviado direto para o navegador.
+        </p>
+        <pre><code>&lt;?php
+    $nome = "Maria";
+?&gt;
+
+&lt;!doctype html&gt;
+&lt;html&gt;
+  &lt;body&gt;
+    &lt;h1&gt;Olá, &lt;?php echo $nome; ?&gt;!&lt;/h1&gt;
+  &lt;/body&gt;
+&lt;/html&gt;</code></pre>
+        <p>
+          Quando esse arquivo é acessado por um navegador, o servidor executa a parte PHP primeiro (define
+          <code>$nome</code> e depois imprime seu valor no lugar certo), e o navegador recebe apenas o HTML final:
+          <code>&lt;h1&gt;Olá, Maria!&lt;/h1&gt;</code>. Se você "ver código-fonte" da página no navegador, nunca vai
+          encontrar a palavra <code>$nome</code> ali — só o resultado.
+        </p>
+
+        <div class="box box-dica">
+          <span class="box-titulo">Dica</span>
+          Para rodar PHP no seu computador, você precisa de um servidor local. As opções mais comuns são instalar o
+          PHP diretamente e rodar <code>php -S localhost:8000</code> na pasta do projeto, ou usar pacotes como XAMPP
+          / Laragon, que já vêm com tudo configurado.
+        </div>
+
+        <h2>Variáveis</h2>
+        <p>
+          Em PHP, toda variável começa com o símbolo de cifrão <code>$</code>. Isso é uma marca registrada da
+          linguagem — é fácil identificar uma variável PHP só de olhar. Não é preciso declarar o "tipo" da variável
+          antes de usá-la; o PHP descobre sozinho se é um texto, um número, etc.
+        </p>
+        <pre><code>&lt;?php
+$nome = "João";        // uma string (texto)
+$idade = 28;            // um número inteiro
+$altura = 1.75;         // um número decimal
+$ativo = true;          // um booleano (verdadeiro/falso)
+
+echo "Nome: $nome, idade: $idade anos";
+// Repare que dentro de aspas duplas, o PHP substitui $nome e $idade
+// pelos valores automaticamente. Isso se chama "interpolação de string".</code></pre>
+
+        <h2>O comando echo</h2>
+        <p>
+          <code>echo</code> é o comando mais usado em PHP: ele manda um texto (ou o valor de uma variável) direto
+          para a saída, ou seja, para o que vai ser enviado ao navegador. É parecido com o
+          <code>console.log</code> do JavaScript, só que em vez de aparecer no console de depuração, o resultado do
+          <code>echo</code> vira parte da página HTML final.
+        </p>
+        <pre><code>&lt;?php
+echo "Isso vai aparecer na página.";
+echo "Você pode concatenar textos com ponto: " . "assim.";
+$preco = 49.9;
+echo "O produto custa R$ " . $preco;</code></pre>
+
+        <h2>Arrays</h2>
+        <p>
+          Um array em PHP é uma "caixa" que guarda várias informações organizadas. Pode ser uma lista simples
+          (array indexado por números) ou um conjunto de pares chave-valor (array associativo, parecido com um
+          objeto do JavaScript).
+        </p>
+        <pre><code>&lt;?php
+// Array indexado (lista simples)
+$frutas = ["maçã", "banana", "uva"];
+echo $frutas[0]; // "maçã" — índices começam em 0
+
+// Array associativo (chave => valor)
+$usuario = [
+    "nome" => "Ana",
+    "email" => "ana@email.com",
+    "idade" => 30
+];
+echo $usuario["nome"]; // "Ana"
+
+// Percorrendo um array com foreach
+foreach ($frutas as $fruta) {
+    echo $fruta . "&lt;br&gt;";
+}</code></pre>
+
+        <h2>Estruturas de controle</h2>
+        <p>
+          PHP tem as mesmas ferramentas lógicas de qualquer linguagem: condicionais e laços de repetição, com uma
+          sintaxe parecida com JavaScript e Java.
+        </p>
+        <pre><code>&lt;?php
+$idade = 20;
+
+if ($idade &gt;= 18) {
+    echo "Maior de idade";
+} else {
+    echo "Menor de idade";
+}
+
+for ($i = 0; $i &lt; 5; $i++) {
+    echo "Número: $i &lt;br&gt;";
+}</code></pre>
+
+        <h2>Funções</h2>
+        <p>
+          Funções em PHP funcionam como em quase toda linguagem: um bloco de código nomeado, que recebe parâmetros e
+          pode devolver (<code>return</code>) um resultado. Servem para evitar repetir o mesmo código várias vezes.
+        </p>
+        <pre><code>&lt;?php
+function calcularDesconto($preco, $percentual) {
+    $desconto = $preco * ($percentual / 100);
+    return $preco - $desconto;
+}
+
+$precoFinal = calcularDesconto(100, 10);
+echo "Preço com desconto: $precoFinal"; // 90</code></pre>
+
+        <div class="box box-atencao">
+          <span class="box-titulo">Atenção</span>
+          Um erro muito comum de quem começa em PHP é esquecer o cifrão <code>$</code> antes do nome da variável, ou
+          esquecer o ponto e vírgula <code>;</code> no fim da linha. O PHP é rígido com esses dois detalhes e vai
+          mostrar um erro de sintaxe até você corrigir.
+        </div>
+
+        <h2>Um exemplo completo</h2>
+        <p>
+          Juntando tudo: um arquivo <code>produtos.php</code> que guarda uma lista de produtos num array e mostra
+          cada um deles com seu preço, usando um laço <code>foreach</code>:
+        </p>
+        <pre><code>&lt;?php
+$produtos = [
+    ["nome" =&gt; "Teclado", "preco" =&gt; 150],
+    ["nome" =&gt; "Mouse", "preco" =&gt; 60],
+    ["nome" =&gt; "Monitor", "preco" =&gt; 900],
+];
+
+function formatarPreco($valor) {
+    return "R$ " . number_format($valor, 2, ",", ".");
+}
+?&gt;
+&lt;!doctype html&gt;
+&lt;html&gt;
+&lt;body&gt;
+  &lt;h1&gt;Nossos produtos&lt;/h1&gt;
+  &lt;ul&gt;
+    &lt;?php foreach ($produtos as $produto): ?&gt;
+      &lt;li&gt;&lt;?php echo $produto["nome"]; ?&gt; — &lt;?php echo formatarPreco($produto["preco"]); ?&gt;&lt;/li&gt;
+    &lt;?php endforeach; ?&gt;
+  &lt;/ul&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+        <p>
+          Repare na sintaxe alternativa <code>foreach (...): ... endforeach;</code> — ela é muito usada quando se
+          mistura PHP com HTML, porque fica mais legível do que usar chaves <code>{ }</code> no meio de tags HTML.
+          Você vai ver essa mesma ideia de "misturar lógica com marcação", só que de um jeito muito mais organizado,
+          quando chegar ao Blade do Laravel, mais adiante nesta trilha.
+        </p>
+
+        <h2>Resumo</h2>
+        <ul class="checklist">
+          <li>PHP é uma linguagem de servidor: roda no servidor antes da página chegar ao navegador do usuário.</li>
+          <li>Variáveis em PHP sempre começam com <code>$</code> e não precisam declarar tipo.</li>
+          <li><code>echo</code> envia texto ou valores para a saída da página.</li>
+          <li>Arrays podem ser listas simples (indexadas) ou associativas (chave => valor).</li>
+          <li>Funções organizam código reutilizável, recebendo parâmetros e podendo devolver um valor com <code>return</code>.</li>
+          <li>É comum misturar PHP e HTML no mesmo arquivo usando <code>&lt;?php ?&gt;</code>.</li>
+        </ul>
+
+        <div id="lesson-footer-nav" class="lesson-footer-nav"></div>
+      </main>
+    </div>
+  </div>
+  <script src="../../nav.js"></script>
+</body>
+</html>

@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>O que é controle de versão — Trilha Dev Full Stack</title>
+  <link rel="stylesheet" href="../../style.css" />
+</head>
+<body>
+  <div class="layout">
+    <nav id="sidebar"></nav>
+    <div class="content-wrap">
+      <main class="content">
+        <div class="breadcrumb">4. Git & GitHub</div>
+        <h1 class="lesson-title">O que é controle de versão</h1>
+        <p class="lesson-subtitle">Entenda o problema que o Git resolve antes de aprender qualquer comando.</p>
+
+        <div class="box box-analogia">
+          <span class="box-titulo">Analogia</span>
+          Você já editou um trabalho da faculdade e, sem perceber, foi salvando arquivos assim:
+          <code>trabalho.docx</code>, <code>trabalho_final.docx</code>, <code>trabalho_final2.docx</code>,
+          <code>trabalho_final_DEFINITIVO.docx</code>, <code>trabalho_final_DEFINITIVO_agora_vai.docx</code>? O Git é
+          a ferramenta que existe para você nunca mais precisar fazer isso. Em vez de criar cópias inteiras do
+          arquivo com nomes cada vez mais desesperados, o Git guarda, de forma organizada, cada "versão" do seu
+          projeto — como um álbum de fotos que registra exatamente como tudo estava em cada momento, permitindo
+          voltar no tempo, comparar versões e entender quem mudou o quê e por quê.
+        </div>
+
+        <p>
+          Todo mundo que já trabalhou em algum arquivo importante — um documento, uma planilha, um projeto de
+          código — já viveu o problema do <strong>"qual versão é a certa?"</strong>. Sem uma ferramenta de controle
+          de versão, as soluções costumam ser desesperadas: duplicar arquivos com nomes diferentes, mandar o arquivo
+          por e-mail para "ter um backup", ou simplesmente torcer para não precisar desfazer nada. Isso funciona mal
+          mesmo sozinho, e funciona muito pior quando várias pessoas mexem no mesmo projeto ao mesmo tempo.
+        </p>
+
+        <h2>O problema do "final_v2_definitivo.docx"</h2>
+        <p>
+          Imagine três colegas trabalhando juntos num mesmo documento. Cada um faz sua parte, salva uma cópia com um
+          nome ligeiramente diferente e manda por e-mail. No fim do dia, alguém precisa juntar manualmente as
+          mudanças de todo mundo, copiando e colando trechos, torcendo para não perder nada e sem nenhuma forma
+          confiável de saber quem escreveu o quê. Se um erro aparecer depois, ninguém sabe exatamente quando ele foi
+          introduzido nem como reverter só aquela mudança sem perder o resto do trabalho.
+        </p>
+        <p>
+          No mundo do desenvolvimento de software esse problema é ainda mais grave, porque um projeto pode ter
+          milhares de arquivos de código, dezenas de pessoas mexendo neles todos os dias, e um único caractere
+          errado pode quebrar o sistema inteiro. Foi para resolver exatamente isso que surgiram os
+          <strong>sistemas de controle de versão</strong> — e o <strong>Git</strong>, criado em 2005 pelo mesmo
+          Linus Torvalds que criou o Linux, é hoje o mais usado do mundo, de longe.
+        </p>
+
+        <h2>O que é um commit</h2>
+        <p>
+          Em vez de salvar um arquivo novo toda vez que você termina uma etapa, o Git te deixa registrar um
+          <strong>commit</strong>: uma "fotografia" do estado exato do seu projeto naquele momento, acompanhada de
+          uma mensagem explicando o que mudou. Pense em cada commit como um marco de um jogo salvo — você pode
+          voltar para qualquer um deles quando quiser, comparar dois marcos diferentes para ver o que mudou entre
+          eles, ou entender exatamente em qual momento um problema apareceu.
+        </p>
+        <p>
+          O importante é que o Git não guarda "arquivos com nomes diferentes" — ele guarda o <strong>histórico
+          completo de mudanças</strong> de um mesmo conjunto de arquivos, de forma organizada e pesquisável. Cada
+          commit tem um autor, uma data, uma mensagem e um identificador único. Isso significa que você pode, a
+          qualquer momento, perguntar ao Git coisas como "quem mudou essa linha e quando?" ou "como esse arquivo
+          estava há duas semanas?" — coisas praticamente impossíveis de responder com a técnica do
+          <code>_final_v2</code>.
+        </p>
+
+        <div class="box box-dica">
+          <span class="box-titulo">Dica</span>
+          Pense em commits como parágrafos de uma redação bem escrita: cada um deveria contar uma "ideia" completa e
+          coerente ("adiciona formulário de login", "corrige cálculo de frete"), não ser um amontoado aleatório de
+          mudanças sem relação entre si. Vamos falar mais sobre isso na última lição desta trilha.
+        </div>
+
+        <h2>Repositório local vs. repositório remoto</h2>
+        <p>
+          Um <strong>repositório</strong> (ou "repo") é simplesmente a pasta do seu projeto sendo controlada pelo
+          Git — com todo o histórico de commits guardado dentro dela, numa subpasta escondida chamada
+          <code>.git</code>. Existem dois lugares onde um repositório pode existir, e entender a diferença entre
+          eles evita boa parte da confusão de quem está começando:
+        </p>
+        <ul>
+          <li>
+            <strong>Repositório local:</strong> é a cópia do projeto que vive no seu próprio computador, dentro da
+            pasta onde você está trabalhando. Todos os commits que você cria primeiro ficam só ali, guardados
+            localmente — o Git funciona perfeitamente até sem internet.
+          </li>
+          <li>
+            <strong>Repositório remoto:</strong> é uma cópia do mesmo histórico guardada num servidor, geralmente na
+            internet, para que outras pessoas (e você, de outro computador) possam acessá-la. O
+            <strong>GitHub</strong> é o serviço mais popular para hospedar repositórios remotos — mas repare que
+            GitHub não é o Git em si, é apenas um serviço que hospeda repositórios Git na nuvem e adiciona
+            ferramentas de colaboração em cima dele (vamos ver essa diferença com calma numa lição futura).
+          </li>
+        </ul>
+        <p>
+          Na prática, o fluxo comum é: você trabalha no repositório local, criando commits conforme avança, e de
+          tempos em tempos <strong>envia</strong> ("push") esses commits para o repositório remoto, para que fiquem
+          salvos na nuvem e disponíveis para o resto da equipe. Da mesma forma, você pode <strong>trazer</strong>
+          ("pull") os commits que outras pessoas enviaram, para manter sua cópia local atualizada.
+        </p>
+
+        <div class="box box-atencao">
+          <span class="box-titulo">Atenção</span>
+          Git e GitHub não são a mesma coisa, mesmo que os nomes pareçam iguais. O Git é o programa que roda no seu
+          computador e controla as versões do projeto. O GitHub é um site que guarda cópias remotas desses
+          repositórios e adiciona recursos como pull requests, issues e revisão de código — assunto de uma lição
+          mais à frente nesta trilha.
+        </div>
+
+        <h2>Por que isso importa mesmo fora da programação</h2>
+        <p>
+          Ainda que o Git seja usado quase exclusivamente por quem programa, a ideia por trás dele é universal:
+          qualquer trabalho que evolui ao longo do tempo, feito por uma ou várias pessoas, se beneficia de ter um
+          histórico claro de mudanças, a possibilidade de voltar atrás sem medo, e uma forma organizada de juntar o
+          trabalho de várias pessoas sem sobrescrever nada. É exatamente essa segurança — "posso experimentar,
+          porque sempre consigo voltar" — que faz o Git ser considerado uma ferramenta essencial, e não um luxo, no
+          dia a dia de quem desenvolve software.
+        </p>
+
+        <h2>Resumo</h2>
+        <ul class="checklist">
+          <li>Controle de versão resolve o problema de arquivos duplicados como "final_v2_definitivo.docx".</li>
+          <li>Um commit é uma "fotografia" do projeto num momento específico, com autor, data e mensagem.</li>
+          <li>O Git guarda o histórico completo de mudanças, permitindo voltar no tempo e comparar versões.</li>
+          <li>Repositório local vive no seu computador; repositório remoto vive num servidor, como o GitHub.</li>
+          <li>Git é a ferramenta; GitHub é um serviço que hospeda repositórios Git e adiciona colaboração.</li>
+        </ul>
+
+        <div id="lesson-footer-nav" class="lesson-footer-nav"></div>
+      </main>
+    </div>
+  </div>
+  <script src="../../nav.js"></script>
+</body>
+</html>

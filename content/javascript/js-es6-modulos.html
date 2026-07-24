@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ES6+ e módulos — Trilha Dev Full Stack</title>
+  <link rel="stylesheet" href="../../style.css" />
+</head>
+<body>
+  <div class="layout">
+    <nav id="sidebar"></nav>
+    <div class="content-wrap">
+      <main class="content">
+        <div class="breadcrumb">3. JavaScript</div>
+        <h1 class="lesson-title">ES6+ e módulos</h1>
+        <p class="lesson-subtitle">O JavaScript moderno: recursos que deixam o código mais curto, mais claro, e a forma de organizar projetos em vários arquivos.</p>
+
+        <h2>O que é "ES6+"?</h2>
+        <p>
+          <strong>ES6</strong> (ECMAScript 2015) foi uma atualização enorme na linguagem
+          JavaScript, lançada em 2015, que trouxe dezenas de recursos novos. "ES6+" é o jeito
+          informal de dizer "ES6 e tudo que veio depois" — porque desde então o JavaScript
+          recebe atualizações anuais. Praticamente todo código JavaScript escrito hoje usa
+          esses recursos, então vale a pena aprendê-los bem cedo.
+        </p>
+
+        <div class="box box-analogia">
+          <span class="box-titulo">Analogia</span>
+          Se o JavaScript "clássico" (antes de 2015) é como escrever uma carta à mão, o
+          JavaScript moderno é como usar um processador de texto: você ainda escreve as mesmas
+          ideias, mas com atalhos, autocompletar e ferramentas que economizam tempo e reduzem
+          erros de digitação.
+        </div>
+
+        <h2><code>let</code> e <code>const</code> vs. <code>var</code></h2>
+        <p>
+          Você já viu <code>let</code> e <code>const</code> nas lições anteriores. Agora vamos
+          entender <em>por que</em> eles substituíram o antigo <code>var</code>. A diferença
+          principal está no <strong>escopo</strong> — ou seja, em que "área" do código aquela
+          variável existe e pode ser usada.
+        </p>
+        <ul>
+          <li><code>var</code> tem escopo de <strong>função</strong>: ela "vaza" para fora de blocos <code>if</code> e <code>for</code>.</li>
+          <li><code>let</code> e <code>const</code> têm escopo de <strong>bloco</strong>: existem só dentro das chaves <code>{ }</code> onde foram criadas.</li>
+        </ul>
+        <pre><code>if (true) {
+  var comVar = "eu vazo";
+  let comLet = "eu fico aqui dentro";
+}
+
+console.log(comVar);  // "eu vazo" — funciona, mas é confuso
+console.log(comLet);  // erro! comLet não existe fora do bloco</code></pre>
+
+        <div class="box box-atencao">
+          <span class="box-titulo">Pegadinha comum</span>
+          Um clássico problema de entrevista e de bugs reais: um loop com <code>var</code>
+          dentro de um <code>setTimeout</code>. Como <code>var</code> não respeita o escopo do
+          bloco do <code>for</code>, todas as funções acabam compartilhando a <em>mesma</em>
+          variável <code>i</code>, que no final do loop já valerá 3:
+          <pre><code>for (var i = 0; i &lt; 3; i++) {
+  setTimeout(function () {
+    console.log(i); // imprime 3, 3, 3 — não 0, 1, 2!
+  }, 100);
+}
+
+// Trocando var por let, cada repetição do loop
+// ganha sua PRÓPRIA cópia de i:
+for (let j = 0; j &lt; 3; j++) {
+  setTimeout(function () {
+    console.log(j); // imprime 0, 1, 2, como esperado
+  }, 100);
+}</code></pre>
+          Regra prática: use <code>const</code> por padrão, e só troque para <code>let</code>
+          quando o valor realmente precisar mudar. Nunca use <code>var</code> em código novo.
+        </div>
+
+        <h2>Arrow functions: uma forma mais curta de escrever funções</h2>
+        <p>
+          As <strong>arrow functions</strong> (funções de seta) são uma sintaxe mais enxuta
+          para escrever funções, muito usadas em callbacks curtos:
+        </p>
+        <pre><code>// Forma tradicional
+function dobrar(numero) {
+  return numero * 2;
+}
+
+// Arrow function equivalente
+const dobrar2 = (numero) =&gt; {
+  return numero * 2;
+};
+
+// Se o corpo é só um "return", pode ficar numa linha só
+const dobrar3 = (numero) =&gt; numero * 2;
+
+// Com um único parâmetro, os parênteses são opcionais
+const dobrar4 = numero =&gt; numero * 2;</code></pre>
+        <p>
+          Além de mais curtas, arrow functions têm uma diferença importante no comportamento
+          do <code>this</code> — vamos ver isso com calma na próxima lição, sobre closures e
+          <code>this</code>.
+        </p>
+
+        <h2>Template literals: montando textos com variáveis</h2>
+        <p>
+          Antes, para juntar texto com variáveis, usávamos o operador <code>+</code>, o que
+          ficava confuso com muitas variáveis. Os <strong>template literals</strong> usam crase
+          (<code>`</code>) em vez de aspas, e permitem inserir variáveis diretamente com
+          <code>${...}</code>:
+        </p>
+        <pre><code>const nome = "Marina";
+const idade = 28;
+
+// Forma antiga
+const antiga = "Olá, " + nome + "! Você tem " + idade + " anos.";
+
+// Template literal
+const moderna = `Olá, ${nome}! Você tem ${idade} anos.`;
+
+// Também suportam múltiplas linhas sem precisar de \n
+const mensagem = `Linha um
+Linha dois`;</code></pre>
+
+        <h2>Destructuring: "desempacotando" arrays e objetos</h2>
+        <p>
+          <strong>Destructuring</strong> permite extrair valores de dentro de arrays ou objetos
+          e colocá-los direto em variáveis, sem precisar acessar posição por posição ou
+          propriedade por propriedade:
+        </p>
+        <pre><code>// Destructuring de objeto
+const usuario = { nome: "Ana", idade: 30, cidade: "Recife" };
+const { nome, idade } = usuario;
+console.log(nome, idade); // "Ana" 30
+
+// Destructuring de array
+const cores = ["vermelho", "verde", "azul"];
+const [primeira, segunda] = cores;
+console.log(primeira, segunda); // "vermelho" "verde"
+
+// Muito comum em parâmetros de função
+function mostrarPerfil({ nome, cidade }) {
+  console.log(`${nome} mora em ${cidade}`);
+}
+mostrarPerfil(usuario); // "Ana mora em Recife"</code></pre>
+
+        <h2>Spread e rest: os três pontinhos (<code>...</code>) com dois significados</h2>
+        <p>
+          O operador de três pontos <code>...</code> muda de comportamento dependendo de onde
+          é usado. Como <strong>spread</strong> ("espalhar"), ele expande um array ou objeto:
+        </p>
+        <pre><code>const numeros = [1, 2, 3];
+const maisNumeros = [...numeros, 4, 5]; // [1, 2, 3, 4, 5]
+
+const dadosBasicos = { nome: "Ana", idade: 30 };
+const dadosCompletos = { ...dadosBasicos, cidade: "Recife" };
+// { nome: "Ana", idade: 30, cidade: "Recife" }</code></pre>
+        <p>
+          Como <strong>rest</strong> ("restante"), ele faz o oposto: agrupa vários argumentos
+          soltos dentro de um único array:
+        </p>
+        <pre><code>function somarTudo(...numeros) {
+  return numeros.reduce((total, atual) =&gt; total + atual, 0);
+}
+
+somarTudo(1, 2, 3, 4); // 10 — funciona com qualquer quantidade de argumentos</code></pre>
+
+        <div class="box box-dica">
+          <span class="box-titulo">Dica</span>
+          Uma forma fácil de lembrar a diferença: se o <code>...</code> aparece do <strong>lado
+          direito</strong> (dentro de um array/objeto que está sendo criado, ou numa chamada de
+          função), ele é spread — está "espalhando" algo que já existe. Se aparece do
+          <strong>lado esquerdo</strong> (nos parâmetros de uma função), ele é rest — está
+          "juntando" vários valores soltos.
+        </div>
+
+        <h2>Módulos: dividindo o código em vários arquivos</h2>
+        <p>
+          Conforme um projeto cresce, colocar tudo num único arquivo <code>.js</code> vira uma
+          bagunça. <strong>Módulos</strong> permitem dividir o código em arquivos separados,
+          cada um exportando o que quer disponibilizar e importando o que precisa de outros
+          arquivos.
+        </p>
+        <pre><code>// arquivo: matematica.js
+export function somar(a, b) {
+  return a + b;
+}
+
+export const PI = 3.14159;
+
+// exportação "default": só pode haver uma por arquivo
+export default function multiplicar(a, b) {
+  return a * b;
+}</code></pre>
+        <pre><code>// arquivo: main.js
+import multiplicar, { somar, PI } from "./matematica.js";
+
+console.log(somar(2, 3));       // 5
+console.log(multiplicar(2, 3)); // 6
+console.log(PI);                // 3.14159</code></pre>
+        <p>
+          Para usar módulos direto no navegador, é preciso avisar o HTML que aquele script é
+          um módulo:
+        </p>
+        <pre><code>&lt;script type="module" src="main.js"&gt;&lt;/script&gt;</code></pre>
+
+        <div class="box box-atencao">
+          <span class="box-titulo">Pegadinha comum</span>
+          Scripts com <code>type="module"</code> só funcionam servidos por um servidor web
+          (mesmo local, como o "Live Server" do VS Code) — abrir o arquivo direto com
+          "arquivo:///" no navegador costuma dar erro de CORS. Isso é uma regra de segurança
+          do navegador, não um bug do seu código.
+        </div>
+
+        <h2>npm em uma frase</h2>
+        <p>
+          <strong>npm</strong> (Node Package Manager) é a loja de aplicativos do mundo
+          JavaScript: um repositório gigante de códigos prontos (chamados de "pacotes" ou
+          "bibliotecas") que qualquer pessoa pode instalar no seu projeto com um comando como
+          <code>npm install nome-do-pacote</code>, evitando reescrever do zero coisas que
+          outras pessoas já resolveram bem — desde formatação de datas até frameworks
+          inteiros como Vue.
+        </p>
+
+        <h2>Resumo</h2>
+        <ul class="checklist">
+          <li><code>let</code>/<code>const</code> têm escopo de bloco e evitam os bugs de "vazamento" que o <code>var</code> causa, especialmente em loops.</li>
+          <li>Arrow functions (<code>=&gt;</code>) são uma sintaxe mais curta para funções, muito usadas em callbacks.</li>
+          <li>Template literals (crase + <code>${...}</code>) facilitam montar textos com variáveis.</li>
+          <li>Destructuring extrai valores de objetos e arrays direto para variáveis.</li>
+          <li>Spread (<code>...</code>) espalha valores de um array/objeto; rest agrupa vários argumentos soltos num array.</li>
+          <li>Módulos (<code>import</code>/<code>export</code>) dividem o código em arquivos organizados; npm é a "loja" de onde vêm pacotes prontos para usar.</li>
+        </ul>
+
+        <div id="lesson-footer-nav" class="lesson-footer-nav"></div>
+      </main>
+    </div>
+  </div>
+  <script src="../../nav.js"></script>
+</body>
+</html>

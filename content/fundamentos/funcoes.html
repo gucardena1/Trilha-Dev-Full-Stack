@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Funções — Trilha Dev Full Stack</title>
+  <link rel="stylesheet" href="../../style.css" />
+</head>
+<body>
+  <div class="layout">
+    <nav id="sidebar"></nav>
+    <div class="content-wrap">
+      <main class="content">
+        <div class="breadcrumb">1. Fundamentos & Lógica</div>
+        <h1 class="lesson-title">Funções</h1>
+        <p class="lesson-subtitle">Aprenda a empacotar um pedaço de código em um bloco reutilizável, que você pode chamar sempre que precisar.</p>
+
+        <div class="box box-analogia">
+          <span class="box-titulo">Analogia</span>
+          Pense numa função como uma receita de bolo escrita num cartão de receitas. A receita tem um nome ("Bolo de
+          Chocolate"), uma lista de ingredientes que você fornece (ovos, farinha, chocolate — os "ingredientes" da
+          receita são o que chamamos de <em>parâmetros</em>) e um resultado final (o bolo pronto — o que chamamos de
+          <em>retorno</em>). Uma vez que a receita está escrita, você não precisa reexplicar o passo a passo toda vez
+          que quiser fazer um bolo — só precisa dizer "faça essa receita, com esses ingredientes" e ela sabe o que
+          fazer. Uma função no código funciona exatamente assim: um bloco de instruções com nome, que você "chama"
+          (executa) sempre que precisar, passando os ingredientes (dados) que ela precisa para funcionar.
+        </div>
+
+        <h2>Por que usar funções?</h2>
+        <p>
+          Imagine que, em vários pontos do seu programa, você precisa calcular o preço final de uma compra somando o
+          frete. Sem funções, você copiaria e colaria a mesma conta em cada lugar que precisar dela. Isso é arriscado:
+          se um dia a regra do frete mudar, você vai precisar caçar e corrigir cada cópia espalhada pelo código —
+          e é fácil esquecer alguma. Com uma função, você escreve a lógica uma única vez, e todos os lugares que
+          precisam dela apenas a "chamam". Se a regra mudar, você corrige em um só lugar.
+        </p>
+
+        <h2>Declarando uma função</h2>
+        <pre><code>function calcularPrecoFinal(preco, frete) {
+  const total = preco + frete;
+  return total;
+}
+
+// "Chamando" (executando) a função, passando valores reais:
+const precoDaCompra = calcularPrecoFinal(100, 15);
+console.log(precoDaCompra); // 115
+
+const precoDeOutraCompra = calcularPrecoFinal(50, 0);
+console.log(precoDeOutraCompra); // 50</code></pre>
+        <p>
+          Vamos destrinchar essa sintaxe: <code>function</code> é a palavra que anuncia "estou criando uma função";
+          <code>calcularPrecoFinal</code> é o nome que você escolheu (assim como o nome de uma receita); dentro dos
+          parênteses, <code>preco</code> e <code>frete</code> são os <strong>parâmetros</strong> — os "ingredientes"
+          que a função espera receber para funcionar; o bloco entre chaves <code>{ }</code> é o corpo da função, onde
+          a lógica acontece; e a palavra <code>return</code> devolve um valor para quem chamou a função — é o "bolo
+          pronto" saindo do forno.
+        </p>
+
+        <div class="box box-dica">
+          <span class="box-titulo">Dica</span>
+          Escolha nomes de função que descrevam claramente <strong>o que ela faz</strong>, de preferência começando
+          com um verbo: <code>calcularTotal</code>, <code>validarEmail</code>, <code>formatarData</code>. Um bom nome
+          de função é praticamente uma documentação — quem lê o código entende o que ela faz sem precisar abrir o
+          corpo dela.
+        </div>
+
+        <h2>Parâmetros vs. argumentos</h2>
+        <p>
+          Existe uma diferença técnica pequena, mas útil de saber: <strong>parâmetros</strong> são os nomes que
+          aparecem na declaração da função (<code>preco</code> e <code>frete</code> no exemplo acima) — são como
+          "variáveis vazias" esperando um valor. <strong>Argumentos</strong> são os valores reais que você passa
+          quando chama a função (<code>100</code> e <code>15</code>). Na prática, muita gente usa os dois termos
+          como sinônimos no dia a dia, mas é bom reconhecer a diferença quando aparecer em alguma documentação.
+        </p>
+
+        <h2>Funções sem retorno</h2>
+        <p>
+          Nem toda função precisa devolver um valor com <code>return</code>. Algumas só executam uma ação, como
+          exibir algo na tela:
+        </p>
+        <pre><code>function saudar(nome) {
+  console.log(`Olá, ${nome}! Seja bem-vindo.`);
+  // sem "return" — essa função só executa uma ação, não devolve nada
+}
+
+saudar("Carlos"); // Olá, Carlos! Seja bem-vindo.
+saudar("Marina"); // Olá, Marina! Seja bem-vindo.</code></pre>
+        <p>
+          Quando uma função não tem <code>return</code> explícito, o JavaScript considera que ela devolve
+          <code>undefined</code> por padrão. Isso é importante saber: se você tentar guardar o resultado de uma
+          função sem retorno numa variável, essa variável vai valer <code>undefined</code>.
+        </p>
+
+        <h2>Funções são reutilizáveis com valores diferentes</h2>
+        <p>
+          O grande poder de uma função é que ela funciona como um "molde": você define a lógica uma vez, com nomes
+          genéricos (os parâmetros), e depois reaproveita esse molde quantas vezes quiser, com valores diferentes
+          cada vez:
+        </p>
+        <pre><code>function ehMaiorDeIdade(idade) {
+  return idade &gt;= 18;
+}
+
+console.log(ehMaiorDeIdade(20)); // true
+console.log(ehMaiorDeIdade(15)); // false
+console.log(ehMaiorDeIdade(18)); // true</code></pre>
+        <p>
+          Repare que a mesma função <code>ehMaiorDeIdade</code> deu respostas diferentes para entradas diferentes —
+          isso é o comportamento esperado e desejado. A função não "decora" um resultado fixo, ela recalcula toda
+          vez que é chamada, baseada no argumento que recebeu.
+        </p>
+
+        <h2>Arrow functions: uma sintaxe mais curta</h2>
+        <p>
+          Além da forma tradicional com a palavra <code>function</code>, o JavaScript moderno oferece uma sintaxe
+          mais enxuta chamada <em>arrow function</em> (função seta), muito comum em código real:
+        </p>
+        <pre><code>// Forma tradicional
+function somar(a, b) {
+  return a + b;
+}
+
+// Arrow function equivalente
+const somar2 = (a, b) =&gt; {
+  return a + b;
+};
+
+// Se o corpo é só um "return", pode ficar ainda mais curto:
+const somar3 = (a, b) =&gt; a + b;
+
+console.log(somar(2, 3));  // 5
+console.log(somar2(2, 3)); // 5
+console.log(somar3(2, 3)); // 5</code></pre>
+        <p>
+          As três formas acima fazem exatamente a mesma coisa. À medida que você avançar na trilha (principalmente
+          na parte de JavaScript "de verdade"), vai ver arrow functions o tempo todo — por enquanto, o importante é
+          reconhecer que <code>=&gt;</code> significa "isto é uma função", só que escrita de forma mais compacta.
+        </p>
+
+        <div class="box box-atencao">
+          <span class="box-titulo">Atenção</span>
+          Uma função só "faz alguma coisa" quando é <strong>chamada</strong> (com parênteses no final, como
+          <code>saudar("Carlos")</code>). Escrever apenas <code>saudar</code> sem os parênteses não executa nada —
+          apenas se refere à função em si, sem rodá-la. Esse é um erro comum: esquecer os parênteses e ficar sem
+          entender por que "nada aconteceu".
+        </div>
+
+        <h2>Escopo: onde uma variável "existe"</h2>
+        <p>
+          Uma variável criada dentro de uma função só existe <strong>dentro</strong> dela — isso se chama
+          <strong>escopo local</strong>. Fora da função, essa variável não existe e tentar usá-la gera erro:
+        </p>
+        <pre><code>function calcularDobro(numero) {
+  const resultado = numero * 2; // "resultado" só existe aqui dentro
+  return resultado;
+}
+
+console.log(calcularDobro(5)); // 10
+// console.log(resultado); // ERRO: "resultado" não existe fora da função</code></pre>
+        <p>
+          Esse isolamento é uma característica boa, não uma limitação: ele garante que uma variável criada dentro de
+          uma função não vá "vazar" e bagunçar outra parte do código sem querer. Cada função tem seu próprio espaço
+          de trabalho.
+        </p>
+
+        <h2>Resumo</h2>
+        <ul class="checklist">
+          <li>Uma função empacota um bloco de código reutilizável, evitando repetir a mesma lógica em vários lugares.</li>
+          <li>Parâmetros são os "ingredientes" que a função recebe; <code>return</code> devolve um resultado para quem a chamou.</li>
+          <li>Uma função só executa quando é chamada com parênteses, como <code>nomeDaFuncao(valor)</code>.</li>
+          <li>Funções podem não ter <code>return</code>, quando servem apenas para executar uma ação.</li>
+          <li>Arrow functions (<code>=&gt;</code>) são uma forma mais curta de escrever funções, muito comuns em JavaScript moderno.</li>
+          <li>Variáveis criadas dentro de uma função têm escopo local: só existem dentro dela.</li>
+        </ul>
+
+        <div id="lesson-footer-nav" class="lesson-footer-nav"></div>
+      </main>
+    </div>
+  </div>
+  <script src="../../nav.js"></script>
+</body>
+</html>

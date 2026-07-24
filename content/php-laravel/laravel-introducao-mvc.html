@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Introdução ao Laravel e MVC — Trilha Dev Full Stack</title>
+  <link rel="stylesheet" href="../../style.css" />
+</head>
+<body>
+  <div class="layout">
+    <nav id="sidebar"></nav>
+    <div class="content-wrap">
+      <main class="content">
+        <div class="breadcrumb">6. PHP & Laravel</div>
+        <h1 class="lesson-title">Introdução ao Laravel e MVC</h1>
+        <p class="lesson-subtitle">Por que quase ninguém escreve PHP "puro" em produção, e como o padrão MVC organiza um sistema inteiro.</p>
+
+        <div class="box box-analogia">
+          <span class="box-titulo">Analogia</span>
+          Pense num restaurante organizado. O <strong>cliente</strong> faz um pedido ao <strong>garçom</strong>
+          (Controller). O garçom não cozinha nada — ele só recebe o pedido, leva até a cozinha e depois traz o
+          resultado de volta. Na <strong>cozinha</strong> (Model) é onde os ingredientes de verdade ficam guardados
+          e onde a comida é realmente preparada — é lá que estão os dados e as regras de como prepará-los. E o
+          <strong>prato</strong> que chega até a mesa, bonito e pronto para ser visto (View), é só a apresentação
+          final: o cliente nunca vê a bagunça da cozinha, só o resultado já arrumado. Cada parte faz um trabalho
+          e não se mistura com o trabalho da outra — é isso que faz o restaurante (e um sistema web) funcionar sem
+          caos.
+        </div>
+
+        <h2>Por que usar um framework em vez de PHP puro?</h2>
+        <p>
+          Quando você escreve PHP puro (como nas duas lições anteriores), toda vez que quer construir uma
+          funcionalidade — login de usuário, formulário com validação, conexão com banco de dados, proteção contra
+          ataques comuns — você precisa escrever isso do zero. É como construir uma casa fabricando você mesmo cada
+          tijolo, cano e fio elétrico. Funciona, mas é lento, repetitivo e fácil de errar.
+        </p>
+        <p>
+          Um <strong>framework</strong> é um conjunto de ferramentas, regras e estruturas prontas que resolvem os
+          problemas mais comuns de um sistema web, para que você foque no que é específico do seu projeto. O
+          <strong>Laravel</strong> é o framework PHP mais popular do mundo hoje. Ele já vem com: um jeito organizado
+          de definir rotas (quais URLs existem no site), um sistema de banco de dados chamado Eloquent, um motor de
+          templates chamado Blade, autenticação de usuários pronta, validação de formulários, proteção contra os
+          ataques mais comuns, e muito mais — tudo isso pronto para usar, sem você precisar reinventar.
+        </p>
+        <p>
+          Usar um framework não é "trapacear" — é aproveitar o trabalho de milhares de desenvolvedores que já
+          resolveram esses problemas antes, testaram exaustivamente e mantêm atualizado contra falhas de segurança.
+          Praticamente todo sistema PHP profissional moderno é construído sobre algum framework, e o Laravel é hoje
+          a escolha mais comum no mercado.
+        </p>
+
+        <div class="box box-dica">
+          <span class="box-titulo">Dica</span>
+          Você não precisa saber PHP "avançado" para começar no Laravel, mas precisa estar confortável com o básico
+          da linguagem e, principalmente, com orientação a objetos — classes, objetos, herança — porque o Laravel usa
+          esses conceitos o tempo todo em sua estrutura interna.
+        </div>
+
+        <h2>O padrão MVC</h2>
+        <p>
+          MVC significa <strong>Model - View - Controller</strong> (Modelo - Visão - Controlador). É um padrão de
+          arquitetura usado por praticamente todo framework web moderno (não só Laravel) para separar
+          responsabilidades dentro do sistema. Voltando à analogia do restaurante:
+        </p>
+        <ul>
+          <li>
+            <strong>Model (Cozinha)</strong> — representa os dados e as regras de negócio do sistema. É a camada que
+            sabe como buscar, salvar e validar informações — por exemplo, uma classe <code>Produto</code> que sabe
+            buscar todos os produtos no banco de dados. O Model não sabe nada sobre como essa informação vai ser
+            exibida na tela.
+          </li>
+          <li>
+            <strong>View (Prato servido)</strong> — é a camada de apresentação: o HTML que o usuário efetivamente vê.
+            No Laravel, as views são escritas usando o Blade (que você vai estudar na próxima lição). A view não
+            decide regra nenhuma de negócio — ela só recebe dados prontos e os exibe.
+          </li>
+          <li>
+            <strong>Controller (Garçom)</strong> — recebe a requisição do usuário (por exemplo, "quero ver a página
+            de produtos"), pede ao Model os dados necessários, e entrega esses dados para a View exibir. O Controller
+            é o "meio de campo": ele coordena, mas não faz o trabalho pesado de nenhum dos outros dois.
+          </li>
+        </ul>
+
+        <h2>Um exemplo simples do fluxo MVC</h2>
+        <p>
+          Imagine que um usuário acessa a URL <code>/produtos</code> no navegador. O fluxo dentro de um sistema
+          Laravel seria mais ou menos assim:
+        </p>
+        <pre><code>1. O navegador pede a URL /produtos
+2. O Laravel consulta as ROTAS e descobre: essa URL pertence ao ProdutoController
+3. O CONTROLLER (garçom) chama o MODEL para buscar os produtos:
+   $produtos = Produto::all();
+4. O MODEL (cozinha) consulta o banco de dados e devolve os dados
+5. O CONTROLLER envia esses dados para a VIEW:
+   return view('produtos.index', ['produtos' =&gt; $produtos]);
+6. A VIEW (prato servido) monta o HTML final usando esses dados
+7. O navegador recebe o HTML pronto e exibe a página ao usuário</code></pre>
+        <p>
+          Repare que cada peça só sabe fazer o que é seu papel. O Controller nunca escreve HTML. A View nunca faz
+          consulta direta ao banco de dados. O Model nunca decide como algo vai aparecer na tela. Essa separação é o
+          que torna sistemas grandes muito mais fáceis de manter — se você precisa mudar o visual da página, mexe só
+          na View; se precisa mudar uma regra de negócio, mexe só no Model.
+        </p>
+
+        <div class="box box-atencao">
+          <span class="box-titulo">Atenção</span>
+          Um erro muito comum de quem está começando com Laravel é "misturar tudo": colocar lógica de banco de dados
+          direto dentro da view, ou construir HTML dentro do controller. Isso funciona no curto prazo, mas quebra a
+          organização do MVC e torna o código muito mais difícil de manter conforme o projeto cresce. Sempre que
+          possível, mantenha cada responsabilidade na camada certa.
+        </div>
+
+        <h2>Instalando e conhecendo a estrutura de um projeto Laravel</h2>
+        <p>
+          Um projeto Laravel é criado através do Composer (o gerenciador de pacotes do PHP), com um comando como:
+        </p>
+        <pre><code>composer create-project laravel/laravel meu-projeto
+cd meu-projeto
+php artisan serve</code></pre>
+        <p>
+          O comando <code>php artisan serve</code> sobe um servidor local para você testar o projeto no navegador.
+          O <strong>Artisan</strong> é a ferramenta de linha de comando do Laravel — você vai usá-la bastante ao
+          longo desta trilha para criar controllers, models, rodar migrations e muito mais. Dentro da estrutura de
+          pastas de um projeto Laravel, as mais importantes para você neste momento são:
+        </p>
+        <ul>
+          <li><code>app/Models</code> — onde ficam as classes Model (a "cozinha").</li>
+          <li><code>app/Http/Controllers</code> — onde ficam os Controllers (os "garçons").</li>
+          <li><code>resources/views</code> — onde ficam os arquivos Blade, as Views (os "pratos").</li>
+          <li><code>routes/web.php</code> — onde as rotas (URLs) do site são definidas.</li>
+        </ul>
+
+        <h2>O que vem a seguir</h2>
+        <p>
+          Nas próximas lições você vai aprender, na prática, a criar rotas, controllers e views com Blade (a
+          "cozinha" ganhando vida real com Models e Migrations, e depois com regras de segurança usando middleware e
+          autenticação). Este conceito de MVC vai aparecer em quase tudo — vale a pena voltar aqui sempre que sentir
+          que perdeu a visão geral de "quem faz o quê" dentro de um projeto Laravel.
+        </p>
+
+        <h2>Resumo</h2>
+        <ul class="checklist">
+          <li>Um framework como o Laravel oferece soluções prontas e testadas para problemas comuns de sistemas web, evitando reinventar a roda.</li>
+          <li>MVC separa um sistema em três papéis: Model (dados e regras), View (apresentação) e Controller (coordenação).</li>
+          <li>O Controller nunca deve conter HTML; a View nunca deve consultar o banco de dados diretamente.</li>
+          <li>O Artisan é a ferramenta de linha de comando do Laravel, usada para criar arquivos e rodar tarefas do projeto.</li>
+          <li>As pastas principais de um projeto Laravel são <code>app/Models</code>, <code>app/Http/Controllers</code>, <code>resources/views</code> e <code>routes/web.php</code>.</li>
+        </ul>
+
+        <div id="lesson-footer-nav" class="lesson-footer-nav"></div>
+      </main>
+    </div>
+  </div>
+  <script src="../../nav.js"></script>
+</body>
+</html>

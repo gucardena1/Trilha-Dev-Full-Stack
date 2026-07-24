@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Integrando Vue com uma API — Trilha Dev Full Stack</title>
+  <link rel="stylesheet" href="../../style.css" />
+</head>
+<body>
+  <div class="layout">
+    <nav id="sidebar"></nav>
+    <div class="content-wrap">
+      <main class="content">
+        <div class="breadcrumb">7. Vue.js</div>
+        <h1 class="lesson-title">Integrando Vue com uma API</h1>
+        <p class="lesson-subtitle">Como consumir uma API REST de dentro de um componente, tratar carregamento e erro de forma correta, e o que de fato é CORS.</p>
+
+        <p>
+          Até aqui, todos os dados que você usou nas lições viviam dentro do próprio componente ou
+          de uma store local, criados na hora e sem depender de nada externo. Uma aplicação real,
+          porém, quase sempre precisa buscar e enviar dados para um servidor — um backend em
+          Node.js, PHP, Python, o que for, expondo uma API REST. Esta lição fecha a trilha de Vue
+          conectando as duas pontas: o frontend que você já sabe construir e o backend que alimenta
+          essa interface com dados de verdade.
+        </p>
+
+        <h2>Buscando dados com <code>fetch</code> dentro de um componente</h2>
+        <p>
+          O padrão mais comum é disparar a requisição assim que o componente é criado, usando o
+          hook de ciclo de vida <code>onMounted</code>, e guardar o resultado em uma variável
+          reativa:
+        </p>
+        <pre><code>&lt;script setup&gt;
+import { ref, onMounted } from 'vue'
+
+const produtos = ref([])
+const carregando = ref(true)
+const erro = ref(null)
+
+onMounted(async () =&gt; {
+  try {
+    const resposta = await fetch('https://api.minhaloja.com/produtos')
+
+    if (!resposta.ok) {
+      throw new Error(`Erro do servidor: ${resposta.status}`)
+    }
+
+    produtos.value = await resposta.json()
+  } catch (e) {
+    erro.value = 'Não foi possível carregar os produtos.'
+    console.error(e)
+  } finally {
+    carregando.value = false
+  }
+})
+&lt;/script&gt;
+
+&lt;template&gt;
+  &lt;p v-if="carregando"&gt;Carregando produtos...&lt;/p&gt;
+  &lt;p v-else-if="erro"&gt;{{ erro }}&lt;/p&gt;
+  &lt;ul v-else&gt;
+    &lt;li v-for="produto in produtos" :key="produto.id"&gt;
+      {{ produto.nome }} — R$ {{ produto.preco }}
+    &lt;/li&gt;
+  &lt;/ul&gt;
+&lt;/template&gt;</code></pre>
+        <p>
+          Repare na estrutura das três variáveis reativas: <code>carregando</code>,
+          <code>erro</code> e <code>produtos</code>. Isso não é só um detalhe estético — é o padrão
+          fundamental de qualquer chamada assíncrona numa interface de usuário. Toda requisição a um
+          servidor tem, no mínimo, três estados possíveis pelos quais ela passa: está em andamento,
+          terminou com sucesso, ou terminou com erro. Se o seu componente só souber lidar com o
+          "sucesso", o usuário vai ficar olhando para uma tela em branco (ou pior, quebrada) toda
+          vez que a rede estiver lenta ou o servidor falhar.
+        </p>
+
+        <div class="box box-atencao">
+          <span class="box-titulo">Atenção</span>
+          Um erro muito comum é esquecer de verificar <code>resposta.ok</code>. Diferente do que
+          muita gente espera, o <code>fetch</code> <strong>não</strong> lança um erro
+          automaticamente quando o servidor responde com um status de erro, como 404 ou 500 — ele
+          só lança erro em falhas de rede (sem internet, servidor fora do ar). Se você não checar
+          <code>resposta.ok</code> manualmente e tentar usar <code>resposta.json()</code> direto,
+          seu código pode "funcionar sem erro" mesmo quando o servidor devolveu uma página de erro
+          no lugar dos dados esperados.
+        </div>
+
+        <h2>Usando axios como alternativa</h2>
+        <p>
+          O <code>fetch</code> é nativo do navegador e não precisa de instalação, mas a biblioteca
+          <code>axios</code> é uma alternativa muito popular que simplifica alguns detalhes — ela já
+          lança erro automaticamente em respostas de status de erro, e já converte a resposta para
+          JSON sem um passo extra:
+        </p>
+        <pre><code>npm install axios</code></pre>
+        <pre><code>&lt;script setup&gt;
+import { ref, onMounted } from 'vue'
+import axios from 'axios'
+
+const produtos = ref([])
+const carregando = ref(true)
+const erro = ref(null)
+
+onMounted(async () =&gt; {
+  try {
+    const resposta = await axios.get('https://api.minhaloja.com/produtos')
+    produtos.value = resposta.data // axios já entrega os dados prontos em .data
+  } catch (e) {
+    erro.value = 'Não foi possível carregar os produtos.'
+    console.error(e)
+  } finally {
+    carregando.value = false
+  }
+})
+&lt;/script&gt;</code></pre>
+        <p>
+          A lógica de <code>carregando</code>/<code>erro</code>/<code>produtos</code> é idêntica —
+          a diferença entre <code>fetch</code> e <code>axios</code> é só na forma de fazer a
+          chamada e tratar o erro, não no padrão de estados que você expõe para o template.
+        </p>
+
+        <h2>Extraindo a lógica de busca para um composable</h2>
+        <p>
+          Como você viu na lição de Composition API, sempre que um padrão se repete entre
+          componentes, vale a pena extraí-lo. Buscar dados de uma API é um dos casos mais comuns
+          disso:
+        </p>
+        <pre><code>// useFetch.js
+import { ref } from 'vue'
+
+export function useFetch(url) {
+  const dados = ref(null)
+  const carregando = ref(true)
+  const erro = ref(null)
+
+  fetch(url)
+    .then(resposta =&gt; {
+      if (!resposta.ok) throw new Error(`Erro: ${resposta.status}`)
+      return resposta.json()
+    })
+    .then(json =&gt; { dados.value = json })
+    .catch(e =&gt; { erro.value = e.message })
+    .finally(() =&gt; { carregando.value = false })
+
+  return { dados, carregando, erro }
+}</code></pre>
+        <pre><code>&lt;script setup&gt;
+import { useFetch } from './useFetch.js'
+
+const { dados: produtos, carregando, erro } = useFetch('https://api.minhaloja.com/produtos')
+&lt;/script&gt;</code></pre>
+        <p>
+          Note o uso de <code>{ dados: produtos, ... }</code> na desestruturação — isso apenas
+          renomeia <code>dados</code> para <code>produtos</code> no componente que consome o
+          composable, sem afetar a reatividade, porque estamos desestruturando <code>ref</code>s
+          (que continuam reativos fora do objeto), e não um <code>reactive()</code>.
+        </p>
+
+        <h2>O que é CORS, de forma simples</h2>
+        <p>
+          Em algum momento, ao tentar consumir uma API a partir do seu frontend Vue, você vai se
+          deparar com um erro no console mencionando "CORS" — geralmente algo como
+          "blocked by CORS policy". Isso não é um bug no seu código Vue; é uma regra de segurança
+          do próprio navegador.
+        </p>
+
+        <div class="box box-analogia">
+          <span class="box-titulo">Analogia</span>
+          Imagine um prédio comercial com um porteiro rigoroso. Você (o navegador) mora nesse
+          prédio (o site <code>meusite.com</code>) e quer entregar uma encomenda num outro prédio,
+          o escritório de uma API que está em <code>api.outraempresa.com</code>. O porteiro do
+          <em>outro</em> prédio (o servidor da API) tem uma lista de "endereços de onde aceito
+          visitas" — se o seu prédio não estiver nessa lista, o porteiro simplesmente recusa a
+          entrega na entrada, mesmo que a encomenda em si esteja perfeita. CORS (Cross-Origin
+          Resource Sharing) é exatamente essa lista de permissões: o servidor da API precisa dizer
+          explicitamente, através de um cabeçalho HTTP chamado <code>Access-Control-Allow-Origin</code>,
+          quais "endereços" (origens, isto é, domínios) têm permissão para fazer requisições a ele
+          a partir do navegador. Se o seu site não estiver nessa lista, o navegador bloqueia a
+          resposta antes mesmo dela chegar até o seu código Vue — por segurança, para impedir que
+          sites maliciosos façam requisições escondidas em nome do usuário para APIs que ele nem
+          sabe que existem.
+        </div>
+
+        <p>
+          Um ponto importante: o bloqueio de CORS acontece no <strong>navegador</strong>, não no
+          seu código. Se você tentar fazer a mesma requisição a partir de um servidor (Node.js, por
+          exemplo, sem navegador envolvido), ela funciona normalmente, porque a política de CORS é
+          uma regra específica de segurança de navegadores web, não do protocolo HTTP em si. Por
+          isso, um erro de CORS não se resolve mudando algo no Vue — a solução é sempre do lado do
+          servidor da API, que precisa configurar os cabeçalhos corretos autorizando o domínio do
+          seu frontend.
+        </p>
+
+        <div class="box box-dica">
+          <span class="box-titulo">Dica</span>
+          Durante o desenvolvimento local, uma solução comum e prática é configurar um "proxy" no
+          seu servidor de desenvolvimento do Vite, que redireciona as chamadas da sua aplicação para
+          a API por trás dos panos, como se ambas estivessem na mesma origem. Isso evita lidar com
+          CORS enquanto você desenvolve, mas não substitui a configuração correta de CORS no
+          servidor quando a aplicação for para produção.
+        </div>
+
+        <h2>Enviando dados: POST, PUT e DELETE</h2>
+        <p>
+          O mesmo padrão de <code>carregando</code>/<code>erro</code>/<code>sucesso</code> se aplica
+          a operações de escrita, só que geralmente disparadas por uma ação do usuário (like um
+          clique) em vez de <code>onMounted</code>:
+        </p>
+        <pre><code>&lt;script setup&gt;
+import { ref } from 'vue'
+
+const enviando = ref(false)
+const erro = ref(null)
+
+async function criarProduto(produto) {
+  enviando.value = true
+  erro.value = null
+
+  try {
+    const resposta = await fetch('https://api.minhaloja.com/produtos', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(produto)
+    })
+
+    if (!resposta.ok) throw new Error('Falha ao criar produto')
+
+    return await resposta.json()
+  } catch (e) {
+    erro.value = e.message
+  } finally {
+    enviando.value = false
+  }
+}
+&lt;/script&gt;</code></pre>
+        <p>
+          Com isso, você já tem o essencial para ligar qualquer tela Vue a um backend real: buscar
+          dados com tratamento adequado de carregamento e erro, extrair essa lógica em composables
+          reutilizáveis, entender por que erros de CORS aparecem (e que a correção fica do lado do
+          servidor), e enviar dados de volta ao servidor a partir de ações do usuário. A partir
+          daqui, o próximo passo natural é aprofundar no backend em si — que é exatamente o que as
+          próximas trilhas desta plataforma cobrem.
+        </p>
+
+        <h2>Resumo</h2>
+        <ul class="checklist">
+          <li>Toda chamada assíncrona a uma API deve tratar três estados na interface: carregando, sucesso e erro.</li>
+          <li><code>fetch</code> não lança erro automaticamente em respostas com status de erro — é preciso checar <code>resposta.ok</code> manualmente; <code>axios</code> já faz isso por padrão.</li>
+          <li>A lógica de busca de dados pode ser extraída para um composable reutilizável (<code>useFetch</code>), seguindo o mesmo padrão de outras lições.</li>
+          <li>CORS é uma política de segurança do navegador: o servidor da API precisa autorizar explicitamente quais domínios podem chamá-lo; a correção sempre acontece no backend, não no Vue.</li>
+          <li>Operações de escrita (POST/PUT/DELETE) seguem o mesmo padrão de estados de uma busca, geralmente disparadas por uma ação do usuário em vez de <code>onMounted</code>.</li>
+        </ul>
+
+        <div id="lesson-footer-nav" class="lesson-footer-nav"></div>
+      </main>
+    </div>
+  </div>
+  <script src="../../nav.js"></script>
+</body>
+</html>

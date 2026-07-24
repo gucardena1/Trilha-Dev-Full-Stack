@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Componentes, props e eventos — Trilha Dev Full Stack</title>
+  <link rel="stylesheet" href="../../style.css" />
+</head>
+<body>
+  <div class="layout">
+    <nav id="sidebar"></nav>
+    <div class="content-wrap">
+      <main class="content">
+        <div class="breadcrumb">7. Vue.js</div>
+        <h1 class="lesson-title">Componentes, props e eventos</h1>
+        <p class="lesson-subtitle">Como quebrar uma tela em pedaços reutilizáveis e como esses pedaços conversam entre si.</p>
+
+        <p>
+          Na lição anterior você viu um componente sozinho, com um botão e um contador. Mas nenhum
+          site de verdade é feito de um único bloco de código gigante — ele é montado a partir de
+          pedaços menores, cada um responsável por uma parte específica da tela. No Vue, esses
+          pedaços se chamam <strong>componentes</strong>, e aprender a dividir uma interface em
+          componentes bem definidos é uma das habilidades mais importantes que você vai desenvolver.
+        </p>
+
+        <div class="box box-analogia">
+          <span class="box-titulo">Analogia</span>
+          Pense em peças de Lego. Cada peça é pequena, simples e serve para um propósito claro —
+          uma peça de 2x4, uma roda, uma dobradiça. Sozinha, uma peça não parece grande coisa, mas
+          combinando várias peças diferentes você monta um carro, uma casa, um castelo. O segredo é
+          que as peças são <strong>reutilizáveis</strong>: a mesma peça de roda serve tanto no
+          carrinho quanto no caminhão do seu conjunto de Lego. Um componente Vue é essa peça: um
+          pedaço de tela (com seu próprio HTML, lógica e às vezes estilo) que você projeta uma vez
+          e reutiliza em vários lugares da aplicação — um <code>CartaoProduto</code>, um
+          <code>Botao</code>, um <code>Modal</code> de confirmação.
+        </div>
+
+        <h2>Criando e usando um componente</h2>
+        <p>
+          Um componente Vue geralmente é um arquivo <code>.vue</code> próprio. Imagine um arquivo
+          <code>CartaoProduto.vue</code>:
+        </p>
+        <pre><code>&lt;!-- CartaoProduto.vue --&gt;
+&lt;script setup&gt;
+const props = defineProps({
+  nome: String,
+  preco: Number
+})
+&lt;/script&gt;
+
+&lt;template&gt;
+  &lt;div class="cartao"&gt;
+    &lt;h3&gt;{{ nome }}&lt;/h3&gt;
+    &lt;p&gt;R$ {{ preco.toFixed(2) }}&lt;/p&gt;
+  &lt;/div&gt;
+&lt;/template&gt;</code></pre>
+        <p>
+          E, em outro componente (por exemplo, a página que lista produtos), você usa essa peça
+          várias vezes, mudando apenas os dados:
+        </p>
+        <pre><code>&lt;script setup&gt;
+import CartaoProduto from './CartaoProduto.vue'
+&lt;/script&gt;
+
+&lt;template&gt;
+  &lt;div&gt;
+    &lt;CartaoProduto nome="Teclado mecânico" :preco="350" /&gt;
+    &lt;CartaoProduto nome="Mouse sem fio" :preco="120" /&gt;
+  &lt;/div&gt;
+&lt;/template&gt;</code></pre>
+        <p>
+          Repare que a mesma "peça de Lego" <code>CartaoProduto</code> foi usada duas vezes, cada
+          vez com dados diferentes. Isso é reuso de componente na prática.
+        </p>
+
+        <h2>Props: dados que descem do pai para o filho</h2>
+        <p>
+          No exemplo acima, <code>nome</code> e <code>preco</code> são <strong>props</strong>
+          (abreviação de "properties"). Props são a forma de um componente <em>pai</em> passar
+          dados para um componente <em>filho</em> — sempre numa via de mão única, de cima para
+          baixo. O filho declara quais props aceita com <code>defineProps</code>, e o pai as
+          preenche como se fossem atributos HTML. Note a diferença de sintaxe: <code>nome="..."</code>
+          passa um texto fixo, enquanto <code>:preco="350"</code> (com dois-pontos na frente) passa
+          uma expressão JavaScript — nesse caso, o número <code>350</code>, não o texto
+          <code>"350"</code>.
+        </p>
+
+        <div class="box box-atencao">
+          <span class="box-titulo">Atenção</span>
+          Props são de leitura para o componente filho — nunca altere uma prop diretamente dentro
+          do componente que a recebeu, como em <code>props.preco = 100</code>. O Vue vai avisar com
+          um erro no console porque isso quebra a ideia de "fluxo de dados em uma via só": se o
+          filho pudesse mudar a prop livremente, o pai perderia o controle sobre seus próprios
+          dados. Se você precisa de uma versão modificável do valor, copie a prop para uma variável
+          reativa própria dentro do filho, ou melhor ainda, avise o pai (via evento, como você vai
+          ver a seguir) para que seja ele a mudar o dado original.
+        </div>
+
+        <h2>Eventos: o filho avisando o pai</h2>
+        <p>
+          Se props é a via "de cima para baixo", eventos são a via "de baixo para cima": um
+          componente filho não pode mudar os dados do pai diretamente, mas pode <strong>emitir um
+          evento</strong> avisando "algo aconteceu aqui", e é o pai quem decide o que fazer com essa
+          informação. Isso se faz com <code>defineEmits</code>:
+        </p>
+        <pre><code>&lt;!-- BotaoCurtir.vue --&gt;
+&lt;script setup&gt;
+const emit = defineEmits(['curtiu'])
+
+function aoClicar() {
+  // avisa quem estiver usando este componente que o clique aconteceu
+  emit('curtiu')
+}
+&lt;/script&gt;
+
+&lt;template&gt;
+  &lt;button @click="aoClicar"&gt;❤ Curtir&lt;/button&gt;
+&lt;/template&gt;</code></pre>
+        <pre><code>&lt;!-- componente pai --&gt;
+&lt;script setup&gt;
+import { ref } from 'vue'
+import BotaoCurtir from './BotaoCurtir.vue'
+
+const curtidas = ref(0)
+
+function incrementarCurtidas() {
+  curtidas.value++
+}
+&lt;/script&gt;
+
+&lt;template&gt;
+  &lt;p&gt;{{ curtidas }} curtidas&lt;/p&gt;
+  &lt;BotaoCurtir @curtiu="incrementarCurtidas" /&gt;
+&lt;/template&gt;</code></pre>
+        <p>
+          O componente <code>BotaoCurtir</code> não sabe nem se importa com o que o pai vai fazer
+          quando alguém clicar — ele só avisa "curtiu" e segue a vida. Quem decide o que acontece
+          (incrementar um contador, salvar no banco, mostrar uma animação) é sempre o pai, através
+          do <code>@curtiu="..."</code>. Essa separação de responsabilidades é o que torna
+          componentes reutilizáveis em contextos muito diferentes: o mesmo <code>BotaoCurtir</code>
+          poderia ser usado numa tela de fotos e numa tela de comentários, cada uma reagindo do seu
+          próprio jeito ao mesmo evento.
+        </p>
+
+        <h2><code>v-model</code>: props e eventos trabalhando juntos</h2>
+        <p>
+          Um padrão tão comum — passar um valor via prop e emitir um evento para avisar quando ele
+          muda — que o Vue tem um atalho para isso: o <code>v-model</code>. Você já deve tê-lo visto
+          em inputs comuns:
+        </p>
+        <pre><code>&lt;script setup&gt;
+import { ref } from 'vue'
+const nomeUsuario = ref('')
+&lt;/script&gt;
+
+&lt;template&gt;
+  &lt;input v-model="nomeUsuario" placeholder="Seu nome" /&gt;
+  &lt;p&gt;Olá, {{ nomeUsuario }}!&lt;/p&gt;
+&lt;/template&gt;</code></pre>
+        <p>
+          Por trás dos panos, <code>v-model</code> num input nada mais é do que açúcar sintático
+          para "passar o valor atual como prop <code>value</code> e escutar o evento
+          <code>input</code> para atualizar a variável". Você pode criar esse mesmo comportamento
+          nos seus próprios componentes, aceitando uma prop <code>modelValue</code> e emitindo
+          <code>update:modelValue</code>:
+        </p>
+        <pre><code>&lt;!-- CampoTexto.vue --&gt;
+&lt;script setup&gt;
+defineProps(['modelValue'])
+defineEmits(['update:modelValue'])
+&lt;/script&gt;
+
+&lt;template&gt;
+  &lt;input
+    :value="modelValue"
+    @input="$emit('update:modelValue', $event.target.value)"
+  /&gt;
+&lt;/template&gt;</code></pre>
+        <p>
+          Feito isso, quem usar <code>&lt;CampoTexto v-model="nomeUsuario" /&gt;</code> ganha o
+          mesmo comportamento de sincronização automática que os inputs nativos têm — o componente
+          filho recebe o valor via prop e avisa o pai a cada mudança via evento, tudo escondido
+          atrás da sintaxe simples do <code>v-model</code>.
+        </p>
+
+        <div class="box box-dica">
+          <span class="box-titulo">Dica</span>
+          Uma boa regra para saber quando quebrar a tela em um novo componente: se um pedaço de
+          HTML se repete em vários lugares, ou se um pedaço tem uma responsabilidade clara e
+          isolada (um cartão, um modal, um formulário), ele provavelmente merece virar seu próprio
+          componente. Componentes pequenos e bem definidos são muito mais fáceis de testar, reusar
+          e entender do que um único componente gigante fazendo tudo.
+        </div>
+
+        <h2>Resumo</h2>
+        <ul class="checklist">
+          <li>Componentes são pedaços de tela reutilizáveis, como peças de Lego — cada um com responsabilidade própria.</li>
+          <li>Props levam dados do componente pai para o componente filho, sempre em uma única direção.</li>
+          <li>Nunca altere uma prop diretamente dentro do filho; se precisar mudá-la, avise o pai via evento.</li>
+          <li>Eventos (<code>defineEmits</code> / <code>emit</code>) são a forma do filho avisar o pai sobre algo que aconteceu, sem tomar decisões por ele.</li>
+          <li><code>v-model</code> é um atalho que combina uma prop e um evento para manter um valor sincronizado entre pai e filho.</li>
+        </ul>
+
+        <div id="lesson-footer-nav" class="lesson-footer-nav"></div>
+      </main>
+    </div>
+  </div>
+  <script src="../../nav.js"></script>
+</body>
+</html>

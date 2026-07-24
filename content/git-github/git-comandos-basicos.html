@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Comandos essenciais do dia a dia — Trilha Dev Full Stack</title>
+  <link rel="stylesheet" href="../../style.css" />
+</head>
+<body>
+  <div class="layout">
+    <nav id="sidebar"></nav>
+    <div class="content-wrap">
+      <main class="content">
+        <div class="breadcrumb">4. Git & GitHub</div>
+        <h1 class="lesson-title">Comandos essenciais do dia a dia</h1>
+        <p class="lesson-subtitle">Os oito comandos que resolvem 90% do uso real do Git no dia a dia.</p>
+
+        <div class="box box-analogia">
+          <span class="box-titulo">Analogia</span>
+          Pense no Git como uma mesa de trabalho com três áreas: a <strong>bagunça</strong> (os arquivos que você
+          está editando agora), a <strong>caixa de "pronto para guardar"</strong> (o que você já revisou e decidiu
+          incluir na próxima foto) e o <strong>álbum de fotos</strong> (o histórico permanente de commits). Os
+          comandos que você vai aprender aqui servem, basicamente, para mover as coisas entre essas três áreas — e
+          depois, para levar o álbum inteiro até um servidor remoto e trazer de volta o que outras pessoas
+          adicionaram.
+        </div>
+
+        <p>
+          Na lição anterior você entendeu <em>por que</em> o Git existe. Agora é hora de colocar a mão no terminal.
+          Não se preocupe em decorar tudo de uma vez — o objetivo aqui é entender o que cada comando faz e por que
+          ele existe. Com a prática, eles viram automáticos.
+        </p>
+
+        <h2>git init: criando um repositório novo</h2>
+        <p>
+          Todo repositório Git começa com o comando <code>git init</code>, executado dentro da pasta do seu
+          projeto. Ele cria a subpasta escondida <code>.git</code>, que é onde o Git vai guardar todo o histórico de
+          commits daquele projeto. Você só roda esse comando <strong>uma vez</strong>, no início da vida do projeto.
+        </p>
+        <pre><code>cd meu-projeto
+git init
+# Saída: Initialized empty Git repository in .../meu-projeto/.git/</code></pre>
+
+        <h2>git clone: copiando um repositório que já existe</h2>
+        <p>
+          Se o projeto já existe em algum lugar (por exemplo, no GitHub), você não usa <code>git init</code> — você
+          usa <code>git clone</code>, passando o endereço do repositório. Isso baixa o projeto inteiro, com todo o
+          histórico de commits, para uma pasta nova no seu computador, já configurada para conversar com aquele
+          repositório remoto.
+        </p>
+        <pre><code>git clone https://github.com/usuario/meu-projeto.git</code></pre>
+
+        <h2>git status: "em que ponto eu estou?"</h2>
+        <p>
+          Esse é, de longe, o comando que você vai rodar com mais frequência. Ele mostra quais arquivos foram
+          modificados, quais são novos e ainda não estão sendo rastreados pelo Git, e quais já estão prontos para
+          virar um commit. Rode <code>git status</code> sempre que estiver em dúvida sobre o estado do seu projeto
+          — nunca custa nada rodar ele de novo.
+        </p>
+        <pre><code>git status
+# Saída típica:
+#   modificado:   src/app.js
+#   não rastreado: src/novo-arquivo.js</code></pre>
+
+        <h2>git add: escolhendo o que vai para a próxima foto</h2>
+        <p>
+          O <code>git add</code> move arquivos da "bagunça" para a "caixa de pronto para guardar" (a chamada
+          <strong>staging area</strong>, ou área de preparação). Isso permite escolher exatamente quais mudanças vão
+          entrar no próximo commit, mesmo que você tenha mexido em vários arquivos diferentes por motivos diferentes.
+        </p>
+        <pre><code>git add src/app.js        # adiciona um arquivo específico
+git add .                  # adiciona todos os arquivos modificados na pasta atual</code></pre>
+
+        <div class="box box-dica">
+          <span class="box-titulo">Dica</span>
+          Usar <code>git add .</code> o tempo todo é tentador, mas rodar <code>git status</code> antes evita
+          surpresas — como adicionar sem querer um arquivo de configuração local ou uma pasta de dependências que
+          não deveria ir para o repositório. Vamos falar do arquivo <code>.gitignore</code>, que evita esse
+          problema, na última lição desta trilha.
+        </div>
+
+        <h2>git commit: tirando a foto</h2>
+        <p>
+          Depois de dar <code>add</code> nos arquivos certos, o <code>git commit</code> transforma o que está na
+          área de preparação num commit de verdade — permanente no histórico do repositório. Toda vez, é obrigatório
+          escrever uma mensagem descrevendo o que foi feito, usando a flag <code>-m</code>.
+        </p>
+        <pre><code>git commit -m "Adiciona validação de e-mail no formulário de cadastro"</code></pre>
+        <p>
+          Depois desse comando, aquela "fotografia" fica registrada para sempre no histórico local do repositório,
+          com um identificador único, a data, o autor e a mensagem que você escreveu.
+        </p>
+
+        <h2>git push: enviando os commits para o repositório remoto</h2>
+        <p>
+          Até aqui, tudo aconteceu só no seu computador. O <code>git push</code> envia os commits que você criou
+          localmente para o repositório remoto (por exemplo, no GitHub), para que fiquem salvos na nuvem e visíveis
+          para o resto da equipe.
+        </p>
+        <pre><code>git push origin main
+# "origin" é o apelido do repositório remoto
+# "main" é o nome da branch (linha do tempo) que está sendo enviada</code></pre>
+
+        <h2>git pull: trazendo o que outras pessoas enviaram</h2>
+        <p>
+          O oposto do <code>push</code>. O <code>git pull</code> busca os commits novos que existem no repositório
+          remoto e os traz para o seu repositório local, mantendo sua cópia atualizada com o trabalho de outras
+          pessoas.
+        </p>
+        <pre><code>git pull origin main</code></pre>
+
+        <div class="box box-dica">
+          <span class="box-titulo">Dica</span>
+          Um hábito saudável é rodar <code>git pull</code> antes de começar a trabalhar e antes de dar
+          <code>git push</code>, para reduzir a chance de conflitos (assunto da próxima lição).
+        </div>
+
+        <h2>git log: consultando o álbum de fotos</h2>
+        <p>
+          Quer ver o histórico de commits de um projeto? O <code>git log</code> lista todos eles, do mais recente
+          para o mais antigo, com autor, data, identificador e mensagem.
+        </p>
+        <pre><code>git log
+# commit a1b2c3d4...
+# Author: Maria Silva &lt;maria@email.com&gt;
+# Date:   Qui Jul 24 10:15:00 2026
+#
+#     Adiciona validação de e-mail no formulário de cadastro</code></pre>
+        <p>
+          Uma versão mais compacta e visual, ótima para o dia a dia, é:
+        </p>
+        <pre><code>git log --oneline --graph --all</code></pre>
+
+        <h2>Juntando tudo: o ciclo do dia a dia</h2>
+        <p>
+          Na prática, o fluxo mais comum de trabalho, repetido várias vezes por dia, costuma ser assim:
+        </p>
+        <pre><code>git pull origin main         # traz o que mudou
+# ... você edita arquivos ...
+git status                    # confere o que mudou
+git add .                     # prepara as mudanças
+git commit -m "..."           # registra o commit
+git push origin main          # envia para o remoto</code></pre>
+
+        <div class="box box-atencao">
+          <span class="box-titulo">Atenção</span>
+          O <code>git commit</code> só registra o que passou pelo <code>git add</code> antes. É um erro comum achar
+          que "editou o arquivo" já é suficiente — se você esquecer o <code>add</code>, aquele arquivo simplesmente
+          não entra no commit, mesmo que a mudança já esteja salva no seu editor de código.
+        </div>
+
+        <h2>Resumo</h2>
+        <ul class="checklist">
+          <li><code>git init</code> cria um repositório novo; <code>git clone</code> copia um que já existe.</li>
+          <li><code>git status</code> mostra o que mudou e o que está pronto para virar commit.</li>
+          <li><code>git add</code> prepara arquivos; <code>git commit -m "..."</code> registra a mudança no histórico.</li>
+          <li><code>git push</code> envia commits locais para o remoto; <code>git pull</code> traz commits do remoto.</li>
+          <li><code>git log</code> (ou <code>git log --oneline --graph --all</code>) mostra o histórico de commits.</li>
+        </ul>
+
+        <div id="lesson-footer-nav" class="lesson-footer-nav"></div>
+      </main>
+    </div>
+  </div>
+  <script src="../../nav.js"></script>
+</body>
+</html>

@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TDD: Test-Driven Development — Trilha Dev Full Stack</title>
+  <link rel="stylesheet" href="../../style.css" />
+</head>
+<body>
+  <div class="layout">
+    <nav id="sidebar"></nav>
+    <div class="content-wrap">
+      <main class="content">
+        <div class="breadcrumb">9. Testes</div>
+        <h1 class="lesson-title">TDD: Test-Driven Development</h1>
+        <p class="lesson-subtitle">E se você escrevesse o teste antes de escrever o código que ele testa?</p>
+
+        <div class="box box-analogia">
+          <span class="box-titulo">Analogia</span>
+          Pense em um alfaiate fazendo uma roupa sob medida. Antes de cortar qualquer tecido, ele já sabe
+          exatamente o resultado esperado: as medidas exatas da pessoa, tiradas com fita métrica antes de qualquer
+          corte. Ele não corta um tecido aproximado e "vai ajustando até ficar bom" — ele define o alvo primeiro, e
+          só então trabalha até acertá-lo. O <strong>TDD (Test-Driven Development, ou "Desenvolvimento Guiado por
+          Testes")</strong> aplica a mesma lógica ao código: você escreve primeiro a "medida exata" do que a função
+          deve fazer (o teste) e só depois escreve o código que precisa bater com essa medida.
+        </div>
+
+        <p>
+          Nas lições anteriores desta trilha, sempre escrevemos o código primeiro e o teste depois, para confirmar
+          que ele funciona. O TDD inverte essa ordem: o teste é escrito <em>antes</em> do código de produção sequer
+          existir. Pode parecer estranho — como testar algo que ainda não existe? — mas é justamente essa inversão
+          que faz o TDD ser tão eficaz para guiar o design do código, e não apenas confirmar que ele funciona.
+        </p>
+
+        <h2>O ciclo Red-Green-Refactor</h2>
+        <p>
+          O TDD funciona em um ciclo curto e repetido, com três passos que dão nome ao método, baseados nas cores
+          que ferramentas de teste usam para indicar sucesso (verde) ou falha (vermelho):
+        </p>
+        <ul>
+          <li>
+            <strong>Red (vermelho):</strong> você escreve um teste para um comportamento que ainda não existe no
+            código, e o executa. Ele falha — obrigatoriamente, já que o código correspondente nem foi escrito
+            ainda. A tela do teste fica vermelha. Isso é esperado e faz parte do processo: confirma que o teste de
+            fato está testando alguma coisa (um teste que passa mesmo sem o código existir não estaria testando
+            nada de útil).
+          </li>
+          <li>
+            <strong>Green (verde):</strong> você escreve o <em>mínimo</em> de código de produção necessário para
+            fazer aquele teste passar — nada mais, nada de funcionalidades extras "por precaução". A tela fica
+            verde. O objetivo aqui não é elegância, é só fazer o teste passar da forma mais direta possível.
+          </li>
+          <li>
+            <strong>Refactor (refatorar):</strong> com o teste passando como uma rede de segurança, você agora
+            melhora o código — renomeia variáveis, remove duplicação, organiza melhor — sem mudar o comportamento.
+            Se, ao final da refatoração, o teste continuar verde, você sabe que não quebrou nada. Se quebrar, você
+            descobre imediatamente, e não semanas depois.
+          </li>
+        </ul>
+        <p>
+          Depois do refactor, o ciclo recomeça: escreve-se um novo teste para o próximo pedacinho de comportamento
+          (vermelho de novo), implementa-se o mínimo necessário (verde de novo), refatora-se, e assim por diante —
+          em passos pequenos, um de cada vez.
+        </p>
+
+        <h2>Exemplo prático, passo a passo</h2>
+        <p>
+          Vamos construir, com TDD, uma função que calcula se um ano é bissexto — um problema pequeno o bastante
+          para caber numa lição, mas com regras suficientes para mostrar o ciclo completo funcionando de verdade.
+        </p>
+
+        <h3>Passo 1 — Red: o primeiro teste, mais simples possível</h3>
+        <pre><code>// bissexto.test.js
+import { describe, it, expect } from 'vitest';
+import { eBissexto } from './bissexto.js';
+
+describe('eBissexto', () => {
+  it('2024 é bissexto (divisível por 4)', () => {
+    expect(eBissexto(2024)).toBe(true);
+  });
+});</code></pre>
+        <p>
+          Rodando esse teste agora, ele falha — nem existe o arquivo <code>bissexto.js</code> ainda. Tela vermelha,
+          como esperado.
+        </p>
+
+        <h3>Passo 2 — Green: o mínimo para passar</h3>
+        <pre><code>// bissexto.js
+export function eBissexto(ano) {
+  return true; // "chute" mínimo só para fazer este primeiro teste passar
+}</code></pre>
+        <p>
+          Sim, esse código está claramente incompleto — mas ele faz o teste atual passar, e é só isso que o passo
+          "green" exige. A implementação de verdade vai surgir conforme adicionarmos mais testes que exponham os
+          casos que faltam.
+        </p>
+
+        <h3>Passo 3 — Red de novo: um teste que expõe a falha do "chute"</h3>
+        <pre><code>it('2023 não é bissexto', () => {
+  expect(eBissexto(2023)).toBe(false);
+});</code></pre>
+        <p>
+          Esse novo teste falha, porque nosso código atual sempre retorna <code>true</code>. Isso nos obriga a
+          escrever uma implementação de verdade.
+        </p>
+
+        <h3>Passo 4 — Green de novo: implementação real da regra básica</h3>
+        <pre><code>export function eBissexto(ano) {
+  return ano % 4 === 0;
+}</code></pre>
+        <p>Agora os dois testes passam. Mas a regra de ano bissexto tem uma exceção conhecida: séculos (múltiplos de 100) só são bissextos se também forem múltiplos de 400. Vamos expor isso com mais um teste.</p>
+
+        <h3>Passo 5 — Red: expondo a regra dos séculos</h3>
+        <pre><code>it('1900 não é bissexto, mesmo divisível por 4 (é século não múltiplo de 400)', () => {
+  expect(eBissexto(1900)).toBe(false);
+});
+
+it('2000 é bissexto (século múltiplo de 400)', () => {
+  expect(eBissexto(2000)).toBe(true);
+});</code></pre>
+        <p>
+          O primeiro desses dois testes falha com nossa implementação atual, já que <code>1900 % 4 === 0</code>.
+          Isso mostra exatamente a regra que faltava implementar.
+        </p>
+
+        <h3>Passo 6 — Green: implementação completa e correta</h3>
+        <pre><code>export function eBissexto(ano) {
+  if (ano % 400 === 0) return true;
+  if (ano % 100 === 0) return false;
+  return ano % 4 === 0;
+}</code></pre>
+        <p>
+          Com todos os quatro testes passando, chegamos ao passo <strong>refactor</strong>: o código já está
+          bastante enxuto, mas poderíamos, por exemplo, renomear a variável ou extrair um comentário explicando a
+          regra — com a segurança de que, se algo quebrar durante esse ajuste, os testes avisam na hora.
+        </p>
+
+        <div class="box box-dica">
+          <span class="box-titulo">Dica</span>
+          Repare como cada teste novo não nasceu da imaginação — ele nasceu de um caso real que a implementação
+          anterior não cobria. Esse é o espírito do TDD: os testes vão, aos poucos, "desenhando" os requisitos da
+          função, um caso de cada vez, em vez de você tentar adivinhar todas as regras de uma vez só antes de
+          escrever qualquer código.
+        </div>
+
+        <h2>Vantagens e quando vale a pena</h2>
+        <p>
+          O TDD traz alguns benefícios que vão além de "ter testes no final":
+        </p>
+        <ul>
+          <li>
+            <strong>Design mais simples:</strong> como você só escreve o código necessário para passar no teste
+            atual, é raro acabar com funcionalidades complexas demais que ninguém pediu.
+          </li>
+          <li>
+            <strong>Cobertura de testes naturalmente alta:</strong> como todo comportamento passou pelo ciclo
+            red-green, é difícil esquecer de testar alguma coisa — o teste sempre veio antes do código.
+          </li>
+          <li>
+            <strong>Confiança para refatorar:</strong> com testes já existindo desde o início, melhorar o código
+            depois se torna uma atividade segura, não arriscada.
+          </li>
+          <li>
+            <strong>Requisitos mais claros:</strong> escrever o teste primeiro obriga a pensar exatamente no
+            resultado esperado antes de programar, o que expõe ambiguidades cedo.
+          </li>
+        </ul>
+        <p>
+          Por outro lado, TDD tem um custo de disciplina e ritmo que nem sempre compensa. Para explorações rápidas,
+          protótipos descartáveis, ou código cuja forma final ainda é incerta (você não sabe bem o que está
+          construindo até experimentar), escrever testes primeiro pode atrapalhar mais do que ajudar — nesses
+          casos, muitos times preferem programar livremente primeiro e escrever os testes logo em seguida, ainda
+          no mesmo dia, quando o design já se estabilizou um pouco.
+        </p>
+
+        <div class="box box-atencao">
+          <span class="box-titulo">Atenção</span>
+          TDD não é sobre escrever qualquer teste antes: é sobre escrever <strong>um teste pequeno de cada vez</strong>
+          e avançar em passos curtos. Um erro comum é tentar escrever, de uma vez, um teste enorme cobrindo cinco
+          regras diferentes antes de qualquer código existir — isso quebra o ritmo do ciclo e faz o "red" durar
+          tempo demais, tirando o benefício de feedback rápido que é o principal valor do método. Vá com calma: um
+          caso, um teste, uma pequena implementação, refatore, repita.
+        </div>
+
+        <h2>Resumo</h2>
+        <ul class="checklist">
+          <li>TDD inverte a ordem tradicional: o teste é escrito antes do código que ele verifica.</li>
+          <li>O ciclo é red (teste falha), green (mínimo código para passar) e refactor (melhorar com segurança).</li>
+          <li>Cada novo teste deve expor um caso real ainda não coberto, guiando a implementação passo a passo.</li>
+          <li>Vantagens: design mais simples, cobertura naturalmente alta, confiança para refatorar depois.</li>
+          <li>Nem sempre vale a pena: em explorações e protótipos incertos, testar logo após programar pode ser melhor.</li>
+        </ul>
+
+        <div id="lesson-footer-nav" class="lesson-footer-nav"></div>
+      </main>
+    </div>
+  </div>
+  <script src="../../nav.js"></script>
+</body>
+</html>

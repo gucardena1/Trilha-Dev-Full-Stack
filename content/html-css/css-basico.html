@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CSS: seletores e box model — Trilha Dev Full Stack</title>
+  <link rel="stylesheet" href="../../style.css" />
+</head>
+<body>
+  <div class="layout">
+    <nav id="sidebar"></nav>
+    <div class="content-wrap">
+      <main class="content">
+        <div class="breadcrumb">2. HTML & CSS</div>
+        <h1 class="lesson-title">CSS: seletores e box model</h1>
+        <p class="lesson-subtitle">Como pintar, vestir e espaçar os elementos que o HTML já construiu.</p>
+
+        <div class="box box-analogia">
+          <span class="box-titulo">Analogia</span>
+          Se o HTML é o esqueleto da casa — paredes, cômodos, portas — o CSS é a decoração: a cor da tinta, o tipo de piso, a distância entre o sofá e a parede. <strong>CSS</strong> significa <em>Cascading Style Sheets</em>, "folhas de estilo em cascata". "Cascata" porque as regras escorrem de cima para baixo e podem se sobrepor, de um jeito bem previsível — você vai entender esse efeito ao longo da lição.
+        </div>
+
+        <h2>Como aplicar CSS a uma página</h2>
+        <p>Existem três formas de ligar CSS a um HTML, da menos recomendada à mais recomendada:</p>
+
+        <table>
+          <tr><th>Forma</th><th>Como funciona</th><th>Quando usar</th></tr>
+          <tr><td>Inline</td><td>Atributo <code>style</code> direto na tag</td><td>Quase nunca — difícil de manter.</td></tr>
+          <tr><td>Interno</td><td>Tag <code>&lt;style&gt;</code> dentro do <code>&lt;head&gt;</code></td><td>Testes rápidos, páginas únicas e pequenas.</td></tr>
+          <tr><td>Externo</td><td>Arquivo <code>.css</code> separado, ligado com <code>&lt;link&gt;</code></td><td>Padrão em qualquer projeto real.</td></tr>
+        </table>
+
+        <pre><code>&lt;!-- Inline: evite, exceto para testes rápidos --&gt;
+&lt;p style="color: red;"&gt;Texto vermelho&lt;/p&gt;
+
+&lt;!-- Interno: dentro do head --&gt;
+&lt;head&gt;
+  &lt;style&gt;
+    p { color: red; }
+  &lt;/style&gt;
+&lt;/head&gt;
+
+&lt;!-- Externo: forma recomendada --&gt;
+&lt;head&gt;
+  &lt;link rel="stylesheet" href="estilos.css" /&gt;
+&lt;/head&gt;</code></pre>
+
+        <p>
+          No arquivo <code>.css</code> externo, cada regra segue o mesmo formato: um <strong>seletor</strong> (o que vai ser estilizado), seguido de chaves com uma ou mais <strong>declarações</strong>, cada uma no formato <code>propriedade: valor;</code>.
+        </p>
+
+        <pre><code>p {
+  color: red;
+  font-size: 18px;
+}</code></pre>
+
+        <div class="box box-dica">
+          <span class="box-titulo">Dica</span>
+          Nunca esqueça o ponto e vírgula no fim de cada declaração. É um dos erros mais silenciosos: o navegador às vezes ignora a linha seguinte sem avisar nada, e você fica procurando um erro que na verdade é só um <code>;</code> faltando.
+        </div>
+
+        <h2>Seletores: escolhendo o que estilizar</h2>
+        <p>
+          O seletor é a parte antes das chaves, e existem vários tipos. Os três mais usados no dia a dia:
+        </p>
+
+        <table>
+          <tr><th>Seletor</th><th>Sintaxe</th><th>Seleciona</th></tr>
+          <tr><td>Tag</td><td><code>p { }</code></td><td>Todos os elementos <code>&lt;p&gt;</code> da página.</td></tr>
+          <tr><td>Classe</td><td><code>.destaque { }</code></td><td>Todo elemento com <code>class="destaque"</code>, podem repetir.</td></tr>
+          <tr><td>ID</td><td><code>#titulo-principal { }</code></td><td>O único elemento com <code>id="titulo-principal"</code>, não repete na página.</td></tr>
+        </table>
+
+        <pre><code>&lt;p class="destaque"&gt;Este parágrafo tem uma classe.&lt;/p&gt;
+&lt;p id="titulo-principal"&gt;Este tem um ID.&lt;/p&gt;</code></pre>
+        <pre><code>.destaque {
+  background-color: yellow;
+}
+
+#titulo-principal {
+  font-weight: bold;
+}</code></pre>
+
+        <p>
+          Pense em <strong>classe</strong> como uma etiqueta reutilizável — vários elementos podem usar <code>class="destaque"</code> — e em <strong>ID</strong> como um nome próprio, único, que só um elemento na página pode ter. Uma boa regra prática: use classes na grande maioria das vezes; reserve IDs para casos bem específicos (como um link interno de âncora na página).
+        </p>
+
+        <h2>Cores e fontes</h2>
+        <p>Cores podem ser escritas de várias formas em CSS:</p>
+        <pre><code>h1 {
+  color: red;               /* nome da cor */
+  color: #ff0000;           /* hexadecimal */
+  color: rgb(255, 0, 0);    /* vermelho, verde, azul */
+}</code></pre>
+
+        <p>Fontes são controladas por <code>font-family</code> (a fonte em si), <code>font-size</code> (tamanho) e <code>font-weight</code> (peso, de fino a negrito):</p>
+        <pre><code>body {
+  font-family: Arial, sans-serif;
+  font-size: 16px;
+  font-weight: normal;
+}
+
+h1 {
+  font-weight: bold;
+}</code></pre>
+
+        <div class="box box-dica">
+          <span class="box-titulo">Dica</span>
+          Sempre coloque uma segunda opção de fonte depois da primeira, como <code>Arial, sans-serif</code>. Se o computador de quem visita não tiver a fonte "Arial" instalada, ele cai para qualquer fonte "sans-serif" (sem serifa) disponível, em vez de usar uma fonte totalmente diferente do que você planejou.
+        </div>
+
+        <h2>O box model: todo elemento é uma caixa</h2>
+        <p>
+          Aqui está talvez a ideia mais importante do CSS: <strong>todo elemento HTML é, por baixo dos panos, uma caixa retangular</strong>. Mesmo que pareça redondo ou irregular na tela, o espaço que ele ocupa é sempre um retângulo. Esse conceito se chama <strong>box model</strong> (modelo de caixa), e ele tem quatro camadas, de dentro para fora:
+        </p>
+
+        <div class="box box-analogia">
+          <span class="box-titulo">Analogia</span>
+          Pense numa caixa de presente. O <strong>content</strong> é o presente em si. O <strong>padding</strong> é o papel de seda amassado ao redor dele, para proteger e dar espaço. O <strong>border</strong> é a própria caixa de papelão. E o <strong>margin</strong> é o espaço vazio entre essa caixa e as outras caixas de presente ao lado dela, para elas não se encostarem.
+        </div>
+
+        <table>
+          <tr><th>Camada</th><th>O que é</th></tr>
+          <tr><td><code>content</code></td><td>O conteúdo em si: o texto, a imagem.</td></tr>
+          <tr><td><code>padding</code></td><td>Espaço interno, entre o conteúdo e a borda da caixa.</td></tr>
+          <tr><td><code>border</code></td><td>A borda visível (ou não) ao redor da caixa.</td></tr>
+          <tr><td><code>margin</code></td><td>Espaço externo, entre esta caixa e as caixas vizinhas.</td></tr>
+        </table>
+
+        <pre><code>.cartao {
+  width: 300px;
+  padding: 20px;
+  border: 2px solid #333;
+  margin: 16px;
+}</code></pre>
+
+        <div class="box box-atencao">
+          <span class="box-titulo">Erro comum</span>
+          Confundir <code>margin</code> com <code>padding</code> é quase um rito de passagem de quem está aprendendo CSS. A forma mais fácil de lembrar: <code>padding</code> empurra o conteúdo <em>para dentro</em> da própria caixa (aumenta o "colchão" interno); <code>margin</code> empurra as outras caixas <em>para longe</em> da caixa atual (aumenta a distância externa). Se você quer mais espaço entre dois blocos, geralmente é <code>margin</code> que você quer.
+        </div>
+
+        <p>
+          Cada uma dessas propriedades aceita valores separados por lado, e também um atalho para os quatro lados de uma vez:
+        </p>
+        <pre><code>/* Um valor: aplica aos 4 lados */
+padding: 10px;
+
+/* Dois valores: vertical horizontal */
+padding: 10px 20px;
+
+/* Quatro valores: topo direita baixo esquerda (sentido horário) */
+padding: 10px 20px 10px 20px;
+
+/* Um lado específico */
+padding-left: 24px;
+margin-top: 8px;</code></pre>
+
+        <h2>Unidades de medida</h2>
+        <p>Escolher a unidade certa importa bastante para o resultado ficar consistente:</p>
+        <table>
+          <tr><th>Unidade</th><th>O que significa</th><th>Quando usar</th></tr>
+          <tr><td><code>px</code></td><td>Pixels, um tamanho fixo e absoluto.</td><td>Bordas finas, detalhes que não devem mudar de tamanho.</td></tr>
+          <tr><td><code>%</code></td><td>Porcentagem do elemento pai.</td><td>Larguras flexíveis que se adaptam ao espaço disponível.</td></tr>
+          <tr><td><code>rem</code></td><td>Múltiplo do tamanho de fonte da página (raiz), geralmente 16px.</td><td>Tamanhos de fonte e espaçamentos, respeita configurações de acessibilidade do usuário.</td></tr>
+          <tr><td><code>vh</code> / <code>vw</code></td><td>Porcentagem da altura/largura da janela do navegador.</td><td>Seções que devem ocupar a tela inteira, como um banner de topo.</td></tr>
+        </table>
+
+        <div class="box box-dica">
+          <span class="box-titulo">Dica</span>
+          Prefira <code>rem</code> para tamanhos de fonte em vez de <code>px</code>. Se a pessoa que visita o site aumentar o tamanho de fonte padrão do navegador (algo comum entre pessoas com baixa visão), textos em <code>rem</code> crescem junto; textos em <code>px</code> ficam travados no mesmo tamanho.
+        </div>
+
+        <h2>box-sizing: um detalhe que evita dor de cabeça</h2>
+        <p>
+          Por padrão, quando você define <code>width: 300px</code>, o CSS soma o <code>padding</code> e a <code>border</code> por cima disso — a caixa final acaba maior que 300px. Isso costuma pegar iniciantes de surpresa. A correção padrão da indústria é uma única linha no topo do CSS:
+        </p>
+        <pre><code>* {
+  box-sizing: border-box;
+}</code></pre>
+        <p>
+          Com <code>border-box</code>, o <code>width</code> passa a incluir o <code>padding</code> e a <code>border</code> dentro dele — a caixa final tem exatamente a largura que você definiu, o que é bem mais intuitivo.
+        </p>
+
+        <h2>Exemplo completo</h2>
+        <pre><code>&lt;style&gt;
+  * {
+    box-sizing: border-box;
+  }
+
+  .cartao {
+    width: 320px;
+    padding: 16px;
+    margin: 20px;
+    border: 1px solid #ccc;
+    background-color: #f5f5f5;
+    font-family: Arial, sans-serif;
+  }
+
+  .cartao h2 {
+    color: #333;
+    font-size: 1.2rem;
+  }
+&lt;/style&gt;
+
+&lt;div class="cartao"&gt;
+  &lt;h2&gt;Título do cartão&lt;/h2&gt;
+  &lt;p&gt;Um pequeno texto de exemplo dentro da caixa.&lt;/p&gt;
+&lt;/div&gt;</code></pre>
+
+        <h2>Resumo</h2>
+        <ul class="checklist">
+          <li>CSS estiliza o que o HTML já estruturou; prefira sempre um arquivo <code>.css</code> externo.</li>
+          <li>Seletores de tag, classe (<code>.nome</code>) e ID (<code>#nome</code>) escolhem o que será estilizado.</li>
+          <li>Todo elemento é uma caixa: <code>content</code>, <code>padding</code>, <code>border</code> e <code>margin</code>, de dentro para fora.</li>
+          <li><code>padding</code> empurra o conteúdo para dentro; <code>margin</code> empurra outros elementos para fora.</li>
+          <li><code>rem</code> é a melhor escolha para fontes; <code>%</code> e <code>vh</code>/<code>vw</code> para layouts flexíveis.</li>
+          <li><code>box-sizing: border-box</code> evita surpresas com o tamanho final dos elementos.</li>
+        </ul>
+
+        <div id="lesson-footer-nav" class="lesson-footer-nav"></div>
+      </main>
+    </div>
+  </div>
+  <script src="../../nav.js"></script>
+</body>
+</html>
